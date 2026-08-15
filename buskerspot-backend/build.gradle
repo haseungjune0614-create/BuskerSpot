@@ -37,6 +37,8 @@ dependencies {
     // Lombok (Getter, Setter, Builder 등 반복 코드 자동 생성)
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // JWT (JSON Web Token 라이브러리 - 토큰 기반 인증용)
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'

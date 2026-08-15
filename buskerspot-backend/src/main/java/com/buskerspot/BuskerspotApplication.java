@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class BuskerspotApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(BuskerspotApplication.java, args);
+        SpringApplication.run(BuskerspotApplication.class, args);
     }
 }

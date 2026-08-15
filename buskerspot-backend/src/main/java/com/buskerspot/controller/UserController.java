@@ -1,7 +1,8 @@
 package com.buskerspot.controller;
 
 import com.buskerspot.common.util.FileUtil;
-import com.buskerspot.entity.User;
+import com.buskerspot.config.JwtTokenProvider;
+import com.buskerspot.dto.auth.ProfileUpdateRequest;
 import com.buskerspot.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,19 +18,21 @@ public class UserController {
 
     private final UserService userService;
     private final FileUtil fileUtil;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 1. 현재 로그인한 유저 정보 조회
     @GetMapping("/me")
     public ResponseEntity<?> getMyProfile(@RequestHeader("Authorization") String token) {
-        // JwtTokenProvider를 통해 사용자 ID를 추출하고 서비스 호출
-        return ResponseEntity.ok(userService.getMyProfile(token));
+        Long userId = extractUserId(token);
+        return ResponseEntity.ok(userService.getMyProfile(userId));
     }
 
     // 2. 프로필 수정
     @PutMapping("/profile")
-    public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String token, 
-                                           @RequestBody Map<String, String> request) {
-        return ResponseEntity.ok(userService.updateProfile(token, request));
+    public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String token,
+                                           @RequestBody ProfileUpdateRequest request) {
+        Long userId = extractUserId(token);
+        return ResponseEntity.ok(userService.updateProfile(userId, request));
     }
 
     // 3. 이미지 업로드
@@ -49,5 +52,13 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getArtistProfile(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getArtistProfile(id));
+    }
+
+    // Helper 메서드: Bearer 토큰에서 userId 추출
+    private Long extractUserId(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+        return jwtTokenProvider.getUserId(token);
     }
 }
