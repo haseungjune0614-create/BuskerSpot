@@ -1,6 +1,7 @@
 package com.buskerspot.controller;
 
 import com.buskerspot.config.JwtTokenProvider;
+import com.buskerspot.dto.ReviewCreateRequest;
 import com.buskerspot.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +34,7 @@ public class ReviewController {
     // 2. 리뷰 등록 (`POST /api/reviews`)
     @PostMapping
     public ResponseEntity<?> createReview(@RequestHeader("Authorization") String authHeader,
-                                          @RequestBody Map<String, Object> request) {
+                                          @RequestBody ReviewCreateRequest request) {
         Long userId = getUserIdFromToken(authHeader);
         reviewService.createReview(userId, request);
         return ResponseEntity.status(201).body(Map.of("success", true, "message", "리뷰가 성공적으로 등록되었습니다."));

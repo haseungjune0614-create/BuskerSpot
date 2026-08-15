@@ -23,10 +23,10 @@ public class UserService {
 
     // 비속어 목록
     private final List<String> forbiddenWords = List.of(
-        '씨발', '병신', '바보', '멍청이', 'fuck', 'shit', 'bitch', 'bastard', 
-        'asshole', 'dick', 'pussy', 'slut', 'whore', 'cunt', 'nigger', 'faggot', 
-        'retard', '섹스', '새끼', '섹트', '창녀', '시발', '좌파', '친북', '메갈', 
-        '페미', '비건', '일베', '미친년', '친일파', '한녀', '보지', '자지', '꼬추'
+        "씨발", "병신", "바보", "멍청이", "fuck", "shit", "bitch", "bastard", 
+        "asshole", "dick", "pussy", "slut", "whore", "cunt", "nigger", "faggot", 
+        "retard", "섹스", "새끼", "섹트", "창녀", "시발", "좌파", "친북", "메갈", 
+        "페미", "비건", "일베", "미친년", "친일파", "한녀", "보지", "자지", "꼬추"
     );
 
     private boolean containsForbiddenWord(String text) {
