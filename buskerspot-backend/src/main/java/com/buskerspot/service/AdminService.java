@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -48,11 +47,20 @@ public class AdminService {
         Performance performance = performanceRepository.findById(performanceId)
                 .orElseThrow(() -> new CustomException("존재하지 않는 공연입니다.", HttpStatus.NOT_FOUND));
 
-        performance.setApprovalStatus(approvalStatus); // 예: 'APPROVED', 'REJECTED'
+        performance.setApprovalStatus(approvalStatus);
         return performanceRepository.save(performance);
     }
 
-    // 5. 관리자 권한 검증 헬퍼 메서드
+    // 5. [신규] 사용자 권한 변경 (관리자용)
+    @Transactional
+    public User updateUserRole(Long targetUserId, String role) {
+        User user = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+        user.setRole(role);
+        return userRepository.save(user);
+    }
+
+    // 6. 관리자 권한 검증 헬퍼 메서드
     private void validateAdmin(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));

@@ -2,9 +2,9 @@ package com.buskerspot.service;
 
 import com.buskerspot.common.exception.CustomException;
 import com.buskerspot.config.JwtTokenProvider;
-import com.buskerspot.dto.LoginRequest;
-import com.buskerspot.dto.ProfileUpdateRequest;
-import com.buskerspot.dto.RegisterRequest;
+import com.buskerspot.dto.auth.LoginRequest;
+import com.buskerspot.dto.auth.ProfileUpdateRequest;
+import com.buskerspot.dto.auth.RegisterRequest;
 import com.buskerspot.entity.User;
 import com.buskerspot.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -58,8 +58,8 @@ public class AuthService {
             throw new CustomException("비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
         }
 
-        // JWT 토큰 생성 (아티스트/일반 유저 권한 정보 포함 가능)
-        String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole());
+        // JWT 토큰 생성 (id, email, role, nickname)
+        String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole(), user.getNickname());
 
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);

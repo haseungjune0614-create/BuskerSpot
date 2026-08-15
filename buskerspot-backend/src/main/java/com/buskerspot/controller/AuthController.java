@@ -2,9 +2,9 @@ package com.buskerspot.controller;
 
 import com.buskerspot.common.util.FileUtil;
 import com.buskerspot.config.JwtTokenProvider;
-import com.buskerspot.dto.LoginRequest;
-import com.buskerspot.dto.ProfileUpdateRequest;
-import com.buskerspot.dto.RegisterRequest;
+import com.buskerspot.dto.auth.LoginRequest;
+import com.buskerspot.dto.auth.ProfileUpdateRequest;
+import com.buskerspot.dto.auth.RegisterRequest;
 import com.buskerspot.entity.User;
 import com.buskerspot.service.UserService;
 import lombok.RequiredArgsConstructor;
