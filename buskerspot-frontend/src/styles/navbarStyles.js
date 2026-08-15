@@ -1,0 +1,112 @@
+export const mainStyles = {
+  navbar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '14px 32px',
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    backdropFilter: 'blur(14px)',
+    WebkitBackdropFilter: 'blur(14px)',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100,
+    boxShadow: '0 10px 30px -18px rgba(41, 37, 36, 0.25)'
+  },
+  logoContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    cursor: 'pointer',
+    fontSize: '1.4rem',
+    fontWeight: '900',
+    letterSpacing: '-0.03em',
+    backgroundImage: 'linear-gradient(120deg, #ff8c00 0%, #fa5252 55%, #ff6b9d 100%)',
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    color: 'transparent'
+  },
+  menuGroup: {
+    display: 'flex',
+    gap: '4px',
+    alignItems: 'center',
+    backgroundColor: '#faf6f2',
+    padding: '5px',
+    borderRadius: '999px',
+    boxShadow: 'inset 0 0 0 1px rgba(41,37,36,0.04)'
+  },
+  navBtn: {
+    padding: '9px 18px',
+    borderRadius: '999px',
+    border: 'none',
+    backgroundColor: 'transparent',
+    fontSize: '0.88rem',
+    fontWeight: '700',
+    color: '#a8a29e',
+    cursor: 'pointer',
+    transition: 'all 0.25s cubic-bezier(.4,0,.2,1)'
+  },
+  navBtnActive: {
+    backgroundImage: 'linear-gradient(135deg, #ff8c00, #ffab40)',
+    backgroundColor: '#ff8c00', // 폴백 컬러 추가
+    color: '#ffffff',
+    boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)'
+  },
+  navBtnBookmark: {
+    padding: '9px 18px',
+    borderRadius: '999px',
+    border: 'none',
+    backgroundColor: 'transparent',
+    fontSize: '0.88rem',
+    fontWeight: '700',
+    color: '#fa5252',
+    cursor: 'pointer',
+    transition: 'all 0.25s cubic-bezier(.4,0,.2,1)'
+  },
+  navBtnBookmarkActive: {
+    backgroundImage: 'linear-gradient(135deg, #fa5252, #ff8787)',
+    backgroundColor: '#fa5252', // 폴백 컬러 추가
+    color: '#ffffff',
+    boxShadow: '0 8px 18px -6px rgba(250,82,82,0.5)'
+  },
+  actionGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px'
+  },
+  registerBtn: {
+    backgroundImage: 'linear-gradient(135deg, #ff8c00, #fa5252)',
+    backgroundColor: '#ff8c00', // 폴백 컬러 추가
+    color: '#ffffff',
+    padding: '11px 22px',
+    borderRadius: '999px',
+    border: 'none',
+    fontWeight: '800',
+    fontSize: '0.88rem',
+    cursor: 'pointer',
+    boxShadow: '0 10px 22px -6px rgba(250,82,82,0.55)',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+  },
+  userChip: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '7px 14px',
+    backgroundImage: 'linear-gradient(135deg, #fff7ed, #fff1f2)',
+    backgroundColor: '#fff7ed', // 폴백 컬러 추가
+    borderRadius: '999px',
+    fontSize: '0.88rem',
+    fontWeight: '700',
+    color: '#44403c'
+  },
+  subActionBtn: {
+    padding: '9px 16px',
+    borderRadius: '999px',
+    border: 'none',
+    backgroundColor: '#faf6f2',
+    fontSize: '0.85rem',
+    fontWeight: '700',
+    color: '#57534e',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease'
+  }
+};
