@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
+}
+
+group = 'com.buskerspot'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Web (REST API 컨트롤러 구축용)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Data JPA (데이터베이스 ORM 연동용)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Spring Security (보안 및 인증용, 기존 Express auth.js 대체)
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // PostgreSQL Database Driver (PostgreSQL 연결용)
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Lombok (Getter, Setter, Builder 등 반복 코드 자동 생성)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // JWT (JSON Web Token 라이브러리 - 토큰 기반 인증용)
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // Spring Boot Test (테스트 코드 작성용)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

@@ -1,0 +1,585 @@
+/* ==========================================
+   1. 기본 초기화 & 전체 레이아웃
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  background-color: #f8f9fa;
+  color: #333;
+  overflow-x: hidden; /* 모바일에서 가로 스크롤 발생 방지 */
+}
+
+.buskerspot-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ==========================================
+   2. 상단 네비게이션 바 (Header)
+   ========================================== */
+.navbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e9ecef;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #2b4bee;
+  cursor: pointer;
+}
+
+.nav-menu a {
+  margin: 0 15px;
+  text-decoration: none;
+  color: #495057;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+  color: #2b4bee;
+}
+
+.nav-auth {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-profile-menu {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.welcome-text {
+  font-size: 0.9rem;
+  color: #343a40;
+}
+
+.btn-register-busking {
+  background: #2b4bee;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-register-busking:hover {
+  background: #1c3bbd;
+}
+
+.btn-login,
+.btn-logout {
+  background: #f1f3f5;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #495057;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-login:hover,
+.btn-logout:hover {
+  background: #e9ecef;
+}
+
+/* 모바일 햄버거 메뉴 버튼 (기본 숨김, 768px 이하에서 표시) */
+.btn-hamburger {
+  display: none;
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #212529;
+  padding: 6px 10px;
+}
+
+/* ==========================================
+   3. 히어로 & 검색/필터 바
+   ========================================== */
+.hero-section {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: white;
+  padding: 45px 20px 55px;
+  text-align: center;
+}
+
+.hero-content h1 {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: -0.5px;
+}
+
+.hero-content p {
+  color: #94a3b8;
+  font-size: 1rem;
+  margin-bottom: 30px;
+}
+
+.filter-bar {
+  background: white;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 14px 18px;
+  border-radius: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1;
+  border-right: none;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.filter-label {
+  font-size: 0.75rem;
+  color: #64748b;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.filter-item input,
+.filter-item select {
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn-search {
+  background: #2b4bee;
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-search:hover {
+  background: #1c3bbd;
+}
+
+/* ==========================================
+   4. 메인 콘텐츠 (목록 + 지도 2분할 레이아웃)
+   ========================================== */
+.main-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 30px auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.list-section {
+  flex: 1;
+  width: 100%;
+  min-width: 0; /* flex item이 내부 콘텐츠 때문에 넘치는 것 방지 */
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.list-header h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.list-header h3 span {
+  color: #2b4bee;
+  font-size: 0.95rem;
+}
+
+.btn-toggle-map {
+  background: white;
+  border: 1px solid #ced4da;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.map-section {
+  flex: 1;
+  position: sticky;
+  top: 90px;
+  height: calc(100vh - 130px);
+  min-height: 500px;
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  background: #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================
+   5. 버스킹 카드 (Performance Card)
+   ========================================== */
+.performance-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #f1f3f5;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.performance-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.card-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 65px;
+}
+
+.card-time .time {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.status {
+  font-size: 0.7rem;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.status.live {
+  background: #ffe3e3;
+  color: #e03131;
+}
+
+.status.upcoming {
+  background: #e7f5ff;
+  color: #1c7ed6;
+}
+
+.status.ended {
+  background: #e9ecef;
+  color: #868e96;
+}
+
+.card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-tags {
+  margin-bottom: 6px;
+}
+
+.tag {
+  font-size: 0.75rem;
+  background: #f1f3f5;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #495057;
+  margin-right: 6px;
+}
+
+.location-tag {
+  background: #eef2ff;
+  color: #2b4bee;
+}
+
+.artist-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 4px;
+}
+
+.description {
+  font-size: 0.85rem;
+  color: #6c757d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-detail {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  padding: 9px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-detail:hover {
+  background: #e9ecef;
+}
+
+/* ==========================================
+   6. 모달 및 팝업 스타일
+   ========================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.map-artist-popup {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 30;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  max-width: 300px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #666;
+  z-index: 40;
+}
+
+/* ==========================================
+   7. 반응형 미디어 쿼리 (모바일 및 태블릿 대응)
+   ========================================== */
+@media screen and (max-width: 968px) {
+  /* 메인 2분할 레이아웃을 세로(위아래)로 전환 */
+  .main-container {
+    flex-direction: column;
+    padding: 0 12px;
+    margin: 15px auto;
+  }
+
+  /* 모바일에서는 지도를 위나 아래에 적절한 높이로 고정 */
+  .map-section {
+    position: relative;
+    top: 0;
+    width: 100%;
+    height: 320px;
+    min-height: 320px;
+    margin-top: 20px;
+  }
+
+  /* 필터 바를 세로 정렬로 변경하여 모바일 화면에 맞춤 */
+  .filter-bar {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .filter-item {
+    width: 100%;
+  }
+
+  .btn-search {
+    width: 100%;
+    padding: 12px;
+  }
+
+  /* 데스크탑 텍스트 메뉴는 숨기고 햄버거 버튼으로 대체 */
+  .nav-menu {
+    display: none;
+  }
+
+  .btn-hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-container {
+    padding: 12px 16px;
+  }
+
+  .welcome-text {
+    display: none; /* 좁은 화면에서는 텍스트 대신 아바타/아이콘만 노출 권장 */
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .hero-section {
+    padding: 30px 14px 36px;
+  }
+
+  .hero-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero-content p {
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  /* 모바일에서 버스킹 카드 내부 요소 배치 조정 */
+  .performance-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 15px;
+  }
+
+  .card-time {
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .status {
+    margin-top: 0;
+  }
+
+  .btn-detail {
+    width: 100%;
+    text-align: center;
+  }
+
+  .nav-auth {
+    gap: 6px;
+  }
+
+  .btn-register-busking,
+  .btn-login,
+  .btn-logout {
+    padding: 7px 12px;
+    font-size: 0.82rem;
+  }
+
+  .modal-content {
+    padding: 20px;
+  }
+
+  .map-artist-popup {
+    right: 10px;
+    bottom: 10px;
+    max-width: calc(100vw - 40px);
+  }
+}
+
+@media screen and (max-width: 380px) {
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .hero-content h1 {
+    font-size: 1.3rem;
+  }
+}

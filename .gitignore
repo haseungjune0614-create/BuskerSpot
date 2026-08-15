@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Local environment variables (.env 관련 파일 전체 일괄 제외)
+.env
+.env.*
+!.env.example
+
+# Local Database & Logs
+database/
+*.log
+
+# DB 덤프 파일 추적 안 함
+*.dump
+*.sql
+*.tar
