@@ -28,16 +28,26 @@ public class AdminController {
     }
 
     // 2. [공연 관리] 공연 상태 변경 (APPROVED 등)
-    @PatchMapping("/performances/{id}/status")
-    public ResponseEntity<?> updatePerformanceStatus(@PathVariable("id") Long id, @RequestBody Map<String, String> req) {
-        return ResponseEntity.ok(perfService.updateStatus(id, req.get("status")));
-    }
+@PatchMapping("/performances/{id}/status")
+public ResponseEntity<?> updatePerformanceStatus(@PathVariable("id") Long id, @RequestBody Map<String, String> req) {
+    var updated = perfService.updateStatus(id, req.get("status"));
+    return ResponseEntity.ok(Map.of(
+        "success", true,
+        "message", "공연 상태가 성공적으로 변경되었습니다.",
+        "performance", updated
+    ));
+}
 
-    // 3. [공연 관리] 공연 지역 수정
-    @PatchMapping("/performances/{id}/region")
-    public ResponseEntity<?> updatePerformanceRegion(@PathVariable("id") Long id, @RequestBody Map<String, String> req) {
-        return ResponseEntity.ok(perfService.updateRegion(id, req.get("region")));
-    }
+// 3. [공연 관리] 공연 지역 수정
+@PatchMapping("/performances/{id}/region")
+public ResponseEntity<?> updatePerformanceRegion(@PathVariable("id") Long id, @RequestBody Map<String, String> req) {
+    var updated = perfService.updateRegion(id, req.get("region"));
+    return ResponseEntity.ok(Map.of(
+        "success", true,
+        "message", "지역이 성공적으로 수정되었습니다.",
+        "performance", updated
+    ));
+}
 
     // 4. [회원 관리] 전체 회원 조회
     @GetMapping("/users")

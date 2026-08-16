@@ -754,37 +754,40 @@ function App() {
     let matchedPerfs = [];
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/performances?search=${encodeURIComponent(trimmedKey)}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.performances) {
-          matchedPerfs = data.performances;
-        } else if (Array.isArray(data)) {
-          matchedPerfs = data;
-        }
-      }
-    } catch (err) {
-      console.warn('검색 API 호출 실패, 로컬 데이터로 대체합니다.');
+  const res = await fetch(`${API_BASE_URL}/api/performances?keyword=${encodeURIComponent(trimmedKey)}`);
+  if (res.ok) {
+    const data = await res.json();
+    if (data.success && data.performances) {
+      matchedPerfs = data.performances;
+    } else if (Array.isArray(data)) {
+      matchedPerfs = data;
     }
+  }
+} catch (err) {
+  console.warn('검색 API 호출 실패, 로컬 데이터로 대체합니다.');
+}
 
-    const safePerformances = Array.isArray(performances) ? performances : [];
-    const localMatchedPerfs = safePerformances.filter(p => {
-      const targetStr = [
-        p.title, 
-        p.region, 
-        p.location_name, 
-        p.genre, 
-        p.stage_name, 
-        p.organizer_name,
-        p.description
-      ].join(' ').toLowerCase();
+// 💡 API 결과도 안전하게 다시 한 번 로컬 필터링 (파라미터 불일치 등으로 인한 오염 방지)
+const filterByKeyword = (p) => {
+  const targetStr = [
+    p.title,
+    p.region,
+    p.location_name,
+    p.genre,
+    p.stage_name,
+    p.organizer_name,
+    p.description
+  ].join(' ').toLowerCase();
+  return targetStr.includes(searchKey) || targetStr.includes(trimmedKey.toLowerCase());
+};
 
-      return targetStr.includes(searchKey) || targetStr.includes(trimmedKey.toLowerCase());
-    });
+const safePerformances = Array.isArray(performances) ? performances : [];
+const localMatchedPerfs = safePerformances.filter(filterByKeyword);
+const apiMatchedPerfs = matchedPerfs.filter(filterByKeyword); // 💡 API 결과도 반드시 필터링
 
-    const allPerfsMap = new Map();
-     [...matchedPerfs, ...localMatchedPerfs].forEach(p => allPerfsMap.set(p.id, p));
-    const finalPerfs = Array.from(allPerfsMap.values());
+const allPerfsMap = new Map();
+[...apiMatchedPerfs, ...localMatchedPerfs].forEach(p => allPerfsMap.set(p.id, p));
+const finalPerfs = Array.from(allPerfsMap.values());
 
     const artistMap = new Map();
     safePerformances.forEach(p => {
