@@ -1,7 +1,9 @@
 package com.buskerspot.service;
 
 import com.buskerspot.common.exception.CustomException;
+import com.buskerspot.entity.Follow;
 import com.buskerspot.entity.Notification;
+import com.buskerspot.repository.FollowRepository;
 import com.buskerspot.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,6 +18,22 @@ import java.util.Map;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final FollowRepository followRepository;
+
+    // 0. [신규] 특정 아티스트를 팔로우하는 모든 유저에게 알림 생성
+    @Transactional
+    public void notifyFollowers(Long artistId, String message) {
+        List<Follow> followers = followRepository.findByFollowingId(artistId);
+        for (Follow follow : followers) {
+            Notification notification = Notification.builder()
+                    .userId(follow.getFollowerId())
+                    .artistId(artistId)
+                    .type("INFO") // 💡 알림 타입 지정 (프로젝트 규칙에 맞게 'FOLLOW', 'PERFORMANCE' 등으로 변경 가능)
+                    .message(message)
+                    .build();
+            notificationRepository.save(notification);
+        }
+    }
 
     // 1. 내 알림 목록 조회 (최신순)
     public Map<String, Object> getMyNotifications(Long userId) {

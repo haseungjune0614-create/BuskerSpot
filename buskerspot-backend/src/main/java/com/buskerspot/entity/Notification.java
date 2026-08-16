@@ -1,5 +1,6 @@
 package com.buskerspot.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,8 +16,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor // @Builder 어노테이션 사용을 위해 필수입니다.
-@Builder            // Notification.builder()를 통해 객체를 생성할 수 있게 합니다.
+@AllArgsConstructor
+@Builder
 public class Notification {
 
     @Id
@@ -26,35 +27,22 @@ public class Notification {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    @Column(name = "artist_id", nullable = false)
+    private Long artistId;
+
+    // 💡 DB의 type NOT NULL 제약조건 대응을 위한 필드 추가
+    @Column(name = "type", nullable = false)
+    private String type;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 
     @Builder.Default
     @Column(name = "is_read", nullable = false)
+    @JsonProperty("is_read")
     private boolean isRead = false;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    // ==========================================
-    // [서비스 레이어 하위 호환 및 편의 메서드]
-    // ==========================================
-
-    // Lombok의 primitive boolean 명명 규칙 차이로 인한 setRead() 컴파일 오류 예방
-    public boolean isRead() {
-        return this.isRead;
-    }
-
-    public void setRead(boolean isRead) {
-        this.isRead = isRead;
-    }
-
-    public boolean getIsRead() {
-        return this.isRead;
-    }
-
-    public void setIsRead(boolean isRead) {
-        this.isRead = isRead;
-    }
 }

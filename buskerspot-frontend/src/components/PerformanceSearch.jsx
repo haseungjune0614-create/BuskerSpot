@@ -161,7 +161,7 @@ export default function PerformanceSearch({
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('blob:')) return imagePath;
-    return `http://localhost:5000${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+    return `http://localhost:8080${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
   };
 
   const handleGetMyCurrentLocation = () => {
@@ -516,7 +516,7 @@ export default function PerformanceSearch({
                         {profileImg ? (
                           <img
                             src={profileImg}
-                            alt={perf.stage_name || '아티스트'}
+                            alt={perf.artist_nickname || perf.stage_name || '아티스트'}
                             onClick={(e) => {
                               e.stopPropagation();
                               if (onImageClick) onImageClick(profileImg);
@@ -531,7 +531,7 @@ export default function PerformanceSearch({
                         {isMobile && (
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 800, color: C.text, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                              {perf.stage_name || perf.organizer_name}
+                              {perf.artist_nickname || perf.stage_name || perf.organizer_name}
                             </h4>
                             <span style={{ fontSize: '11px', fontWeight: 600, color: C.textMuted }}>{perf.location_name || perf.region}</span>
                           </div>
@@ -545,7 +545,7 @@ export default function PerformanceSearch({
                           {distanceText && <span style={{ fontSize: '11px', fontWeight: 600, color: C.teal, background: C.tealDim, padding: '3px 9px', borderRadius: '999px' }}>{distanceText}</span>}
                         </div>
                         {!isMobile && (
-                          <h4 style={{ margin: '0 0 4px 0', fontSize: '1.02rem', fontWeight: 800, color: C.text }}>{perf.stage_name || perf.organizer_name}</h4>
+                          <h4 style={{ margin: '0 0 4px 0', fontSize: '1.02rem', fontWeight: 800, color: C.text }}>{perf.artist_nickname || perf.stage_name || perf.organizer_name}</h4>
                         )}
                         <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: C.textMuted, marginBottom: '4px' }}>
                           <span>👥 {perf.follower_count ?? perf.followers ?? 0}명</span>
@@ -579,10 +579,11 @@ export default function PerformanceSearch({
                           onClick={(e) => {
                             e.stopPropagation();
                             if (setSelectedArtistProfile) {
+                            console.log("DEBUG nickname check:", perf.artist_nickname, perf.stage_name, perf.id);
                               const artistId = perf.artist_id || perf.user_id;
                               setSelectedArtistProfile({
                                 artist_id: artistId,
-                                stage_name: perf.stage_name || perf.organizer_name,
+                                stage_name: perf.artist_nickname || perf.stage_name || perf.organizer_name,
                                 genre: perf.genre || 'Acoustic',
                                 profile_image: perf.artist_profile_image || perf.profile_image,
                                 instagram_url: perf.artist_instagram_url || perf.instagram_url,
