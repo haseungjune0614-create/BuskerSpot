@@ -1,5 +1,5 @@
 server:
-  port: 5000 # Node.js와 동일하게 5000번 포트 사용
+  port: 8080 # Node.js와 동일하게 5000번 포트 사용
 
 spring:
   datasource:
@@ -40,3 +40,10 @@ api:
     rest-key: 1288a46c1221b166bc863a8c66516afe
     client-secret: ovvR9Fo8StMuxeBIKk0ZbAy3jBeCxipS
     redirect-uri: http://localhost:3000/oauth/kakao/callback
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

@@ -142,7 +142,7 @@ function PerformanceDetailModal({
   const fetchReviews = useCallback(async () => {
     if (!perfId) return;
     try {
-      const response = await fetch(`http://localhost:5000/api/performances/${perfId}/reviews`);
+      const response = await fetch(`http://localhost:8080/api/reviews/${perfId}`);
       if (response.ok) {
         const data = await response.json();
         setReviews(data);
@@ -175,7 +175,7 @@ function PerformanceDetailModal({
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/reviews', {
+      const response = await fetch('http://localhost:8080/api/reviews', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -309,7 +309,7 @@ function PerformanceDetailModal({
           <ArtistProfile
             artist={{
               artist_id: artistId,
-              stage_name: performance.stage_name || performance.organizer_name,
+              stage_name: performance.artist_nickname || performance.stage_name || performance.organizer_name,
               genre: performance.genre,
               profile_image: performance.artist_profile_image || performance.profile_image,
               introduction: performance.artist_introduction || performance.introduction,

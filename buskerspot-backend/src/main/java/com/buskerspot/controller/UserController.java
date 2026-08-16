@@ -3,6 +3,7 @@ package com.buskerspot.controller;
 import com.buskerspot.common.util.FileUtil;
 import com.buskerspot.config.JwtTokenProvider;
 import com.buskerspot.dto.auth.ProfileUpdateRequest;
+import com.buskerspot.entity.User;
 import com.buskerspot.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,9 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<?> getMyProfile(@RequestHeader("Authorization") String token) {
         Long userId = extractUserId(token);
-        return ResponseEntity.ok(userService.getMyProfile(userId));
+        User user = userService.getMyProfile(userId);
+        user.setPassword(null); // 💡 비밀번호 해시값 노출 방지
+        return ResponseEntity.ok(Map.of("success", true, "user", user));
     }
 
     // 2. 프로필 수정
@@ -32,7 +35,9 @@ public class UserController {
     public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String token,
                                            @RequestBody ProfileUpdateRequest request) {
         Long userId = extractUserId(token);
-        return ResponseEntity.ok(userService.updateProfile(userId, request));
+        User updatedUser = userService.updateProfile(userId, request);
+        updatedUser.setPassword(null); // 💡 비밀번호 해시값 노출 방지
+        return ResponseEntity.ok(Map.of("success", true, "user", updatedUser));
     }
 
     // 3. 이미지 업로드
@@ -45,13 +50,17 @@ public class UserController {
     // 4. 아티스트 검색
     @GetMapping("/search-artist")
     public ResponseEntity<?> searchArtist(@RequestParam String keyword) {
-        return ResponseEntity.ok(userService.searchArtists(keyword));
+        var artists = userService.searchArtists(keyword);
+        artists.forEach(a -> a.setPassword(null)); // 💡 비밀번호 해시값 노출 방지
+        return ResponseEntity.ok(Map.of("success", true, "artists", artists));
     }
 
     // 5. 아티스트 프로필 조회 (id 기반)
     @GetMapping("/{id}")
     public ResponseEntity<?> getArtistProfile(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getArtistProfile(id));
+        User artist = userService.getArtistProfile(id);
+        artist.setPassword(null); // 💡 비밀번호 해시값 노출 방지
+        return ResponseEntity.ok(Map.of("success", true, "user", artist));
     }
 
     // Helper 메서드: Bearer 토큰에서 userId 추출

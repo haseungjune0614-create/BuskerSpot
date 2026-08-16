@@ -16,6 +16,9 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     // 3. 특정 유저의 팔로워 수 조회
     long countByFollowingId(Long followingId);
 
+    // 6. [신규] 특정 아티스트를 팔로우하는 팔로워 목록 조회 (알림 발송용)
+    java.util.List<Follow> findByFollowingId(Long followingId);
+
     // 4. 특정 유저가 팔로잉하는 수 조회
     long countByFollowerId(Long followerId);
 

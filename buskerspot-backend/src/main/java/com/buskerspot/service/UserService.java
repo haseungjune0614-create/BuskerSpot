@@ -22,6 +22,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final NotificationService notificationService;
 
     private final List<String> forbiddenWords = List.of(
         "씨발", "병신", "바보", "멍청이", "fuck", "shit", "bitch", "bastard",
@@ -99,12 +100,16 @@ public class UserService {
                 .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         String newNickname = request.getNickname();
+        boolean nicknameChanged = false;
         if (newNickname != null) {
             if (containsForbiddenWord(newNickname)) {
                 throw new CustomException("사용할 수 없는 비속어가 포함된 닉네임입니다.", HttpStatus.BAD_REQUEST);
             }
             if (userRepository.existsByNicknameAndIdNot(newNickname, userId)) {
                 throw new CustomException("이미 사용 중인 닉네임입니다.", HttpStatus.BAD_REQUEST);
+            }
+            if (!newNickname.equals(user.getNickname())) {
+                nicknameChanged = true;
             }
             user.setNickname(newNickname);
         }
@@ -115,7 +120,11 @@ public class UserService {
         if (request.getProfileImage() != null) user.setProfileImage(request.getProfileImage());
         if (request.getInstagramUrl() != null) user.setInstagramUrl(request.getInstagramUrl());
 
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        if (nicknameChanged) {
+            notificationService.notifyFollowers(saved.getId(), "팔로우하신 아티스트가 닉네임을 " + saved.getNickname() + "(으)로 변경했습니다.");
+        }
+        return saved;
     }
 
     public List<User> searchArtists(String keyword) {

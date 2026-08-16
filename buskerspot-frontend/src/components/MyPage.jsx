@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './../App.css';
 
 // 배포 환경에서는 REACT_APP_API_URL 환경변수를 사용하고,
-// 로컬 개발 환경에서는 localhost:5000으로 폴백합니다.
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// 로컬 개발 환경에서는 localhost:8080으로 폴백합니다.
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 // 💡 오늘 날짜 문자열(YYYY-MM-DD)을 구하는 유틸 함수
 const getTodayDateStr = () => {
@@ -14,7 +14,7 @@ const getTodayDateStr = () => {
   return `${year}-${month}-${day}`;
 };
 
-const MyPage = ({ currentUser, onUpdateUser, onLogout }) => {
+const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [withdrawPassword, setWithdrawPassword] = useState('');
@@ -22,10 +22,10 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout }) => {
   const [activeModal, setActiveModal] = useState(null);
 
   const [nickname, setNickname] = useState(currentUser?.nickname || '');
-  const [profileImage, setProfileImage] = useState(currentUser?.profile_image || '');
+  const [profileImage, setProfileImage] = useState(currentUser?.profileImage || '');
   const [introduction, setIntroduction] = useState(currentUser?.introduction || '');
   const [genre, setGenre] = useState(currentUser?.genre || '');
-  const [instagramUrl, setInstagramUrl] = useState(currentUser?.instagram_url || '');
+  const [instagramUrl, setInstagramUrl] = useState(currentUser?.instagramUrl || '');
 
   const [myPerformances, setMyPerformances] = useState([]);
   const [editingPerformance, setEditingPerformance] = useState(null);
@@ -43,10 +43,10 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout }) => {
   useEffect(() => {
     if (currentUser) {
       setNickname(currentUser.nickname || '');
-      setProfileImage(currentUser.profile_image || '');
+     setProfileImage(currentUser.profileImage || '');
       setIntroduction(currentUser.introduction || '');
       setGenre(currentUser.genre || '');
-      setInstagramUrl(currentUser.instagram_url || '');
+      setInstagramUrl(currentUser.instagramUrl || '');
     }
   }, [currentUser]);
 
@@ -191,7 +191,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout }) => {
     formData.append('image', file);
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/upload-image`, {
+    const res = await fetch(`${API_URL}/api/users/upload-image`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -213,25 +213,25 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout }) => {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch(`${API_URL}/api/auth/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ 
-          nickname, 
-          profile_image: profileImage, 
-          introduction, 
-          genre,
-          instagram_url: instagramUrl
-        })
-      });
+      const res = await fetch(`${API_URL}/api/users/profile`, {   // /api/users/profile 로 수정
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({ 
+  nickname, 
+  profileImage: profileImage,      // profile_image → profileImage
+  introduction, 
+  genre,
+  instagramUrl: instagramUrl       // instagram_url → instagramUrl
+})
+});
 
       const data = await res.json();
       if (data.success) {
         alert('프로필이 성공적으로 수정되었습니다.');
-        const updatedUser = data.user || { ...currentUser, nickname, profile_image: profileImage, introduction, genre, instagram_url: instagramUrl };
+        const updatedUser = data.user || { ...currentUser, nickname, profileImage: profileImage, introduction, genre, instagramUrl: instagramUrl };
         localStorage.setItem('user', JSON.stringify(updatedUser));
         if (onUpdateUser) {
           onUpdateUser(updatedUser);
@@ -343,6 +343,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout }) => {
         setEditingPerformance(null);
         setActionReason('');
         fetchMyPerformances();
+        if (onDataRefresh) onDataRefresh();
       } else {
         alert(data.message || '공연 수정 실패');
       }
@@ -375,6 +376,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout }) => {
         setDeletingPerformance(null);
         setActionReason('');
         fetchMyPerformances();
+        if (onDataRefresh) onDataRefresh();
       } else {
         alert(data.message || '공연 삭제 실패');
       }
@@ -430,9 +432,9 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout }) => {
             {currentUser?.role === 'ARTIST' && genre && (
               <span style={styles.bannerBadge}>🎵 {genre}</span>
             )}
-            {currentUser?.instagram_url && (
+            {currentUser?.instagramUrl && (
               <a 
-                href={currentUser.instagram_url} 
+                href={currentUser.instagramUrl} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 style={styles.bannerLinkBadge}

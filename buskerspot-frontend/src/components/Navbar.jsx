@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { mainStyles } from '../styles/navbarStyles';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 const useIsMobile = (breakpoint = 860) => {
   const [isMobile, setIsMobile] = useState(
@@ -26,7 +26,7 @@ const getTodayDateStr = () => {
   return `${year}-${month}-${day}`;
 };
 
-export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAuthModal, onOpenRegisterModal, onLogout, onSearch, onRegisterSearchOpen }) {
+export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAuthModal, onOpenRegisterModal, onLogout, onSearch, onRegisterSearchOpen, unreadCount = 0 }) {
   const [artistKeyword, setArtistKeyword] = useState('');
 
   // 독립된 통합검색 페이지(오버레이) 열림 여부 상태
@@ -36,7 +36,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
   // 실시간 인기 검색어 상태 추가
   const [popularKeywords, setPopularKeywords] = useState(['어쿠스틱', '힙합', '인디밴드', '홍대', '강남', '발라드', '재즈']);
 
-  const [notifications, setNotifications] = useState([]);
+  
   const isMobile = useIsMobile(860);
 
   const artistUserKey = currentUser ? `artist_search_history_${currentUser.id || currentUser.email}` : null;
@@ -63,13 +63,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
     }
   }, [artistUserKey]);
 
-  useEffect(() => {
-    if (currentUser) {
-      fetchNotifications();
-    } else {
-      setNotifications([]);
-    }
-  }, [currentUser]);
+  
 
   const fetchRecentPerformances = useCallback(async () => {
     try {
@@ -110,22 +104,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
     }
   }, [isSearchPageOpen, fetchRecentPerformances, fetchPopularKeywords]);
 
-  const fetchNotifications = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
-    try {
-      const res = await fetch(`${API_URL}/api/notifications`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) {
-        setNotifications(data.notifications);
-      }
-    } catch (err) {
-      console.error('알림 목록을 불러오는 중 오류가 발생했습니다:', err);
-    }
-  };
+ 
 
   const saveArtistSearchHistory = (query) => {
     if (!query || !query.trim() || !artistUserKey) return;
@@ -193,7 +172,6 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   const navItems = [
     { key: 'search', label: '공연 찾기' },

@@ -10,7 +10,7 @@ import RegisterPerformanceModal from './components/RegisterPerformanceModal';
 import Navbar from './components/Navbar';
 
 // React (Create React App) 기준 환경변수 설정
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 // 이미지 URL 처리 헬퍼 함수
 const getImageUrl = (path) => {
@@ -356,10 +356,10 @@ function NotificationsPage({ currentUser, performances, setDetailModalPerf }) {
       });
       const data = await res.json();
       if (data.success) {
-        setNotifications((prev) =>
-          Array.isArray(prev) ? prev.map((n) => (n.id === notifId ? { ...n, is_read: true } : n)) : []
-        );
-      }
+  setNotifications((prev) =>
+    Array.isArray(prev) ? prev.map((n) => (n.id === notifId ? { ...n, is_read: true } : n)) : []
+  );
+}
     } catch (err) {
       console.error('알림 읽음 처리 실패:', err);
     }
@@ -489,6 +489,26 @@ function App() {
     const savedUser = localStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
+
+  // 💡 안 읽은 알림 개수
+  const [unreadCount, setUnreadCount] = useState(0);
+  const fetchUnreadCount = useCallback(async () => {
+    if (!currentUser) { setUnreadCount(0); return; }
+    const token = localStorage.getItem('token') || currentUser?.token;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/notifications`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.notifications)) {
+        setUnreadCount(data.notifications.filter(n => !n.is_read).length);
+      }
+    } catch (err) {
+      console.error('안 읽은 알림 개수 조회 실패:', err);
+    }
+  }, [currentUser]);
+
+  useEffect(() => { fetchUnreadCount(); }, [fetchUnreadCount]);
   
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
@@ -589,12 +609,12 @@ function App() {
         }
       }
 
-      // 북마크 목록
+      // 북마크 목록 (💡 백엔드는 'performances' 키로 공연 객체 배열을 반환하므로 id만 추출)
       const bookmarkRes = await fetch(`${API_BASE_URL}/api/performances/my-bookmarks`, { headers });
       if (bookmarkRes.ok) {
         const bookmarkData = await bookmarkRes.json();
-        if (bookmarkData.success && Array.isArray(bookmarkData.bookmarks)) {
-          setBookmarkedIds(bookmarkData.bookmarks);
+        if (bookmarkData.success && Array.isArray(bookmarkData.performances)) {
+          setBookmarkedIds(bookmarkData.performances.map((p) => p.id));
         }
       }
     } catch (error) {
@@ -685,7 +705,7 @@ function App() {
     }
   }, [currentUser, fetchUserData]);
 
-  // 북마크 토글
+  // 북마크 토글 (💡 백엔드 응답 키는 'isBookmarked'이므로 이를 기준으로 상태 갱신)
   const handleToggleBookmark = useCallback(async (performanceId, e) => {
     if (e) e.stopPropagation();
     const token = localStorage.getItem('token') || currentUser?.token;
@@ -702,7 +722,7 @@ function App() {
       });
       const data = await res.json();
       if (data.success) {
-        if (data.bookmarked) {
+        if (data.isBookmarked) {
           setBookmarkedIds((prev) => [...(Array.isArray(prev) ? prev : []), performanceId]);
         } else {
           setBookmarkedIds((prev) => (Array.isArray(prev) ? prev : []).filter((id) => id !== performanceId));
@@ -837,17 +857,18 @@ function App() {
   return (
     <div className="buskerspot-app" style={{ minHeight: '100vh', background: '#f8f9fa', width: '100%', boxSizing: 'border-box', fontFamily: "'Noto Sans KR', sans-serif" }}>
       <Navbar
-        activeTab={activeTab}
-        setActiveTab={handleTabChange}
-        currentUser={currentUser}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
-        onOpenRegisterModal={handleOpenRegisterModal}
-        onLogout={handleLogout}
-        searchKeyword={headerSearchKeyword}
-        setSearchKeyword={setHeaderSearchKeyword}
-        onSearch={handleNavbarSearchSubmit}
-        onRegisterSearchOpen={handleRegisterSearchOpenRef}
-      />
+  activeTab={activeTab}
+  setActiveTab={handleTabChange}
+  currentUser={currentUser}
+  onOpenAuthModal={() => setIsAuthModalOpen(true)}
+  onOpenRegisterModal={handleOpenRegisterModal}
+  onLogout={handleLogout}
+  searchKeyword={headerSearchKeyword}
+  setSearchKeyword={setHeaderSearchKeyword}
+  onSearch={handleNavbarSearchSubmit}
+  onRegisterSearchOpen={handleRegisterSearchOpenRef}
+  unreadCount={unreadCount}
+/>
 
       {activeTab === 'search' && (
         <PerformanceSearch
@@ -881,10 +902,11 @@ function App() {
 
       {activeTab === 'notifications' && (
         <NotificationsPage
-          currentUser={currentUser}
-          performances={performances}
-          setDetailModalPerf={setDetailModalPerf}
-        />
+  currentUser={currentUser}
+  performances={performances}
+  setDetailModalPerf={setDetailModalPerf}
+  onNotificationRead={() => setUnreadCount((c) => Math.max(0, c - 1))}
+/>
       )}
 
       {activeTab === 'bookmarks' && (() => {
@@ -1253,6 +1275,7 @@ function App() {
                 localStorage.setItem('user', JSON.stringify(updatedUser));
               }}
               onLogout={handleLogout}
+              onDataRefresh={handleDataRefresh}
             />
           </div>
         </main>
