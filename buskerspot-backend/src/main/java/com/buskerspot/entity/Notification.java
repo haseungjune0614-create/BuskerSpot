@@ -30,7 +30,11 @@ public class Notification {
     @Column(name = "artist_id", nullable = false)
     private Long artistId;
 
-    // 💡 DB의 type NOT NULL 제약조건 대응을 위한 필드 추가
+    // 💡 [신규] 공연 관련 알림일 때만 채워짐 (프로필 알림은 null)
+    @Column(name = "performance_id")
+    @JsonProperty("performance_id")
+    private Long performanceId;
+
     @Column(name = "type", nullable = false)
     private String type;
 
@@ -44,5 +48,6 @@ public class Notification {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
+    @JsonProperty("created_at")   // 💡 이전에 말씀드린 Invalid Date 버그 수정
     private LocalDateTime createdAt;
 }

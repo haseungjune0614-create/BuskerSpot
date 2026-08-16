@@ -20,15 +20,16 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final FollowRepository followRepository;
 
-    // 0. [신규] 특정 아티스트를 팔로우하는 모든 유저에게 알림 생성
+    // 💡 [변경] type, performanceId 파라미터 추가 (performanceId는 프로필 알림일 경우 null)
     @Transactional
-    public void notifyFollowers(Long artistId, String message) {
+    public void notifyFollowers(Long artistId, String message, String type, Long performanceId) {
         List<Follow> followers = followRepository.findByFollowingId(artistId);
         for (Follow follow : followers) {
             Notification notification = Notification.builder()
                     .userId(follow.getFollowerId())
                     .artistId(artistId)
-                    .type("INFO") // 💡 알림 타입 지정 (프로젝트 규칙에 맞게 'FOLLOW', 'PERFORMANCE' 등으로 변경 가능)
+                    .performanceId(performanceId)
+                    .type(type)
                     .message(message)
                     .build();
             notificationRepository.save(notification);

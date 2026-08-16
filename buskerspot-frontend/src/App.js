@@ -314,7 +314,7 @@ function PerformanceListModal({ performances, onClose, onSelectItem, getImageUrl
 }
 
 // 💡 알림 전용 페이지 컴포넌트
-function NotificationsPage({ currentUser, performances, setDetailModalPerf }) {
+function NotificationsPage({ currentUser, performances, setDetailModalPerf, setSelectedArtistProfile }) {
   const [notifications, setNotifications] = useState([]);
   const safePerformances = Array.isArray(performances) ? performances : [];
 
@@ -356,14 +356,79 @@ function NotificationsPage({ currentUser, performances, setDetailModalPerf }) {
       });
       const data = await res.json();
       if (data.success) {
-  setNotifications((prev) =>
-    Array.isArray(prev) ? prev.map((n) => (n.id === notifId ? { ...n, is_read: true } : n)) : []
-  );
-}
+        setNotifications((prev) =>
+          Array.isArray(prev) ? prev.map((n) => (n.id === notifId ? { ...n, is_read: true } : n)) : []
+        );
+      }
     } catch (err) {
       console.error('알림 읽음 처리 실패:', err);
     }
   };
+
+  // 💡 [신규] 알림 종류에 따라 공연 카드 / 아티스트 프로필 카드 분기
+  const handleViewDetail = async (notif) => {
+    if (!notif.is_read) handleReadNotification(notif.id);
+
+    const isPerformanceType = notif.type === 'PERFORMANCE_NEW' || notif.type === 'PERFORMANCE_UPDATE';
+
+    if (isPerformanceType && notif.performance_id) {
+      // 로컬에 이미 있으면 그걸 쓰고, 없으면 API로 가져오기
+      const localPerf = safePerformances.find(p => p.id === notif.performance_id);
+      if (localPerf) {
+        setDetailModalPerf(localPerf);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/performances/${notif.performance_id}`);
+        const data = await res.json();
+        if (data.success && data.performance) {
+          setDetailModalPerf(data.performance);
+        } else {
+          alert('해당 공연 정보를 찾을 수 없습니다. (삭제되었을 수 있습니다)');
+        }
+      } catch (err) {
+        console.error('공연 상세 조회 실패:', err);
+        alert('공연 정보를 불러오지 못했습니다.');
+      }
+      return;
+    }
+
+    if (notif.type === 'PROFILE_UPDATE' && notif.artist_id) {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/users/${notif.artist_id}`);
+    const data = await res.json();
+    const artist = data.user;
+    if (artist) {
+      setSelectedArtistProfile({
+        artist_id: artist.id || notif.artist_id,
+        stage_name: artist.nickname || artist.stageName || artist.stage_name,
+        genre: artist.genre || 'ALL',
+        profile_image: artist.profile_image || artist.profileImage,
+        instagram_url: artist.instagram_url || artist.instagramUrl,
+        introduction: artist.introduction,
+        follower_count: artist.follower_count || artist.followerCount || 0,
+        average_rating: artist.average_rating || artist.averageRating || 0,
+        review_count: artist.review_count || artist.reviewCount || 0
+      });
+    } else {
+      alert('아티스트 프로필을 찾을 수 없습니다.');
+    }
+  } catch (err) {
+    console.error('아티스트 프로필 조회 실패:', err);
+    alert('프로필 정보를 불러오지 못했습니다.');
+  }
+  return;
+}
+
+    alert('상세 정보를 표시할 수 없는 알림입니다.');
+  };
+
+  // ... (return JSX 부분에서, 기존 targetPerf 관련 로직을 삭제하고)
+  // 상세보기 버튼을 모든 알림에 대해 표시하도록 변경:
+  //
+  // <button onClick={(e) => { e.stopPropagation(); handleViewDetail(notif); }}>
+  //   상세보기 →
+  // </button>
 
   return (
     <div style={{ width: '100%', maxWidth: '1240px', margin: '0 auto', padding: '40px 20px 60px', boxSizing: 'border-box' }}>
