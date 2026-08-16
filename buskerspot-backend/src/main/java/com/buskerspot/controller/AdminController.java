@@ -57,10 +57,15 @@ public ResponseEntity<?> updatePerformanceRegion(@PathVariable("id") Long id, @R
     }
 
     // 5. [회원 관리] 회원 권한 변경
-    @PatchMapping("/users/{id}/role")
-    public ResponseEntity<?> updateUserRole(@PathVariable("id") Long id, @RequestBody Map<String, String> req) {
-        return ResponseEntity.ok(adminService.updateUserRole(id, req.get("role")));
-    }
+@PatchMapping("/users/{id}/role")
+public ResponseEntity<?> updateUserRole(@PathVariable("id") Long id, @RequestBody Map<String, String> req) {
+    var updated = adminService.updateUserRole(id, req.get("role"));
+    return ResponseEntity.ok(Map.of(
+        "success", true,
+        "message", "권한이 성공적으로 변경되었습니다.",
+        "user", updated
+    ));
+}
 
     // 6. [회원 관리] 회원 삭제
     @DeleteMapping("/users/{id}")

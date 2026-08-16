@@ -6,6 +6,8 @@ import com.buskerspot.dto.auth.ProfileUpdateRequest;
 import com.buskerspot.dto.auth.RegisterRequest;
 import com.buskerspot.entity.User;
 import com.buskerspot.repository.UserRepository;
+import com.buskerspot.service.NotificationService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -121,10 +123,15 @@ public class UserService {
         if (request.getInstagramUrl() != null) user.setInstagramUrl(request.getInstagramUrl());
 
         User saved = userRepository.save(user);
-        if (nicknameChanged) {
-            notificationService.notifyFollowers(saved.getId(), "팔로우하신 아티스트가 닉네임을 " + saved.getNickname() + "(으)로 변경했습니다.");
-        }
-        return saved;
+if (nicknameChanged) {
+    notificationService.notifyFollowers(
+        saved.getId(),
+        "팔로우하신 아티스트가 닉네임을 " + saved.getNickname() + "(으)로 변경했습니다.",
+        "PROFILE_UPDATE",
+        null   // 💡 프로필 알림은 특정 공연이 없으므로 null
+    );
+}
+return saved;
     }
 
     public List<User> searchArtists(String keyword) {

@@ -4,21 +4,23 @@ export default function PerformanceManage() {
   const [performances, setPerformances] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
 
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+  
   // 목록 불러오기
   const fetchPerformances = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/performances/manage/all', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await response.json();
-      if (data.success) {
-        setPerformances(data.performances);
-      }
-    } catch (error) {
-      console.error('목록 로딩 실패:', error);
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/api/admin/performances`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await response.json();
+    if (data.success) {
+      setPerformances(data.performances);
     }
-  };
+  } catch (error) {
+    console.error('목록 로딩 실패:', error);
+  }
+};
 
   useEffect(() => {
     fetchPerformances();
@@ -45,7 +47,7 @@ export default function PerformanceManage() {
     if (!window.confirm('정말 이 공연을 삭제하시겠습니까?')) return;
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/performances/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/performances/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -72,7 +74,7 @@ export default function PerformanceManage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/performances/batch-delete', {
+      const response = await fetch(`${API_BASE_URL}/api/performances/batch-delete`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

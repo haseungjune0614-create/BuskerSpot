@@ -90,10 +90,13 @@ public class PerformanceService {
         p.setStatus("PENDING");
         
         Performance saved = performanceRepository.save(p);
-        
-        // PENDING 상태이므로 등록 즉시 알림을 보내는 것보다, APPROVED 승인 시점에 보내는 것이 더 적절할 수 있습니다.
-        // 만약 즉시 알림이 기획 의도라면 아래 코드를 유지하세요.
-        return saved;
+notificationService.notifyFollowers(
+    userId,
+    "팔로우하신 아티스트가 새 공연을 등록했습니다: " + saved.getTitle(),
+    "PERFORMANCE_NEW",
+    saved.getId()
+);
+return saved;
     }
 
     // 3. 공연 상세 조회
@@ -135,8 +138,13 @@ public class PerformanceService {
 
         // APPROVED(승인) 상태로 변경될 때 팔로워들에게 알림 전송
         if (!"APPROVED".equals(oldStatus) && "APPROVED".equals(status)) {
-            Long artistId = p.getArtistId() != null ? p.getArtistId() : p.getUserId();
-            notificationService.notifyFollowers(artistId, "팔로우하신 아티스트가 새 공연을 등록했습니다: " + p.getTitle());
+           Long artistId = p.getArtistId() != null ? p.getArtistId() : p.getUserId();
+notificationService.notifyFollowers(
+    artistId,
+    "팔로우하신 아티스트가 새 공연을 등록했습니다: " + p.getTitle(),
+    "PERFORMANCE_APPROVED",
+    p.getId()
+);
         }
         
         return performanceRepository.save(p);
@@ -156,17 +164,25 @@ public class PerformanceService {
         if (req.get("longitude") != null) p.setLng(Double.valueOf(req.get("longitude").toString()));
 
         Performance saved = performanceRepository.save(p);
-        
-        Long artistId = saved.getArtistId() != null ? saved.getArtistId() : saved.getUserId();
-        notificationService.notifyFollowers(artistId, "팔로우하신 아티스트가 공연 정보를 수정했습니다: " + saved.getTitle());
-        
-        return saved;
+notificationService.notifyFollowers(
+    saved.getArtistId(),
+    "팔로우하신 아티스트가 공연 정보를 수정했습니다: " + saved.getTitle(),
+    "PERFORMANCE_UPDATE",
+    saved.getId()
+);
+return saved;
     }
 
     // 6. [관리자용] 전체 공연 목록 조회
-    public List<Performance> getAllPerformancesForAdmin() {
-        return performanceRepository.findAll();
-    }
+public List<Map<String, Object>> getAllPerformancesForAdmin() {
+    String sql = """
+        SELECT p.*, u.nickname AS stage_name
+        FROM performances p
+        LEFT JOIN users u ON p.artist_id = u.id OR p.user_id = u.id
+        ORDER BY p.id DESC
+    """;
+    return jdbcTemplate.queryForList(sql);
+}
 
     // 7. [관리자용] 지역 정보 수정
     @Transactional
@@ -197,5 +213,23 @@ public class PerformanceService {
     // 9. 내가 등록한 공연 목록 조회
     public List<Performance> getMyPerformances(Long userId) {
         return performanceRepository.findByUserIdOrderByIdDesc(userId);
+    }
+
+    // 10. [관리자용] 공연 단건 삭제
+    @Transactional
+    public void deletePerformance(Long id) {
+        if (!performanceRepository.existsById(id)) {
+            throw new CustomException("공연 없음", HttpStatus.NOT_FOUND);
+        }
+        performanceRepository.deleteById(id);
+    }
+
+    // 11. [관리자용] 공연 일괄 삭제
+    @Transactional
+    public void batchDeletePerformances(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new CustomException("삭제할 항목이 없습니다.", HttpStatus.BAD_REQUEST);
+        }
+        performanceRepository.deleteAllByIdInBatch(ids);
     }
 }
