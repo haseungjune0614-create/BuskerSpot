@@ -23,32 +23,59 @@ public class PerformanceService {
     private final JdbcTemplate jdbcTemplate;
     private final com.buskerspot.service.NotificationService notificationService;
 
-    // 1. 공연 목록 조회 (검색, 정렬, 지역, 장르 필터링 포함)
+    // 1. 공연 목록 조회 (검색, 정렬, 지역, 장르, 키워드 필터링 포함)
     public List<Map<String, Object>> getPerformances(Map<String, String> params) {
-        StringBuilder sql = new StringBuilder("""
-            SELECT p.*, u.nickname AS artist_nickname, u.profile_image AS artist_profile_image, u.introduction AS artist_introduction,
-                   COUNT(f.id)::int AS follower_count,
-                   COALESCE((SELECT AVG(r.rating) FROM reviews r JOIN performances p2 ON r.performance_id = p2.id WHERE p2.artist_id = p.artist_id), 0) AS average_rating
-            FROM performances p
-            LEFT JOIN users u ON p.artist_id = u.id OR p.user_id = u.id
-            LEFT JOIN follows f ON p.artist_id = f.following_id OR p.user_id = f.following_id
-            WHERE 1=1
-        """);
+    StringBuilder sql = new StringBuilder("""
+        SELECT p.*, u.nickname AS artist_nickname, u.profile_image AS artist_profile_image, u.introduction AS artist_introduction,
+               COUNT(f.id)::int AS follower_count,
+               COALESCE((SELECT AVG(r.rating) FROM reviews r JOIN performances p2 ON r.performance_id = p2.id WHERE p2.artist_id = p.artist_id), 0) AS average_rating
+        FROM performances p
+        LEFT JOIN users u ON p.artist_id = u.id OR p.user_id = u.id
+        LEFT JOIN follows f ON p.artist_id = f.following_id OR p.user_id = f.following_id
+        WHERE 1=1
+    """);
 
-        if (params.get("artist_id") != null) {
-            sql.append(" AND (p.artist_id = ").append(params.get("artist_id")).append(" OR p.user_id = ").append(params.get("artist_id")).append(")");
-        } else {
-            sql.append(" AND p.status = 'APPROVED'");
-        }
+    List<Object> sqlParams = new java.util.ArrayList<>();
 
-        if (params.get("genre") != null && !"ALL".equals(params.get("genre"))) {
-            sql.append(" AND p.genre = '").append(params.get("genre")).append("'");
-        }
-
-        sql.append(" GROUP BY p.id, u.nickname, u.profile_image, u.introduction ORDER BY p.performance_date ASC");
-
-        return jdbcTemplate.queryForList(sql.toString());
+    if (params.get("artist_id") != null) {
+        sql.append(" AND (p.artist_id = ? OR p.user_id = ?)");
+        Long artistId = Long.valueOf(params.get("artist_id"));
+        sqlParams.add(artistId);
+        sqlParams.add(artistId);
+    } else {
+        sql.append(" AND p.status = 'APPROVED'");
     }
+
+    if (params.get("genre") != null && !"ALL".equals(params.get("genre"))) {
+        sql.append(" AND p.genre = ?");
+        sqlParams.add(params.get("genre"));
+    }
+
+    // 💡 날짜 필터링 추가 — 선택한 날짜 이후(당일 포함) 공연만 조회
+    if (params.get("date") != null && !params.get("date").isBlank()) {
+        sql.append(" AND p.performance_date = ?");
+        sqlParams.add(java.time.LocalDate.parse(params.get("date")));
+    }
+
+    String keyword = params.get("query") != null ? params.get("query") : params.get("keyword");
+    if (keyword != null && !keyword.isBlank()) {
+        sql.append("""
+             AND (
+                p.title ILIKE ?
+                OR p.region ILIKE ?
+                OR p.location_name ILIKE ?
+                OR p.genre ILIKE ?
+                OR u.nickname ILIKE ?
+             )
+        """);
+        String likeKeyword = "%" + keyword.trim() + "%";
+        for (int i = 0; i < 5; i++) sqlParams.add(likeKeyword);
+    }
+
+    sql.append(" GROUP BY p.id, u.nickname, u.profile_image, u.introduction ORDER BY p.performance_date ASC");
+
+    return jdbcTemplate.queryForList(sql.toString(), sqlParams.toArray());
+}
 
     // 2. 공연 등록 (PENDING 상태)
     @Transactional
@@ -61,8 +88,11 @@ public class PerformanceService {
         p.setStartTime(java.time.LocalTime.parse(req.get("start_time").toString()));
         p.setLocation_name((String) req.get("location_name"));
         p.setStatus("PENDING");
+        
         Performance saved = performanceRepository.save(p);
-        notificationService.notifyFollowers(userId, "팔로우하신 아티스트가 새 공연을 등록했습니다: " + saved.getTitle());
+        
+        // PENDING 상태이므로 등록 즉시 알림을 보내는 것보다, APPROVED 승인 시점에 보내는 것이 더 적절할 수 있습니다.
+        // 만약 즉시 알림이 기획 의도라면 아래 코드를 유지하세요.
         return saved;
     }
 
@@ -81,7 +111,7 @@ public class PerformanceService {
         }
     }
 
-    // 4. 내 북마크 공연 목록 조회 (추가된 메서드)
+    // 4. 내 북마크 공연 목록 조회
     public List<Map<String, Object>> getMyBookmarks(Long userId) {
         String sql = """
             SELECT p.*, u.nickname AS artist_nickname, u.profile_image AS artist_profile_image
@@ -103,12 +133,16 @@ public class PerformanceService {
         String oldStatus = p.getStatus();
         p.setStatus(status);
 
+        // APPROVED(승인) 상태로 변경될 때 팔로워들에게 알림 전송
         if (!"APPROVED".equals(oldStatus) && "APPROVED".equals(status)) {
-            // 여기에 팔로워 알림 로직 구현
+            Long artistId = p.getArtistId() != null ? p.getArtistId() : p.getUserId();
+            notificationService.notifyFollowers(artistId, "팔로우하신 아티스트가 새 공연을 등록했습니다: " + p.getTitle());
         }
+        
         return performanceRepository.save(p);
     }
 
+    @Transactional
     public Performance updatePerformance(Long id, Map<String, Object> req) {
         Performance p = performanceRepository.findById(id)
                 .orElseThrow(() -> new CustomException("공연 없음", HttpStatus.NOT_FOUND));
@@ -122,7 +156,10 @@ public class PerformanceService {
         if (req.get("longitude") != null) p.setLng(Double.valueOf(req.get("longitude").toString()));
 
         Performance saved = performanceRepository.save(p);
-        notificationService.notifyFollowers(saved.getArtistId(), "팔로우하신 아티스트가 공연 정보를 수정했습니다: " + saved.getTitle());
+        
+        Long artistId = saved.getArtistId() != null ? saved.getArtistId() : saved.getUserId();
+        notificationService.notifyFollowers(artistId, "팔로우하신 아티스트가 공연 정보를 수정했습니다: " + saved.getTitle());
+        
         return saved;
     }
 
@@ -140,7 +177,7 @@ public class PerformanceService {
         return performanceRepository.save(p);
     }
 
-    // 8. [신규] 공연 찜하기 / 찜 취소 토글
+    // 8. 공연 찜하기 / 찜 취소 토글
     @Transactional
     public Map<String, Object> toggleBookmark(Long userId, Long performanceId) {
         var existing = bookmarkRepository.findByUserIdAndTargetId(userId, performanceId);
@@ -156,8 +193,9 @@ public class PerformanceService {
             return Map.of("success", true, "isBookmarked", true, "message", "찜 성공");
         }
     }
-    // 9. [신규] 내가 등록한 공연 목록 조회
-public List<Performance> getMyPerformances(Long userId) {
-    return performanceRepository.findByUserIdOrderByIdDesc(userId);
-}
+
+    // 9. 내가 등록한 공연 목록 조회
+    public List<Performance> getMyPerformances(Long userId) {
+        return performanceRepository.findByUserIdOrderByIdDesc(userId);
+    }
 }

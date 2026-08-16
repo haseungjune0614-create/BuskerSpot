@@ -58,6 +58,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
                 "/api/auth/**",
                 "/api/performances",
                 "/api/performances/**",
+                 "/api/search/**", 
                 "/uploads/**"
             ).permitAll()
             .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
