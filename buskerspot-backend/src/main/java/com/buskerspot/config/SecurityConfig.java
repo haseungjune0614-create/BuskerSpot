@@ -65,6 +65,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
                     "/api/auth/**",
+                    "/oauth/**",             // 💡 소셜 로그인 콜백 경로 인증 예외 추가
                     "/api/performances",
                     "/api/performances/**",
                     "/api/search/**", 
