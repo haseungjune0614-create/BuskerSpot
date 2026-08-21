@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { Browser } from '@capacitor/browser';
 import './../App.css';
 
 // 배포 환경에서는 REACT_APP_API_URL 환경변수를 사용하고,
@@ -130,8 +132,8 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 카카오 간편 인증 요청
-  const handleKakaoAuth = () => {
+  // 카카오 간편 인증 요청 (모바일 앱 호환 브라우저 플러그인 적용)
+  const handleKakaoAuth = async () => {
     setErrorMessage('');
     setSuccessMessage('');
 
@@ -154,11 +156,15 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       `${window.location.origin}/oauth/kakao/callback`;
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
-    window.location.href = kakaoAuthUrl;
+    if (Capacitor.isNativePlatform()) {
+      await Browser.open({ url: kakaoAuthUrl });
+    } else {
+      window.location.href = kakaoAuthUrl;
+    }
   };
 
-  // 구글 간편 인증 요청
-  const handleGoogleAuth = () => {
+  // 구글 간편 인증 요청 (모바일 앱 호환 브라우저 플러그인 적용)
+  const handleGoogleAuth = async () => {
     setErrorMessage('');
     setSuccessMessage('');
 
@@ -178,7 +184,11 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
 
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=email%20profile`;
 
-    window.location.href = googleAuthUrl;
+    if (Capacitor.isNativePlatform()) {
+      await Browser.open({ url: googleAuthUrl });
+    } else {
+      window.location.href = googleAuthUrl;
+    }
   };
 
   // 회원가입 및 로그인 처리 폼 제출
