@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import '../App.css';
 
 // 배포 환경에서는 REACT_APP_API_URL 환경변수를 사용하고,
-// 로컬 개발 환경에서는 localhost:5000으로 폴백합니다.
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// 로컬 개발 환경에서는 localhost:8080으로 폴백합니다.
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 // 💡 화면 폭을 감지해서 모바일 레이아웃 여부를 반환하는 커스텀 훅
 const useIsMobile = (breakpoint = 900) => {
@@ -104,11 +104,15 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
       const res = await fetch(`${API_URL}/api/ai/recommend`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: searchQuery, user: currentUser })
+        body: JSON.stringify({ 
+          query: searchQuery, 
+          chatHistory: [] 
+        })
       });
       const data = await res.json();
 
-      if (data.success) {
+      // Java 백엔드 응답 스펙(report)에 맞춘 조건문
+      if (data && data.report) {
         setAiReport(data.report || '');
         const mappedRecs = (data.recommendations || []).map(perf => ({
           ...perf,
@@ -116,7 +120,7 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
           artist_id: perf.artist_id || perf.user_id
         }));
         setRecommendedList(mappedRecs);
-        setIsCachedResult(data.cached || false);
+        setIsCachedResult(false);
 
         if (userKey) {
           setSearchHistory((prev) => {
@@ -129,7 +133,7 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
 
         if (isMobile) setIsHistoryOpen(false);
       } else {
-        alert(`AI 추천 오류: ${data.message}`);
+        alert('AI 추천 결과를 받아오지 못했습니다.');
       }
     } catch (err) {
       console.error('API 통신 실패:', err);
