@@ -79,25 +79,25 @@ public class PerformanceService {
 
     // 2. 공연 등록 (PENDING 상태)
     @Transactional
-    public Performance createPerformance(Long userId, Map<String, Object> req) {
-        Performance p = new Performance();
-        p.setArtistId(userId);
-        p.setUserId(userId);
-        p.setTitle((String) req.get("title"));
-        p.setPerformanceDate(java.time.LocalDate.parse(req.get("date").toString()));
-        p.setStartTime(java.time.LocalTime.parse(req.get("start_time").toString()));
-        p.setLocation_name((String) req.get("location_name"));
-        p.setStatus("PENDING");
-        
-        Performance saved = performanceRepository.save(p);
-notificationService.notifyFollowers(
-    userId,
-    "팔로우하신 아티스트가 새 공연을 등록했습니다: " + saved.getTitle(),
-    "PERFORMANCE_NEW",
-    saved.getId()
-);
-return saved;
-    }
+public Performance createPerformance(Long userId, Map<String, Object> req) {
+    Performance p = new Performance();
+    p.setArtistId(userId);
+    p.setUserId(userId);
+    p.setTitle((String) req.get("title"));
+    p.setPerformanceDate(java.time.LocalDate.parse(req.get("date").toString()));
+    p.setStartTime(java.time.LocalTime.parse(req.get("start_time").toString()));
+    if (req.get("end_time") != null) p.setEndTime(java.time.LocalTime.parse(req.get("end_time").toString()));
+    p.setLocation_name((String) req.get("location_name"));
+    if (req.get("region") != null) p.setRegion((String) req.get("region"));
+    if (req.get("genre") != null) p.setGenre((String) req.get("genre"));
+    if (req.get("description") != null) p.setDescription((String) req.get("description"));
+    if (req.get("latitude") != null) p.setLat(Double.valueOf(req.get("latitude").toString()));
+    if (req.get("longitude") != null) p.setLng(Double.valueOf(req.get("longitude").toString()));
+    p.setStatus("PENDING");
+
+    return performanceRepository.save(p);
+}
+
 
     // 3. 공연 상세 조회
     public Map<String, Object> getPerformanceDetail(Long id) {

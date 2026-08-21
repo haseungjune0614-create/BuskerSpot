@@ -825,7 +825,7 @@ function App() {
       });
       const data = await res.json();
       if (data.success) {
-        if (data.bookmarked) {
+        if (data.isBookmarked) {
           setBookmarkedIds((prev) => [...(Array.isArray(prev) ? prev : []), performanceId]);
         } else {
           setBookmarkedIds((prev) => (Array.isArray(prev) ? prev : []).filter((id) => id !== performanceId));
@@ -893,7 +893,7 @@ function App() {
 
     const artistMap = new Map();
     safePerformances.forEach(p => {
-      const name = p.stage_name || p.organizer_name || '';
+      const name = p.artist_nickname ||p.stage_name || p.organizer_name || '';
       const genre = p.genre || '';
       
       const isMatch = name.toLowerCase().includes(searchKey) || 
