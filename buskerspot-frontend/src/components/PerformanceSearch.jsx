@@ -2,24 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { Map, MapMarker } from 'react-kakao-maps-sdk';
 
 // ==========================================
-// 🎨 테마 및 디자인 상수 (BuskerSpot Theme)
+// 🎨 라이트 테마 및 디자인 상수 (BuskerSpot Light Theme)
 // ==========================================
 const C = {
-  bg: '#121214',
-  surface: '#1e1e24',
-  surfaceAlt: '#2a2a32',
-  text: '#f8f9fa',
-  textMuted: '#a0a0b0',
-  textFaint: '#6c727f',
-  border: '#2e2e38',
-  borderLight: '#3f3f4e',
+  bg: '#f8f9fa',
+  surface: '#ffffff',
+  surfaceAlt: '#f1f3f5',
+  text: '#212529',
+  textMuted: '#6c757d',
+  textFaint: '#adb5bd',
+  border: '#dee2e6',
+  borderLight: '#ced4da',
   marigold: '#ff8c00',
-  marigoldDim: 'rgba(255, 140, 0, 0.15)',
-  marigoldSoft: 'rgba(255, 140, 0, 0.3)',
-  teal: '#20c997',
-  tealDim: 'rgba(32, 201, 151, 0.15)',
+  marigoldDim: 'rgba(255, 140, 0, 0.1)',
+  marigoldSoft: 'rgba(255, 140, 0, 0.2)',
+  teal: '#0ca678',
+  tealDim: 'rgba(12, 166, 120, 0.1)',
   coral: '#fa5252',
-  coralDim: 'rgba(250, 82, 82, 0.15)',
+  coralDim: 'rgba(250, 82, 82, 0.1)',
 };
 
 // 💡 화면 폭 감지 커스텀 훅
@@ -117,7 +117,7 @@ const statusStyle = (statusClass) => {
     case 'today':
       return { color: C.marigold, bg: C.marigoldDim, border: 'rgba(255,140,0,0.3)' };
     case 'upcoming':
-      return { color: C.teal, bg: C.tealDim, border: 'rgba(32,201,151,0.3)' };
+      return { color: C.teal, bg: C.tealDim, border: 'rgba(12,166,120,0.3)' };
     default:
       return { color: C.textFaint, bg: C.surfaceAlt, border: C.border };
   }
@@ -294,7 +294,7 @@ export default function PerformanceSearch({
         .bsp-search-btn {
           background: linear-gradient(135deg, ${C.marigold}, #ffab40); color: #ffffff; border: none;
           border-radius: 12px; padding: 11px 26px; font-weight: 800; font-size: 14px; cursor: pointer;
-          box-shadow: 0 6px 18px rgba(255,140,0,0.25); transition: transform 0.15s ease;
+          box-shadow: 0 6px 18px rgba(255,140,0,0.2); transition: transform 0.15s ease;
         }
         .bsp-search-btn:hover { transform: translateY(-1px); }
 
@@ -303,7 +303,7 @@ export default function PerformanceSearch({
           display: flex; align-items: flex-start; gap: 14px; cursor: pointer; transition: all 0.18s ease;
           box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
-        .bsp-card:hover { border-color: ${C.borderLight}; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.08); }
+        .bsp-card:hover { border-color: ${C.borderLight}; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.06); }
         .bsp-card.active { border-color: ${C.marigold}; box-shadow: 0 0 0 2px ${C.marigoldSoft}; }
 
         .bsp-live-dot {
@@ -327,7 +327,7 @@ export default function PerformanceSearch({
           border-radius: 10px; padding: 8px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer;
           transition: all 0.15s ease;
         }
-        .bsp-icon-btn:hover { border-color: ${C.borderLight}; color: ${C.text}; }
+        .bsp-icon-btn:hover { border-color: ${C.borderLight}; color: ${C.text}; background: #e9ecef; }
 
         @media screen and (max-width: 768px) {
           .bsp-card { flex-direction: column; align-items: stretch; padding: 14px; }
@@ -345,7 +345,7 @@ export default function PerformanceSearch({
 
           {!isMobile && <Waveform heights={waveHeights} />}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', background: C.surface, padding: '12px 18px', borderRadius: '12px', border: `1px solid ${C.border}` }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', background: C.surface, padding: '12px 18px', borderRadius: '12px', border: `1px solid ${C.border}`, boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
             <span style={{ fontSize: '14px', fontWeight: 800, color: C.text }}>🔍 검색 필터 {isFilterOpen ? '접기' : '펼치기'}</span>
             <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="bsp-icon-btn" style={{ padding: '6px 12px' }}>
               {isFilterOpen ? '▲ 닫기' : '▼ 열기'}
@@ -353,12 +353,12 @@ export default function PerformanceSearch({
           </div>
 
           {isFilterOpen && (
-            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '18px', background: C.surface, padding: isMobile ? '16px' : '20px', borderRadius: '14px', border: `1px solid ${C.border}` }}>
+            <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '18px', background: C.surface, padding: isMobile ? '16px' : '20px', borderRadius: '14px', border: `1px solid ${C.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
               <div>
                 <span style={{ color: C.textMuted, fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '8px' }}>날짜</span>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input type="date" value={inputDate} onChange={(e) => setInputDate(e.target.value)} className="bsp-date-input" />
-                  <button className="bsp-pill bsp-pill--marigold" onClick={setToday} style={{ padding: '8px 16px', fontSize: '13px' }}>오늘</button>
+                  <button className="bsp-pill bsp-pill--marigold" onClick={setToday} style={{ padding: '8px 16px', fontSize: '13px', background: C.marigoldDim, color: C.marigold, border: `1px solid ${C.marigold}`, borderRadius: '999px', fontWeight: 700, cursor: 'pointer' }}>오늘</button>
                 </div>
               </div>
 
@@ -454,7 +454,7 @@ export default function PerformanceSearch({
                             src={profileImg}
                             alt=""
                             onClick={(e) => { e.stopPropagation(); if (onImageClick) onImageClick(profileImg); }}
-                            style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer' }}
+                            style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', cursor: 'pointer', border: `1px solid ${C.border}` }}
                           />
                         ) : <DefaultMicrophoneAvatar />}
 
@@ -486,7 +486,7 @@ export default function PerformanceSearch({
                       </div>
 
                       <div className="bsp-card-actions" style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '8px', alignItems: 'stretch', width: isMobile ? '100%' : 'auto' }}>
-                        <button onClick={(e) => handleToggleBookmark(perf.id, e)} style={{ background: isBookmarked ? C.coralDim : C.surfaceAlt, color: isBookmarked ? C.coral : C.textMuted, border: 'none', borderRadius: '999px', padding: '6px 12px', cursor: 'pointer', fontSize: '12px' }}>
+                        <button onClick={(e) => handleToggleBookmark(perf.id, e)} style={{ background: isBookmarked ? C.coralDim : C.surfaceAlt, color: isBookmarked ? C.coral : C.textMuted, border: `1px solid ${C.border}`, borderRadius: '999px', padding: '6px 12px', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}>
                           {isBookmarked ? '❤️' : '🤍'} 찜
                         </button>
                         <button onClick={(e) => { e.stopPropagation(); setDetailModalPerf(perf); }} style={{ background: C.marigold, color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', fontSize: '12.5px' }}>
@@ -517,14 +517,14 @@ export default function PerformanceSearch({
                   );
                 })
               ) : (
-                <div style={{ textAlign: 'center', padding: '60px 20px', color: C.textFaint, background: C.surface, borderRadius: '18px' }}>검색된 공연이 없습니다.</div>
+                <div style={{ textAlign: 'center', padding: '60px 20px', color: C.textFaint, background: C.surface, borderRadius: '18px', border: `1px solid ${C.border}` }}>검색된 공연이 없습니다.</div>
               )}
             </div>
           </section>
 
           {isMapVisible && (
             <section style={{ flex: isMobile ? 'none' : '0.9', width: '100%', position: isMobile ? 'relative' : 'sticky', top: isMobile ? 0 : '20px', order: isMobile ? -1 : 0 }}>
-              <div style={{ borderRadius: '18px', overflow: 'hidden', border: `1px solid ${C.border}`, height: isMobile ? '280px' : '640px' }}>
+              <div style={{ borderRadius: '18px', overflow: 'hidden', border: `1px solid ${C.border}`, height: isMobile ? '280px' : '640px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
                 <Map center={center} style={{ width: '100%', height: '100%' }} level={4}>
                   <MapMarker position={center} />
                   {finalFilteredPerformances.map((perf) => {
