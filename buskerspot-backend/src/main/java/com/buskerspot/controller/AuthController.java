@@ -65,6 +65,15 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("success", true, "message", "프로필이 성공적으로 수정되었습니다.", "user", updatedUser));
     }
 
+    @PutMapping("/auth/password")
+public ResponseEntity<?> changePassword(@RequestHeader("Authorization") String authHeader,
+                                        @RequestBody Map<String, String> req) {
+    String token = authHeader.replace("Bearer ", "");
+    Long userId = jwtTokenProvider.getId(token);
+    Map<String, Object> result = userService.changePassword(
+            userId, req.get("currentPassword"), req.get("newPassword"));
+    return ResponseEntity.ok(result);
+}
     // 이미지 업로드 (/api/upload-image)
     @PostMapping("/upload-image")
     public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file) {

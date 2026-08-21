@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import LocationPickerModal from './LocationPickerModal';
 
+// 💡 다른 컴포넌트들과 동일하게 환경변수를 사용하도록 API_BASE_URL 설정
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+
 function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSuccess }) {
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
@@ -107,7 +110,8 @@ function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSucc
     };
 
     try {
-      const res = await fetch('http://localhost:5000/api/performances', {
+      // 💡 하드코딩된 5000번 포트 대신 API_BASE_URL 변수 활용
+      const res = await fetch(`${API_BASE_URL}/api/performances`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -325,7 +329,6 @@ function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSucc
         </div>
       </div>
 
-      {/* 💡 zIndex를 1200으로 높여서 등록 모달(1100)보다 항상 위로 오도록 강제 설정 */}
       <div style={{ position: 'relative', zIndex: 1200 }}>
         <LocationPickerModal
           isOpen={isPickerOpen}
