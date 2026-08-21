@@ -425,7 +425,7 @@ function AdminPage() {
 
                       <td style={{ padding: '14px 16px', fontWeight: 600, whiteSpace: 'nowrap' }}>
                         {u.role === 'ARTIST' ? (
-                          u.kakao_id ? (
+                          u.kakaoId ? (
                             <span style={{ color: '#0ca678', background: '#e6fcf5', padding: '4px 8px', borderRadius: '6px', fontSize: '12px', fontWeight: 600 }}>
                               💬 카카오 인증 완료
                             </span>

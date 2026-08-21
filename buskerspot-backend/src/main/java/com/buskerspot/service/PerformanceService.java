@@ -210,10 +210,16 @@ public List<Map<String, Object>> getAllPerformancesForAdmin() {
         }
     }
 
-    // 9. 내가 등록한 공연 목록 조회
-    public List<Performance> getMyPerformances(Long userId) {
-        return performanceRepository.findByUserIdOrderByIdDesc(userId);
-    }
+    public List<Map<String, Object>> getMyPerformances(Long userId) {
+    String sql = """
+        SELECT p.*, u.nickname AS stage_name
+        FROM performances p
+        LEFT JOIN users u ON p.artist_id = u.id OR p.user_id = u.id
+        WHERE p.user_id = ?
+        ORDER BY p.id DESC
+    """;
+    return jdbcTemplate.queryForList(sql, userId);
+}
 
     // 10. [관리자용] 공연 단건 삭제
     @Transactional
