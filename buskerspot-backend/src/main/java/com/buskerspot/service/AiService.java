@@ -37,7 +37,7 @@ import java.util.*;
 public class AiService {
 
     private static final String GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-    private static final String MODEL = "llama-3.1-8b-instant";
+    private static final String MODEL = "openai/gpt-oss-20b";
     private static final List<String> REGION_HINT_KEYWORDS =
             List.of("노원", "서현", "강남", "부산", "홍대");
 
@@ -167,7 +167,7 @@ public class AiService {
             String currentDateStr = LocalDate.now().toString();
 
             List<String> whereClauses = new ArrayList<>();
-            whereClauses.add("p.performance_date >= ?");
+            whereClauses.add("p.performance_date >= ?::date");
             params.add(currentDateStr);
 
             boolean isPureTimeSearch = hasTime && !hasRegion && (matchedText == null || matchedText.isBlank());
@@ -250,7 +250,7 @@ public class AiService {
                     FROM performances p
                     LEFT JOIN users u ON p.artist_id = u.id OR p.user_id = u.id
                     LEFT JOIN reviews r ON p.id = r.performance_id
-                    WHERE p.performance_date >= ?
+                    WHERE p.performance_date >= ?::date
                     GROUP BY p.id, p.artist_id, p.title, p.stage_name, p.performance_date, p.start_time, p.region, p.genre, p.location_name, p.description, u.profile_image
                     ORDER BY p.performance_date ASC, p.start_time ASC
                     LIMIT 20
