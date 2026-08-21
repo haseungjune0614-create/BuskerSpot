@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PerformanceManage from './PerformanceManage';
+import AdminMessageSend from './AdminMessageSend'; 
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -278,7 +279,8 @@ function AdminPage() {
           {[
             { id: 'performances', label: '🎭 공연 승인 관리' },
             { id: 'manage', label: '🛠️ 공연 목록 관리' },
-            { id: 'users', label: '👥 회원 관리' }
+            { id: 'users', label: '👥 회원 관리' },
+            { id: 'messages', label: '✉️ 메시지 발송' }
           ].map((item) => (
             <button
               key={item.id}
@@ -401,6 +403,8 @@ function AdminPage() {
           )}
 
           {tab === 'manage' && <PerformanceManage />}
+
+          {tab === 'messages' && <AdminMessageSend />}
 
           {tab === 'users' && (
             <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left' }}>

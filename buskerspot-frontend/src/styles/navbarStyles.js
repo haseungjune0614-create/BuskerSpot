@@ -10,7 +10,8 @@ export const mainStyles = {
     position: 'sticky',
     top: 0,
     zIndex: 100,
-    boxShadow: '0 10px 30px -18px rgba(41, 37, 36, 0.25)'
+    boxShadow: '0 10px 30px -18px rgba(41, 37, 36, 0.25)',
+    flexWrap: 'nowrap'
   },
   logoContainer: {
     display: 'flex',
@@ -23,7 +24,9 @@ export const mainStyles = {
     backgroundImage: 'linear-gradient(120deg, #ff8c00 0%, #fa5252 55%, #ff6b9d 100%)',
     WebkitBackgroundClip: 'text',
     backgroundClip: 'text',
-    color: 'transparent'
+    color: 'transparent',
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
   },
   menuGroup: {
     display: 'flex',
@@ -32,7 +35,9 @@ export const mainStyles = {
     backgroundColor: '#faf6f2',
     padding: '5px',
     borderRadius: '999px',
-    boxShadow: 'inset 0 0 0 1px rgba(41,37,36,0.04)'
+    boxShadow: 'inset 0 0 0 1px rgba(41,37,36,0.04)',
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
   },
   navBtn: {
     padding: '9px 18px',
@@ -43,13 +48,15 @@ export const mainStyles = {
     fontWeight: '700',
     color: '#a8a29e',
     cursor: 'pointer',
-    transition: 'all 0.25s cubic-bezier(.4,0,.2,1)'
+    transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+    whiteSpace: 'nowrap'
   },
   navBtnActive: {
     backgroundImage: 'linear-gradient(135deg, #ff8c00, #ffab40)',
-    backgroundColor: '#ff8c00', // 폴백 컬러 추가
+    backgroundColor: '#ff8c00',
     color: '#ffffff',
-    boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)'
+    boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)',
+    whiteSpace: 'nowrap'
   },
   navBtnBookmark: {
     padding: '9px 18px',
@@ -60,22 +67,26 @@ export const mainStyles = {
     fontWeight: '700',
     color: '#fa5252',
     cursor: 'pointer',
-    transition: 'all 0.25s cubic-bezier(.4,0,.2,1)'
+    transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+    whiteSpace: 'nowrap'
   },
   navBtnBookmarkActive: {
     backgroundImage: 'linear-gradient(135deg, #fa5252, #ff8787)',
-    backgroundColor: '#fa5252', // 폴백 컬러 추가
+    backgroundColor: '#fa5252',
     color: '#ffffff',
-    boxShadow: '0 8px 18px -6px rgba(250,82,82,0.5)'
+    boxShadow: '0 8px 18px -6px rgba(250,82,82,0.5)',
+    whiteSpace: 'nowrap'
   },
   actionGroup: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px'
+    gap: '10px',
+    flexShrink: 0,
+    flexWrap: 'nowrap'
   },
   registerBtn: {
     backgroundImage: 'linear-gradient(135deg, #ff8c00, #fa5252)',
-    backgroundColor: '#ff8c00', // 폴백 컬러 추가
+    backgroundColor: '#ff8c00',
     color: '#ffffff',
     padding: '11px 22px',
     borderRadius: '999px',
@@ -84,7 +95,9 @@ export const mainStyles = {
     fontSize: '0.88rem',
     cursor: 'pointer',
     boxShadow: '0 10px 22px -6px rgba(250,82,82,0.55)',
-    transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
   },
   userChip: {
     display: 'flex',
@@ -92,11 +105,15 @@ export const mainStyles = {
     gap: '8px',
     padding: '7px 14px',
     backgroundImage: 'linear-gradient(135deg, #fff7ed, #fff1f2)',
-    backgroundColor: '#fff7ed', // 폴백 컬러 추가
+    backgroundColor: '#fff7ed',
     borderRadius: '999px',
     fontSize: '0.88rem',
     fontWeight: '700',
-    color: '#44403c'
+    color: '#44403c',
+    maxWidth: '160px',
+    flexShrink: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap'
   },
   subActionBtn: {
     padding: '9px 16px',
@@ -107,6 +124,8 @@ export const mainStyles = {
     fontWeight: '700',
     color: '#57534e',
     cursor: 'pointer',
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
   }
 };
