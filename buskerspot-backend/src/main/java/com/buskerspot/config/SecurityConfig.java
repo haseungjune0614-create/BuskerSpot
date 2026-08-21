@@ -36,10 +36,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // 프론트엔드 배포 주소 및 로컬 주소 허용
-        configuration.setAllowedOrigins(List.of(
+        // 프론트엔드 배포 주소, 로컬, 모바일 앱(localhost) 및 Render 배포 주소 전체 허용
+        configuration.setAllowedOriginPatterns(List.of(
             "https://buskerspot.pages.dev",
-            "http://localhost:3000"
+            "http://localhost:*",
+            "https://localhost:*",
+            "https://buskerspot.onrender.com",
+            "https://*.onrender.com"
         ));
         
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
@@ -65,7 +68,9 @@ public class SecurityConfig {
                     "/api/performances",
                     "/api/performances/**",
                     "/api/search/**", 
-                    "/uploads/**"
+                    "/uploads/**",
+                    "/login/oauth2/**",
+                    "/oauth2/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                 // 💡 비로그인도 가능해야 하는 아티스트 검색/조회
