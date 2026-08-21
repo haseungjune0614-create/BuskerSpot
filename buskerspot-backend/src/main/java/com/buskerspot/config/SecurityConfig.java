@@ -39,12 +39,14 @@ public class SecurityConfig {
         // 프론트엔드 배포 주소, 로컬, 모바일 앱(localhost) 및 Render 배포 주소 전체 허용
         configuration.setAllowedOriginPatterns(List.of(
             "https://buskerspot.pages.dev",
+            "http://localhost",
             "http://localhost:*",
+            "https://localhost",
             "https://localhost:*",
+            "capacitor://localhost",   // iOS / Android Capacitor 기본 scheme
             "https://buskerspot.onrender.com",
             "https://*.onrender.com"
         ));
-        
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -65,7 +67,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(
                     "/api/auth/**",
-                    "/oauth/**",             // 💡 소셜 로그인 콜백 경로 인증 예외 추가
+                    "/oauth/**",            // 소셜 로그인 콜백 경로 인증 예외 추가
                     "/api/performances",
                     "/api/performances/**",
                     "/api/search/**", 
@@ -75,7 +77,7 @@ public class SecurityConfig {
                     "/oauth2/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                // 💡 비로그인도 가능해야 하는 아티스트 검색/조회
+                // 비로그인도 가능해야 하는 아티스트 검색/조회
                 .requestMatchers(HttpMethod.GET, "/api/users/search-artist", "/api/users/{id}").permitAll()
                 .anyRequest().authenticated()
             )

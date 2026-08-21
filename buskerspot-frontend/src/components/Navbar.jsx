@@ -264,7 +264,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
           <span style={{ WebkitTextFillColor: 'initial' }}>🎸</span> <span>BuskerSpot</span>
         </div>
 
-        {/* 데스크탑 전용 메뉴 및 검색 (검색창을 오른쪽으로 밀어내기 위해 flex구조 활용) */}
+        {/* 데스크탑 전용 메뉴 및 검색 */}
         {!isMobile && (
           <div className="bsp-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '30px', flex: 1, justifyContent: 'flex-end', paddingRight: '20px', flexShrink: 0 }}>
             <nav style={{ ...mainStyles.menuGroup, flexShrink: 0, whiteSpace: 'nowrap' }}>
