@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { mainStyles } from '../styles/navbarStyles';
+import MessageBell from './MessageBell';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
@@ -265,13 +266,14 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
       <header
         style={{
           ...mainStyles.navbar,
+          flexWrap: 'nowrap',
           ...(isMobile
             ? { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 900, borderBottom: '1px solid #f1eee7' }
             : {})
         }}
       >
         <div
-          style={mainStyles.logoContainer}
+          style={{ ...mainStyles.logoContainer, flexShrink: 0 }}
           onClick={() => { setArtistKeyword(''); if (onSearch) onSearch(''); setActiveTab('search'); setIsSearchPageOpen(false); }}
         >
           <span style={{ WebkitTextFillColor: 'initial' }}>🎸</span> <span>BuskerSpot</span>
@@ -279,8 +281,8 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
 
         {/* 데스크탑 전용 메뉴 및 검색 */}
         {!isMobile && (
-          <div className="bsp-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <nav style={mainStyles.menuGroup}>
+          <div className="bsp-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0 }}>
+            <nav style={{ ...mainStyles.menuGroup, flexShrink: 0, whiteSpace: 'nowrap' }}>
               {navItems.map((item) => (
                 <button
                   key={item.key}
@@ -298,7 +300,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
               ))}
             </nav>
 
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
               <div
                 onClick={() => setIsSearchPageOpen(true)}
                 style={{
@@ -316,7 +318,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
 
         {/* 데스크탑 우측 액션 그룹 */}
         {!isMobile && (
-          <div className="bsp-desktop-only" style={mainStyles.actionGroup}>
+          <div className="bsp-desktop-only" style={{ ...mainStyles.actionGroup, flexShrink: 0, flexWrap: 'nowrap' }}>
             {currentUser && (
               <button
                 className="bsp-top-icon-btn"
@@ -324,7 +326,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
                 onClick={() => setActiveTab('notifications')}
                 style={{
                   position: 'relative', width: '38px', height: '38px', borderRadius: '50%', border: 'none',
-                  backgroundColor: activeTab === 'notifications' ? '#ffe3e3' : '#faf6f2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px'
+                  backgroundColor: activeTab === 'notifications' ? '#ffe3e3' : '#faf6f2', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0
                 }}
               >
                 🔔
@@ -335,28 +337,41 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
                 )}
               </button>
             )}
+            {currentUser && <MessageBell />}
 
             {currentUser?.role === 'ARTIST' && (
-              <button className="bsp-register-btn" style={mainStyles.registerBtn} onClick={onOpenRegisterModal}>
+              <button className="bsp-register-btn" style={{ ...mainStyles.registerBtn, flexShrink: 0 }} onClick={onOpenRegisterModal}>
                 + 공연 등록
               </button>
             )}
 
             {currentUser ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={mainStyles.userChip}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                <div style={{ ...mainStyles.userChip, maxWidth: '140px', overflow: 'hidden' }}>
                   <span>🛡️</span>
-                  <span><b>{currentUser.nickname}</b>님</span>
+                  <span
+                    style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      display: 'inline-block',
+                      maxWidth: '90px',
+                      verticalAlign: 'middle'
+                    }}
+                  >
+                    <b>{currentUser.nickname}</b>
+                  </span>
+                  님
                 </div>
                 {currentUser.role === 'ADMIN' && (
-                  <button className="bsp-sub-btn" style={mainStyles.subActionBtn} onClick={() => setActiveTab('admin')}>관리자 페이지</button>
+                  <button className="bsp-sub-btn" style={{ ...mainStyles.subActionBtn, flexShrink: 0 }} onClick={() => setActiveTab('admin')}>관리자 페이지</button>
                 )}
-                <button className="bsp-sub-btn" style={mainStyles.subActionBtn} onClick={() => setActiveTab('mypage')}>마이페이지</button>
-                <button className="bsp-sub-btn bsp-logout-btn" style={{ ...mainStyles.subActionBtn, color: '#fa5252', backgroundColor: '#fff5f5' }} onClick={onLogout}>로그아웃</button>
+                <button className="bsp-sub-btn" style={{ ...mainStyles.subActionBtn, flexShrink: 0 }} onClick={() => setActiveTab('mypage')}>마이페이지</button>
+                <button className="bsp-sub-btn bsp-logout-btn" style={{ ...mainStyles.subActionBtn, color: '#fa5252', backgroundColor: '#fff5f5', flexShrink: 0 }} onClick={onLogout}>로그아웃</button>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button className="bsp-login-btn" style={{ ...mainStyles.subActionBtn, backgroundColor: '#ff8c00', color: '#fff', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)' }} onClick={onOpenAuthModal}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                <button className="bsp-login-btn" style={{ ...mainStyles.subActionBtn, backgroundColor: '#ff8c00', color: '#fff', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)', flexShrink: 0 }} onClick={onOpenAuthModal}>
                   로그인 / 회원가입
                 </button>
               </div>
@@ -366,7 +381,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
 
         {/* 모바일 전용 상단 우측 버튼들 */}
         {isMobile && (
-          <div className="bsp-mobile-only" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div className="bsp-mobile-only" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
             {currentUser?.role === 'ARTIST' && (
               <button
                 className="bsp-register-btn"
@@ -429,6 +444,8 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
                 )}
               </button>
             )}
+
+            {currentUser && <MessageBell />}
           </div>
         )}
       </header>

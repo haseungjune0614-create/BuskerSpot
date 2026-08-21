@@ -1,0 +1,76 @@
+.admin-message-send {
+  max-width: 480px;
+  padding: 20px;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.admin-message-send h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+}
+
+.field-group {
+  margin-bottom: 14px;
+}
+
+.field-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.radio-group {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.field-group input[type='text'],
+.field-group input[type='number'],
+.field-group textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.admin-message-result {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.admin-message-result.success {
+  background: #eafbea;
+  color: #1f8b3d;
+}
+
+.admin-message-result.error {
+  background: #fdecea;
+  color: #c0392b;
+}
+
+.admin-message-send button[type='submit'] {
+  background: #3478f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-message-send button[type='submit']:disabled {
+  background: #a9c3f5;
+  cursor: not-allowed;
+}
