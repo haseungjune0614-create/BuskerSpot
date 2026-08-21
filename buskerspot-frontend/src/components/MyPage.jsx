@@ -5,7 +5,7 @@ import './../App.css';
 // 로컬 개발 환경에서는 localhost:8080으로 폴백합니다.
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
-// 💡 오늘 날짜 문자열(YYYY-MM-DD)을 구하는 유틸 함수
+// 오늘 날짜 문자열(YYYY-MM-DD)을 구하는 유틸 함수
 const getTodayDateStr = () => {
   const today = new Date();
   const year = today.getFullYear();
@@ -20,6 +20,9 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
   const [withdrawPassword, setWithdrawPassword] = useState('');
   
   const [activeModal, setActiveModal] = useState(null);
+  
+  // 💡 내 공연 관리 서브 탭 상태 추가 ('upcoming' | 'past')
+  const [myPerfSubTab, setMyPerfSubTab] = useState('upcoming');
 
   const [nickname, setNickname] = useState(currentUser?.nickname || '');
   const [profileImage, setProfileImage] = useState(currentUser?.profileImage || '');
@@ -43,7 +46,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
   useEffect(() => {
     if (currentUser) {
       setNickname(currentUser.nickname || '');
-     setProfileImage(currentUser.profileImage || '');
+      setProfileImage(currentUser.profileImage || '');
       setIntroduction(currentUser.introduction || '');
       setGenre(currentUser.genre || '');
       setInstagramUrl(currentUser.instagramUrl || '');
@@ -191,7 +194,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
     formData.append('image', file);
 
     try {
-    const res = await fetch(`${API_URL}/api/users/upload-image`, {
+      const res = await fetch(`${API_URL}/api/users/upload-image`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -213,20 +216,20 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch(`${API_URL}/api/users/profile`, {   // /api/users/profile 로 수정
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
-  },
-  body: JSON.stringify({ 
-  nickname, 
-  profileImage: profileImage,      // profile_image → profileImage
-  introduction, 
-  genre,
-  instagramUrl: instagramUrl       // instagram_url → instagramUrl
-})
-});
+      const res = await fetch(`${API_URL}/api/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ 
+          nickname, 
+          profileImage: profileImage, 
+          introduction, 
+          genre,
+          instagramUrl: instagramUrl 
+        })
+      });
 
       const data = await res.json();
       if (data.success) {
@@ -394,9 +397,16 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
   };
 
   const todayStr = getTodayDateStr();
+  
+  // 💡 성능 날짜 필드 이름(performance_date) 통일 및 지난 공연 필터 추가
   const upcomingMyPerformances = myPerformances.filter((perf) => {
-    const perfDateStr = perf.performanceDate?.split('T')[0];
+    const perfDateStr = perf.performance_date?.split('T')[0];
     return !perfDateStr || perfDateStr >= todayStr;
+  });
+
+  const pastMyPerformances = myPerformances.filter((perf) => {
+    const perfDateStr = perf.performance_date?.split('T')[0];
+    return perfDateStr && perfDateStr < todayStr;
   });
 
   return (
@@ -643,18 +653,49 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
               {activeModal === 'performances' && (
                 <>
                   <h3 style={{ ...styles.modalTitle, marginBottom: '16px' }}>🎤 내 공연 관리</h3>
-                  {upcomingMyPerformances.length === 0 ? (
+
+                  {/* 💡 예정된 공연 / 지난 공연 전환 탭 */}
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setMyPerfSubTab('upcoming')}
+                      style={{
+                        flex: 1, padding: '10px', borderRadius: '10px',
+                        border: '1px solid', borderColor: myPerfSubTab === 'upcoming' ? '#ff8c00' : '#dee2e6',
+                        background: myPerfSubTab === 'upcoming' ? '#fff9f0' : '#fff',
+                        color: myPerfSubTab === 'upcoming' ? '#d97706' : '#495057',
+                        fontWeight: 800, fontSize: '13px', cursor: 'pointer'
+                      }}
+                    >
+                      📅 예정된 공연 ({upcomingMyPerformances.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMyPerfSubTab('past')}
+                      style={{
+                        flex: 1, padding: '10px', borderRadius: '10px',
+                        border: '1px solid', borderColor: myPerfSubTab === 'past' ? '#495057' : '#dee2e6',
+                        background: myPerfSubTab === 'past' ? '#f1f3f5' : '#fff',
+                        color: myPerfSubTab === 'past' ? '#212529' : '#495057',
+                        fontWeight: 800, fontSize: '13px', cursor: 'pointer'
+                      }}
+                    >
+                      ⌛ 지난 공연 ({pastMyPerformances.length})
+                    </button>
+                  </div>
+
+                  {(myPerfSubTab === 'upcoming' ? upcomingMyPerformances : pastMyPerformances).length === 0 ? (
                     <p style={{ fontSize: '0.9rem', color: '#6c757d', textAlign: 'center', margin: '20px 0', fontWeight: 600 }}>
-                      예정된 공연이 없습니다.
+                      {myPerfSubTab === 'upcoming' ? '예정된 공연이 없습니다.' : '지난 공연이 없습니다.'}
                     </p>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                      {upcomingMyPerformances
+                      {(myPerfSubTab === 'upcoming' ? upcomingMyPerformances : pastMyPerformances)
                         .slice()
                         .sort((a, b) => {
                           const dateA = new Date(`${a.performance_date?.split('T')[0]}T${a.start_time || '00:00'}`);
                           const dateB = new Date(`${b.performance_date?.split('T')[0]}T${b.start_time || '00:00'}`);
-                          return dateA - dateB;
+                          return myPerfSubTab === 'upcoming' ? dateA - dateB : dateB - dateA;
                         })
                         .map((perf) => {
                           const isModifiable = canModifyOrDelete(perf.performance_date);
