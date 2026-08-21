@@ -20,6 +20,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByNicknameAndIdNot(String nickname, Long id);
 
+    Optional<User> findByKakaoId(String kakaoId);
+
+    Optional<User> findByGoogleId(String googleId);  
+
     @Query("SELECT u FROM User u WHERE u.role = :role AND (LOWER(u.nickname) LIKE :keyword OR LOWER(u.bandName) LIKE :keyword OR LOWER(u.genre) LIKE :keyword)")
     List<User> findByRoleAndKeyword(@Param("role") String role, @Param("keyword") String keyword);
 

@@ -16,7 +16,9 @@ public class RegisterRequest {
     private String nickname;
     private String role; // 'USER', 'ARTIST', 'ADMIN'
     private String phone;
+    private String kakaoId;
     private KakaoDataDto kakaoData;
+    private String googleId;
 
     @Getter
     @Setter

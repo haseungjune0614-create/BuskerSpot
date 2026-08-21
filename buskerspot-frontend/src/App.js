@@ -365,14 +365,12 @@ function NotificationsPage({ currentUser, performances, setDetailModalPerf, setS
     }
   };
 
-  // 💡 [신규] 알림 종류에 따라 공연 카드 / 아티스트 프로필 카드 분기
   const handleViewDetail = async (notif) => {
     if (!notif.is_read) handleReadNotification(notif.id);
 
     const isPerformanceType = notif.type === 'PERFORMANCE_NEW' || notif.type === 'PERFORMANCE_UPDATE';
 
     if (isPerformanceType && notif.performance_id) {
-      // 로컬에 이미 있으면 그걸 쓰고, 없으면 API로 가져오기
       const localPerf = safePerformances.find(p => p.id === notif.performance_id);
       if (localPerf) {
         setDetailModalPerf(localPerf);
@@ -394,41 +392,34 @@ function NotificationsPage({ currentUser, performances, setDetailModalPerf, setS
     }
 
     if (notif.type === 'PROFILE_UPDATE' && notif.artist_id) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/users/${notif.artist_id}`);
-    const data = await res.json();
-    const artist = data.user;
-    if (artist) {
-      setSelectedArtistProfile({
-        artist_id: artist.id || notif.artist_id,
-        stage_name: artist.nickname || artist.stageName || artist.stage_name,
-        genre: artist.genre || 'ALL',
-        profile_image: artist.profile_image || artist.profileImage,
-        instagram_url: artist.instagram_url || artist.instagramUrl,
-        introduction: artist.introduction,
-        follower_count: artist.follower_count || artist.followerCount || 0,
-        average_rating: artist.average_rating || artist.averageRating || 0,
-        review_count: artist.review_count || artist.reviewCount || 0
-      });
-    } else {
-      alert('아티스트 프로필을 찾을 수 없습니다.');
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/users/${notif.artist_id}`);
+        const data = await res.json();
+        const artist = data.user;
+        if (artist) {
+          setSelectedArtistProfile({
+            artist_id: artist.id || notif.artist_id,
+            stage_name: artist.nickname || artist.stageName || artist.stage_name,
+            genre: artist.genre || 'ALL',
+            profile_image: artist.profile_image || artist.profileImage,
+            instagram_url: artist.instagram_url || artist.instagramUrl,
+            introduction: artist.introduction,
+            follower_count: artist.follower_count || artist.followerCount || 0,
+            average_rating: artist.average_rating || artist.averageRating || 0,
+            review_count: artist.review_count || artist.reviewCount || 0
+          });
+        } else {
+          alert('아티스트 프로필을 찾을 수 없습니다.');
+        }
+      } catch (err) {
+        console.error('아티스트 프로필 조회 실패:', err);
+        alert('프로필 정보를 불러오지 못했습니다.');
+      }
+      return;
     }
-  } catch (err) {
-    console.error('아티스트 프로필 조회 실패:', err);
-    alert('프로필 정보를 불러오지 못했습니다.');
-  }
-  return;
-}
 
     alert('상세 정보를 표시할 수 없는 알림입니다.');
   };
-
-  // ... (return JSX 부분에서, 기존 targetPerf 관련 로직을 삭제하고)
-  // 상세보기 버튼을 모든 알림에 대해 표시하도록 변경:
-  //
-  // <button onClick={(e) => { e.stopPropagation(); handleViewDetail(notif); }}>
-  //   상세보기 →
-  // </button>
 
   return (
     <div style={{ width: '100%', maxWidth: '1240px', margin: '0 auto', padding: '40px 20px 60px', boxSizing: 'border-box' }}>
@@ -486,28 +477,25 @@ function NotificationsPage({ currentUser, performances, setDetailModalPerf, setS
                       안 읽음
                     </span>
                   )}
-                  {targetPerf && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (!notif.is_read) handleReadNotification(notif.id);
-                        setDetailModalPerf(targetPerf);
-                      }}
-                      style={{
-                        background: '#ff8c00',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '10px',
-                        padding: '8px 14px',
-                        fontSize: '12.5px',
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        boxShadow: '0 2px 6px rgba(255,140,0,0.2)'
-                      }}
-                    >
-                      상세보기 →
-                    </button>
-                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewDetail(notif);
+                    }}
+                    style={{
+                      background: '#ff8c00',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '10px',
+                      padding: '8px 14px',
+                      fontSize: '12.5px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 6px rgba(255,140,0,0.2)'
+                    }}
+                  >
+                    상세보기 →
+                  </button>
                 </div>
               </div>
             );
@@ -539,7 +527,7 @@ function App() {
   const [followedArtists, setFollowedArtists] = useState([]);
   const [bookmarkedIds, setBookmarkedIds] = useState([]);
   
-  const [center, setCenter] = useState({ lat: 37.3827, lng: 127.1189 }); // 서현역 기본 위치
+  const [center, setCenter] = useState({ lat: 37.3827, lng: 127.1189 });
   const [selectedPerf, setSelectedPerf] = useState(null);
   const [detailModalPerf, setDetailModalPerf] = useState(null);
   const [isMapVisible, setIsMapVisible] = useState(true);
@@ -555,7 +543,6 @@ function App() {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  // 💡 안 읽은 알림 개수
   const [unreadCount, setUnreadCount] = useState(0);
   const fetchUnreadCount = useCallback(async () => {
     if (!currentUser) { setUnreadCount(0); return; }
@@ -578,6 +565,7 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [pendingKakaoData, setPendingKakaoData] = useState(null);
+  const [pendingGoogleData, setPendingGoogleData] = useState(null); // 💡 구글 회원가입 대기 데이터 상태 추가
 
   const handleTabChange = useCallback((newTab) => {
     const protectedTabs = ['following', 'bookmarks', 'mypage', 'notifications'];
@@ -594,7 +582,6 @@ function App() {
   const [inputGenre, setInputGenre] = useState('ALL');
   const [inputSort, setInputSort] = useState('time');
 
-  // 1. 공연 목록 조회
   const fetchPerformances = useCallback(async () => {
     try {
       const queryParams = new URLSearchParams({
@@ -620,7 +607,6 @@ function App() {
     }
   }, [inputDate, inputRegion, inputGenre, inputSort, center.lat, center.lng]);
 
-  // 2. 유저 팔로우/북마크 정보 및 팔로잉 공연 조회
   const fetchUserData = useCallback(async () => {
     if (!currentUser) {
       setFollowedArtistIds([]);
@@ -634,7 +620,6 @@ function App() {
       const token = currentUser.token || localStorage.getItem('token');
       const headers = { Authorization: `Bearer ${token}` };
 
-      // 팔로우한 아티스트 목록
       const followRes = await fetch(`${API_BASE_URL}/api/follows/my-follows`, { headers });
       if (followRes.ok) {
         const followData = await followRes.json();
@@ -650,7 +635,6 @@ function App() {
         }
       }
 
-      // 팔로우한 아티스트의 공연 목록
       const followPerfRes = await fetch(`${API_BASE_URL}/api/follows/following-performances`, { headers });
       if (followPerfRes.ok) {
         const followPerfData = await followPerfRes.json();
@@ -674,7 +658,6 @@ function App() {
         }
       }
 
-      // 북마크 목록 (💡 백엔드는 'performances' 키로 공연 객체 배열을 반환하므로 id만 추출)
       const bookmarkRes = await fetch(`${API_BASE_URL}/api/performances/my-bookmarks`, { headers });
       if (bookmarkRes.ok) {
         const bookmarkData = await bookmarkRes.json();
@@ -692,6 +675,7 @@ function App() {
     fetchUserData();
   }, [fetchPerformances, fetchUserData]);
 
+  // 카카오 콜백 처리
   useEffect(() => {
     const handleKakaoRedirect = async () => {
       if (window.location.pathname !== '/oauth/kakao/callback') return;
@@ -716,8 +700,16 @@ function App() {
         const data = await res.json();
 
         if (data.success) {
-          setPendingKakaoData(data.kakaoData);
-          setIsAuthModalOpen(true);
+          if (data.existingUser) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            setCurrentUser(data.user);
+            handleDataRefresh();
+            alert(`${data.user.nickname}님, 환영합니다!`);
+          } else {
+            setPendingKakaoData(data.kakaoData);
+            setIsAuthModalOpen(true);
+          }
         } else {
           alert(data.message || '카카오 인증에 실패했습니다.');
         }
@@ -730,7 +722,56 @@ function App() {
     };
 
     handleKakaoRedirect();
-  }, []);
+  }, [handleDataRefresh]);
+
+  // 구글 콜백 처리
+  useEffect(() => {
+    const handleGoogleRedirect = async () => {
+      if (window.location.pathname !== '/oauth/google/callback') return;
+
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      if (!code) return;
+
+      const alreadyProcessedCode = sessionStorage.getItem('google_processed_code');
+      if (alreadyProcessedCode === code) {
+        window.history.replaceState({}, document.title, '/');
+        return;
+      }
+      sessionStorage.setItem('google_processed_code', code);
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/auth/google/callback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          if (data.existingUser) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            setCurrentUser(data.user);
+            handleDataRefresh();
+            alert(`${data.user.nickname}님, 환영합니다!`);
+          } else {
+            setPendingGoogleData(data.googleData); // 💡 구글 전용 대기 데이터에 올바르게 저장
+            setIsAuthModalOpen(true);
+          }
+        } else {
+          alert(data.message || '구글 인증에 실패했습니다.');
+        }
+      } catch (err) {
+        console.error('구글 콜백 처리 오류:', err);
+        alert('구글 인증 처리 중 오류가 발생했습니다.');
+      }
+
+      window.history.replaceState({}, document.title, '/');
+    };
+
+    handleGoogleRedirect();
+  }, [handleDataRefresh]);
 
   useEffect(() => {
     fetchPerformances();
@@ -744,7 +785,6 @@ function App() {
     fetchPerformances();
   }, [fetchPerformances]);
 
-  // 팔로우 토글
   const handleToggleFollow = useCallback(async (artistId) => {
     if (!currentUser) {
       setIsAuthModalOpen(true);
@@ -770,7 +810,6 @@ function App() {
     }
   }, [currentUser, fetchUserData]);
 
-  // 북마크 토글 (💡 백엔드 응답 키는 'isBookmarked'이므로 이를 기준으로 상태 갱신)
   const handleToggleBookmark = useCallback(async (performanceId, e) => {
     if (e) e.stopPropagation();
     const token = localStorage.getItem('token') || currentUser?.token;
@@ -819,40 +858,39 @@ function App() {
     let matchedPerfs = [];
 
     try {
-  const res = await fetch(`${API_BASE_URL}/api/performances?keyword=${encodeURIComponent(trimmedKey)}`);
-  if (res.ok) {
-    const data = await res.json();
-    if (data.success && data.performances) {
-      matchedPerfs = data.performances;
-    } else if (Array.isArray(data)) {
-      matchedPerfs = data;
+      const res = await fetch(`${API_BASE_URL}/api/performances?keyword=${encodeURIComponent(trimmedKey)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.performances) {
+          matchedPerfs = data.performances;
+        } else if (Array.isArray(data)) {
+          matchedPerfs = data;
+        }
+      }
+    } catch (err) {
+      console.warn('검색 API 호출 실패, 로컬 데이터로 대체합니다.');
     }
-  }
-} catch (err) {
-  console.warn('검색 API 호출 실패, 로컬 데이터로 대체합니다.');
-}
 
-// 💡 API 결과도 안전하게 다시 한 번 로컬 필터링 (파라미터 불일치 등으로 인한 오염 방지)
-const filterByKeyword = (p) => {
-  const targetStr = [
-    p.title,
-    p.region,
-    p.location_name,
-    p.genre,
-    p.stage_name,
-    p.organizer_name,
-    p.description
-  ].join(' ').toLowerCase();
-  return targetStr.includes(searchKey) || targetStr.includes(trimmedKey.toLowerCase());
-};
+    const filterByKeyword = (p) => {
+      const targetStr = [
+        p.title,
+        p.region,
+        p.location_name,
+        p.genre,
+        p.stage_name,
+        p.organizer_name,
+        p.description
+      ].join(' ').toLowerCase();
+      return targetStr.includes(searchKey) || targetStr.includes(trimmedKey.toLowerCase());
+    };
 
-const safePerformances = Array.isArray(performances) ? performances : [];
-const localMatchedPerfs = safePerformances.filter(filterByKeyword);
-const apiMatchedPerfs = matchedPerfs.filter(filterByKeyword); // 💡 API 결과도 반드시 필터링
+    const safePerformances = Array.isArray(performances) ? performances : [];
+    const localMatchedPerfs = safePerformances.filter(filterByKeyword);
+    const apiMatchedPerfs = matchedPerfs.filter(filterByKeyword);
 
-const allPerfsMap = new Map();
-[...apiMatchedPerfs, ...localMatchedPerfs].forEach(p => allPerfsMap.set(p.id, p));
-const finalPerfs = Array.from(allPerfsMap.values());
+    const allPerfsMap = new Map();
+    [...apiMatchedPerfs, ...localMatchedPerfs].forEach(p => allPerfsMap.set(p.id, p));
+    const finalPerfs = Array.from(allPerfsMap.values());
 
     const artistMap = new Map();
     safePerformances.forEach(p => {
@@ -925,18 +963,18 @@ const finalPerfs = Array.from(allPerfsMap.values());
   return (
     <div className="buskerspot-app" style={{ minHeight: '100vh', background: '#f8f9fa', width: '100%', boxSizing: 'border-box', fontFamily: "'Noto Sans KR', sans-serif" }}>
       <Navbar
-  activeTab={activeTab}
-  setActiveTab={handleTabChange}
-  currentUser={currentUser}
-  onOpenAuthModal={() => setIsAuthModalOpen(true)}
-  onOpenRegisterModal={handleOpenRegisterModal}
-  onLogout={handleLogout}
-  searchKeyword={headerSearchKeyword}
-  setSearchKeyword={setHeaderSearchKeyword}
-  onSearch={handleNavbarSearchSubmit}
-  onRegisterSearchOpen={handleRegisterSearchOpenRef}
-  unreadCount={unreadCount}
-/>
+        activeTab={activeTab}
+        setActiveTab={handleTabChange}
+        currentUser={currentUser}
+        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenRegisterModal={handleOpenRegisterModal}
+        onLogout={handleLogout}
+        searchKeyword={headerSearchKeyword}
+        setSearchKeyword={setHeaderSearchKeyword}
+        onSearch={handleNavbarSearchSubmit}
+        onRegisterSearchOpen={handleRegisterSearchOpenRef}
+        unreadCount={unreadCount}
+      />
 
       {activeTab === 'search' && (
         <PerformanceSearch
@@ -970,11 +1008,11 @@ const finalPerfs = Array.from(allPerfsMap.values());
 
       {activeTab === 'notifications' && (
         <NotificationsPage
-  currentUser={currentUser}
-  performances={performances}
-  setDetailModalPerf={setDetailModalPerf}
-  onNotificationRead={() => setUnreadCount((c) => Math.max(0, c - 1))}
-/>
+          currentUser={currentUser}
+          performances={performances}
+          setDetailModalPerf={setDetailModalPerf}
+          onNotificationRead={() => setUnreadCount((c) => Math.max(0, c - 1))}
+        />
       )}
 
       {activeTab === 'bookmarks' && (() => {
@@ -1512,6 +1550,8 @@ const finalPerfs = Array.from(allPerfsMap.values());
         }}
         pendingKakaoData={pendingKakaoData}
         onKakaoDataConsumed={() => setPendingKakaoData(null)}
+        pendingGoogleData={pendingGoogleData}
+        onGoogleDataConsumed={() => setPendingGoogleData(null)}
       />
 
       <RegisterPerformanceModal
