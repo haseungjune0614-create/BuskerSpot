@@ -1,11 +1,12 @@
 # ==========================================
-# 공통 설정 (기본값)
+# 공통 설정 (기본값: dev)
 # ==========================================
 server:
   port: 8080
+
 spring:
   profiles:
-    active: dev # 기본 실행 프로필 (Render 배포 시 prod 적용)
+    active: dev # 기본 실행 프로필 (Render 배포 시 SPRING_PROFILES_ACTIVE=prod 환경변수로 전환)
   datasource:
     url: jdbc:postgresql://localhost:5432/buskerspot
     username: ${DB_USERNAME:postgres}
@@ -30,9 +31,11 @@ spring:
           auth: true
           starttls:
             enable: true
+
 jwt:
   secret: ${JWT_SECRET:everystay_1592_band_bumsu_9027_secure_key}
   expiration: 86400000
+
 api:
   groq:
     key: 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
@@ -44,12 +47,14 @@ api:
     client-id: 837963657825-gejm31g6via3o16dciknj0l70ss2sinu.apps.googleusercontent.com
     client-secret: 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
     redirect-uri: http://localhost:3000/oauth/google/callback
+
 logging:
   level:
     root: INFO
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+
 ---
 # ==========================================
 # 개발용 환경 (dev 프로필)
@@ -62,6 +67,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/buskerspot_dev
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:1234}
+
 ---
 # ==========================================
 # 배포용 환경 (prod 프로필 - Render)
@@ -75,5 +81,12 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
 jwt:
   secret: ${JWT_SECRET}
+
+api:
+  kakao:
+    redirect-uri: https://buskerspot.pages.dev/oauth/kakao/callback
+  google:
+    redirect-uri: https://buskerspot.pages.dev/oauth/google/callback
