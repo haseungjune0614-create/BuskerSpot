@@ -248,7 +248,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 랜딩 화면 (기본값이 'form'이라 직접 노출되진 않지만 구조상 유지)
+  // 랜딩 화면
   const renderLanding = () => (
     <div
       style={{
@@ -302,7 +302,10 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '15px',
           }}
         >
-          💬 카카오로 3초만에 시작하기
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ width: '20px', height: '20px', display: 'block' }}>
+            <path fill="#191919" d="M12 3C6.477 3 2 6.145 2 10.024c0 2.456 1.583 4.606 3.963 5.852-.172.63-.623 2.285-.714 2.634-.112.434.158.427.336.311.139-.091 2.203-1.498 2.556-1.745.594.086 1.205.132 1.83 1.32 4.477 0 8.973-3.145 8.973-7.024C19 6.145 15.023 3 12 3z"/>
+          </svg>
+          카카오로 3초만에 시작하기
         </button>
 
         <button
@@ -341,7 +344,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     </div>
   );
 
-  // 로그인 / 회원가입 폼 화면 (기본 화면)
+  // 로그인 / 회원가입 폼 화면
   const renderForm = () => (
     <div
       style={{
@@ -467,8 +470,11 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>아티스트 본인 확인</label>
               {isKakaoVerified ? (
-                <div style={{ padding: '12px 14px', background: '#fff9db', border: '1px solid #fcc419', borderRadius: '12px', fontSize: '13.5px', color: '#f08c00', fontWeight: 700, textAlign: 'center' }}>
-                  💬 카카오톡 본인 인증 완료됨
+                <div style={{ padding: '12px 14px', background: '#fff9db', border: '1px solid #fcc419', borderRadius: '12px', fontSize: '13.5px', color: '#f08c00', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ width: '18px', height: '18px', display: 'block' }}>
+                    <path fill="#f08c00" d="M12 3C6.477 3 2 6.145 2 10.024c0 2.456 1.583 4.606 3.963 5.852-.172.63-.623 2.285-.714 2.634-.112.434.158.427.336.311.139-.091 2.203-1.498 2.556-1.745.594.086 1.205.132 1.83 1.32 4.477 0 8.973-3.145 8.973-7.024C19 6.145 15.023 3 12 3z"/>
+                  </svg>
+                  카카오톡 본인 인증 완료됨
                 </div>
               ) : (
                 <button
@@ -481,7 +487,10 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                     boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
                   }}
                 >
-                  💬 카카오톡으로 간편 인증하기
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ width: '18px', height: '18px', display: 'block' }}>
+                    <path fill="#191919" d="M12 3C6.477 3 2 6.145 2 10.024c0 2.456 1.583 4.606 3.963 5.852-.172.63-.623 2.285-.714 2.634-.112.434.158.427.336.311.139-.091 2.203-1.498 2.556-1.745.594.086 1.205.132 1.83 1.32 4.477 0 8.973-3.145 8.973-7.024C19 6.145 15.023 3 12 3z"/>
+                  </svg>
+                  카카오톡으로 간편 인증하기
                 </button>
               )}
             </div>
@@ -543,10 +552,12 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                     width: '48px', height: '48px', borderRadius: '50%',
                     background: '#FEE500', border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
                   }}
                 >
-                  💬
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ width: '22px', height: '22px', display: 'block' }}>
+                    <path fill="#191919" d="M12 3C6.477 3 2 6.145 2 10.024c0 2.456 1.583 4.606 3.963 5.852-.172.63-.623 2.285-.714 2.634-.112.434.158.427.336.311.139-.091 2.203-1.498 2.556-1.745.594.086 1.205.132 1.83 1.32 4.477 0 8.973-3.145 8.973-7.024C19 6.145 15.023 3 12 3z"/>
+                  </svg>
                 </button>
                 <button
                   type="button"
