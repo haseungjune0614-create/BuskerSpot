@@ -55,6 +55,9 @@ public class User {
     @Column(name = "kakao_id")
     private String kakaoId;
 
+    @Column(name = "google_id")   // 💡 추가
+private String googleId;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

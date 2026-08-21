@@ -47,6 +47,8 @@ dependencies {
 
     // Spring Boot Test (테스트 코드 작성용)
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {

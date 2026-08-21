@@ -6,9 +6,10 @@ import com.buskerspot.dto.auth.ProfileUpdateRequest;
 import com.buskerspot.dto.auth.RegisterRequest;
 import com.buskerspot.entity.User;
 import com.buskerspot.repository.UserRepository;
-import com.buskerspot.service.NotificationService;
 
 import lombok.RequiredArgsConstructor;
+import com.buskerspot.service.EmailService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     private final List<String> forbiddenWords = List.of(
         "씨발", "병신", "바보", "멍청이", "fuck", "shit", "bitch", "bastard",
@@ -69,6 +71,8 @@ public class UserService {
                 .nickname(nickname)
                 .role(role)
                 .phone(phone)
+                .kakaoId(request.getKakaoId())
+                .googleId(request.getGoogleId())
                 .build();
 
         return userRepository.save(user);
@@ -123,15 +127,15 @@ public class UserService {
         if (request.getInstagramUrl() != null) user.setInstagramUrl(request.getInstagramUrl());
 
         User saved = userRepository.save(user);
-if (nicknameChanged) {
-    notificationService.notifyFollowers(
-        saved.getId(),
-        "팔로우하신 아티스트가 닉네임을 " + saved.getNickname() + "(으)로 변경했습니다.",
-        "PROFILE_UPDATE",
-        null   // 💡 프로필 알림은 특정 공연이 없으므로 null
-    );
-}
-return saved;
+        if (nicknameChanged) {
+            notificationService.notifyFollowers(
+                saved.getId(),
+                "팔로우하신 아티스트가 닉네임을 " + saved.getNickname() + "(으)로 변경했습니다.",
+                "PROFILE_UPDATE",
+                null   // 프로필 알림은 특정 공연이 없으므로 null
+            );
+        }
+        return saved;
     }
 
     public List<User> searchArtists(String keyword) {
@@ -142,4 +146,70 @@ return saved;
         return userRepository.findById(id)
                 .orElseThrow(() -> new CustomException("아티스트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
     }
+
+    public Map<String, Object> handleKakaoLogin(String kakaoId, String nickname, String email, String profileImage) {
+        return userRepository.findByKakaoId(kakaoId)
+                .map(user -> {
+                    String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole(), user.getNickname());
+                    return Map.<String, Object>of(
+                            "success", true,
+                            "existingUser", true,
+                            "token", token,
+                            "user", user
+                    );
+                })
+                .orElseGet(() -> {
+                    Map<String, Object> kakaoData = Map.of(
+                            "kakaoId", kakaoId,
+                            "nickname", nickname != null ? nickname : "",
+                            "email", email != null ? email : "",
+                            "profileImage", profileImage != null ? profileImage : ""
+                    );
+                    return Map.of(
+                            "success", true,
+                            "existingUser", false,
+                            "kakaoData", kakaoData
+                    );
+                });
+    }
+
+    // 💡 [추가된 임시 비밀번호 발급 메서드]
+    @Transactional
+    public Map<String, Object> issueTempPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException("가입되지 않은 이메일입니다.", HttpStatus.BAD_REQUEST));
+
+        String tempPassword = emailService.generateTempPassword();
+        user.setPassword(passwordEncoder.encode(tempPassword));
+        userRepository.save(user);
+
+        emailService.sendTempPassword(email, tempPassword);
+
+        return Map.of("success", true, "message", "임시 비밀번호가 이메일로 전송되었습니다.");
+    }
+    public Map<String, Object> handleGoogleLogin(String googleId, String nickname, String email, String profileImage) {
+    return userRepository.findByGoogleId(googleId)
+            .map(user -> {
+                String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole(), user.getNickname());
+                return Map.<String, Object>of(
+                        "success", true,
+                        "existingUser", true,
+                        "token", token,
+                        "user", user
+                );
+            })
+            .orElseGet(() -> {
+                Map<String, Object> googleData = Map.of(
+                        "googleId", googleId,
+                        "nickname", nickname != null ? nickname : "",
+                        "email", email != null ? email : "",
+                        "profileImage", profileImage != null ? profileImage : ""
+                );
+                return Map.of(
+                        "success", true,
+                        "existingUser", false,
+                        "googleData", googleData
+                );
+            });
+}
 }

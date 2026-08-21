@@ -5,12 +5,12 @@ import './../App.css';
 // 로컬 개발 환경에서는 localhost:5000으로 폴백합니다.
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoDataConsumed }) {
-  // 💡 랜딩(플랩 스타일 진입 화면) vs 폼(기존 로그인/회원가입 화면) 전환 상태
+function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoDataConsumed, pendingGoogleData, onGoogleDataConsumed }) {
+  // 랜딩(플랩 스타일 진입 화면) vs 폼(기존 로그인/회원가입 화면) 전환 상태
   const [view, setView] = useState('landing'); // 'landing' | 'form'
 
   const [isSignUp, setIsSignUp] = useState(false);
-  const [isForgotPassword, setIsForgotPassword] = useState(false); // 💡 비밀번호 찾기 모드 상태 추가
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
 
   // 입력 필드 상태
   const [email, setEmail] = useState('');
@@ -27,11 +27,14 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
   const [isKakaoVerified, setIsKakaoVerified] = useState(false);
   const [kakaoProfileData, setKakaoProfileData] = useState(null);
 
+  // 💡 구글 인증 프로필 데이터 상태 추가 (구글은 카카오와 달리 role 강제 및 본인인증 배지 없음)
+  const [googleProfileData, setGoogleProfileData] = useState(null);
+
   // 메시지 상태
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // 💡 카카오 인증 후 돌아왔을 때 상태 및 세션에 저장해둔 폼 데이터 복원
+  // 카카오 인증 후 돌아왔을 때 상태 및 세션에 저장해둔 폼 데이터 복원
   useEffect(() => {
     if (pendingKakaoData) {
       setView('form');
@@ -41,7 +44,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       setKakaoProfileData(pendingKakaoData);
       setIsKakaoVerified(true);
 
-      // sessionStorage에 저장해둔 입력값 복원
       const savedForm = sessionStorage.getItem('kakao_signup_form');
       if (savedForm) {
         const parsed = JSON.parse(savedForm);
@@ -52,15 +54,47 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           setIsEmailVerified(true);
           setIsEmailCodeSent(true);
         }
-        sessionStorage.removeItem('kakao_signup_form'); // 복원 후 삭제
+        sessionStorage.removeItem('kakao_signup_form');
       }
 
-      // 💡 부모의 pendingKakaoData를 즉시 비워서 재사용 방지
       if (onKakaoDataConsumed) {
         onKakaoDataConsumed();
       }
     }
   }, [pendingKakaoData, onKakaoDataConsumed]);
+
+  // 💡 구글 간편 회원가입 후 돌아왔을 때 처리 (카카오와 분리, 역할 및 인증 강제 지정 없음)
+  useEffect(() => {
+    if (pendingGoogleData) {
+      setView('form');
+      setIsSignUp(true);
+      setIsForgotPassword(false);
+      setGoogleProfileData(pendingGoogleData);
+
+      // 구글 프로필 데이터에 이메일이나 이름이 포함되어 있다면 기본 세팅
+      if (pendingGoogleData.email) {
+        setEmail(pendingGoogleData.email);
+        setIsEmailVerified(true); // 구글은 이미 인증된 이메일이므로 완료 처리
+        setIsEmailCodeSent(true);
+      }
+      if (pendingGoogleData.name || pendingGoogleData.nickname) {
+        setNickname(pendingGoogleData.name || pendingGoogleData.nickname);
+      }
+
+      const savedForm = sessionStorage.getItem('google_signup_form');
+      if (savedForm) {
+        const parsed = JSON.parse(savedForm);
+        if (parsed.email) setEmail(parsed.email);
+        if (parsed.nickname) setNickname(parsed.nickname);
+        if (parsed.password) setPassword(parsed.password);
+        sessionStorage.removeItem('google_signup_form');
+      }
+
+      if (onGoogleDataConsumed) {
+        onGoogleDataConsumed();
+      }
+    }
+  }, [pendingGoogleData, onGoogleDataConsumed]);
 
   if (!isOpen) return null;
 
@@ -80,6 +114,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     setIsEmailCodeSent(false);
     setIsKakaoVerified(false);
     setKakaoProfileData(null);
+    setGoogleProfileData(null);
     onClose();
   };
 
@@ -135,7 +170,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 💡 3. 비밀번호 찾기 (임시 비밀번호 발급) 요청
+  // 3. 비밀번호 찾기 (임시 비밀번호 발급) 요청
   const handleForgotPasswordSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -175,7 +210,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       return;
     }
 
-    // 현재 작성 중인 폼 내용 임시 저장
     const formData = {
       email,
       nickname,
@@ -184,15 +218,36 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     };
     sessionStorage.setItem('kakao_signup_form', JSON.stringify(formData));
 
-    // 배포 환경에서는 REACT_APP_KAKAO_REDIRECT_URI를 사용하고,
-    // 없으면 현재 접속 중인 origin 기준으로 콜백 URL을 생성합니다.
     const REDIRECT_URI =
       process.env.REACT_APP_KAKAO_REDIRECT_URI ||
       `${window.location.origin}/oauth/kakao/callback`;
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
-    // 카카오 인증 페이지로 이동
     window.location.href = kakaoAuthUrl;
+  };
+
+  // 구글 간편 인증 요청
+  const handleGoogleAuth = () => {
+    setErrorMessage('');
+    setSuccessMessage('');
+
+    const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+    if (!CLIENT_ID) {
+      setErrorMessage('구글 클라이언트 ID가 설정되지 않았습니다. .env 파일을 확인해주세요.');
+      return;
+    }
+
+    const formData = { email, nickname, password, isEmailVerified };
+    sessionStorage.setItem('google_signup_form', JSON.stringify(formData));
+
+    const REDIRECT_URI =
+      process.env.REACT_APP_GOOGLE_REDIRECT_URI ||
+      `${window.location.origin}/oauth/google/callback`;
+
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=email%20profile`;
+
+    window.location.href = googleAuthUrl;
   };
 
   // 회원가입 및 로그인 처리 폼 제출
@@ -202,19 +257,16 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     setSuccessMessage('');
 
     if (isSignUp) {
-      // 이메일 인증은 공통 필수
       if (!isEmailVerified) {
         setErrorMessage('이메일 인증을 완료해 주세요.');
         return;
       }
 
-      // 아티스트인 경우에만 카카오 인증 필수 검사
-      if (role === 'ARTIST' && !isKakaoVerified) {
-        setErrorMessage('아티스트 가입 시 카카오톡 인증은 필수입니다.');
+      if (role === 'ARTIST' && !isKakaoVerified && !googleProfileData) {
+        setErrorMessage('아티스트 가입 시 본인 인증(또는 소셜 연동)은 필수입니다.');
         return;
       }
 
-      // 회원가입 API 호출
       try {
         const response = await fetch(`${API_URL}/api/auth/register`, {
           method: 'POST',
@@ -224,17 +276,21 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             password,
             nickname,
             role,
-            kakaoData: role === 'ARTIST' ? kakaoProfileData : null
+            kakaoData: role === 'ARTIST' ? kakaoProfileData : null,
+            kakaoId: role === 'ARTIST' && kakaoProfileData ? kakaoProfileData.kakaoId : null,
+            googleData: googleProfileData, // 💡 구글 회원가입 데이터 전달
+            googleId: googleProfileData ? googleProfileData.googleId || googleProfileData.sub : null
           }),
         });
         const data = await response.json();
         if (data.success) {
           alert('회원가입이 완료되었습니다! 로그인해 주세요.');
-          setIsSignUp(false); // 로그인 탭으로 전환
+          setIsSignUp(false);
           setPassword('');
           setIsEmailVerified(false);
           setIsKakaoVerified(false);
-          setKakaoProfileData(null); // 💡 회원가입 완료 후 카카오 프로필 데이터 초기화
+          setKakaoProfileData(null);
+          setGoogleProfileData(null);
         } else {
           setErrorMessage(data.message || '회원가입 실패');
         }
@@ -242,7 +298,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         setErrorMessage('서버 연결 실패 (회원가입)');
       }
     } else {
-      // 로그인 처리 API 호출
       try {
         const response = await fetch(`${API_URL}/api/auth/login`, {
           method: 'POST',
@@ -268,9 +323,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // ─────────────────────────────────────────────
-  // 💡 플랩(Flip) 스타일 랜딩 화면
-  // ─────────────────────────────────────────────
+  // 플랩(Flip) 스타일 랜딩 화면
   const renderLanding = () => (
     <div
       style={{
@@ -302,8 +355,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         ✕
       </button>
 
-      {/* 로고 / 태그라인 — 실제 서비스명·문구에 맞게 교체해주세요 */}
-      <div style={{ textAlign: 'center', margin: '20px 0 44px' }}>
+      <div style={{ textAlign: 'center', margin: '20px 0 32px' }}>
         <div style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '14px', color: '#ff8c00' }}>
           BuskerSpot
         </div>
@@ -311,6 +363,9 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           아티스트와 관객을 잇는 가장 쉬운 방법
         </p>
       </div>
+
+      {errorMessage && <p style={{ color: '#fa5252', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{errorMessage}</p>}
+      {successMessage && <p style={{ color: '#0ca678', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{successMessage}</p>}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <button
@@ -323,6 +378,27 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           }}
         >
           💬 카카오로 3초만에 시작하기
+        </button>
+
+        <button
+          type="button"
+          onClick={handleGoogleAuth}
+          className="gsi-material-button"
+          style={{ width: '100%', borderRadius: '999px', height: '48px' }}
+        >
+          <div className="gsi-material-button-state"></div>
+          <div className="gsi-material-button-content-wrapper" style={{ justifyContent: 'center', gap: '10px' }}>
+            <div className="gsi-material-button-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ display: 'block', width: '20px', height: '20px' }}>
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                <path fill="none" d="M0 0h48v48H0z"></path>
+              </svg>
+            </div>
+            <span className="gsi-material-button-contents" style={{ fontWeight: 700, fontSize: '15px', color: '#1f1f1f', flexGrow: 0 }}>Google로 계속하기</span>
+          </div>
         </button>
 
         <button
@@ -356,9 +432,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     </div>
   );
 
-  // ─────────────────────────────────────────────
-  // 기존 로그인 / 회원가입 폼 화면 (그대로 유지)
-  // ─────────────────────────────────────────────
+  // 기존 로그인 / 회원가입 폼 화면
   const renderForm = () => (
     <div
       style={{
@@ -402,7 +476,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       {errorMessage && <p style={{ color: '#fa5252', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{errorMessage}</p>}
       {successMessage && <p style={{ color: '#0ca678', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{successMessage}</p>}
 
-      {/* 💡 비밀번호 찾기 뷰 */}
       {isForgotPassword ? (
         <form onSubmit={handleForgotPasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div>
@@ -441,11 +514,9 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           </p>
         </form>
       ) : (
-        /* 기존 로그인 및 회원가입 뷰 */
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {isSignUp && (
             <>
-              {/* 유저 역할 선택 버튼 */}
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
                   type="button"
@@ -485,7 +556,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             </>
           )}
 
-          {/* 1. 이메일 & 이메일 인증번호 입력 영역 (공통) */}
           <div>
             <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>이메일 주소</label>
             <div style={{ display: 'flex', gap: '8px' }}>
@@ -521,8 +591,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             </div>
           )}
 
-          {/* 2. 카카오톡 인증 영역 (아티스트 선택 시에만 노출) */}
-          {isSignUp && role === 'ARTIST' && (
+          {isSignUp && role === 'ARTIST' && !googleProfileData && (
             <div>
               <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>아티스트 본인 확인</label>
               {isKakaoVerified ? (
@@ -546,7 +615,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             </div>
           )}
 
-          {/* 비밀번호 입력 */}
           <div>
             <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>비밀번호</label>
             <input
@@ -559,7 +627,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             />
           </div>
 
-          {/* 💡 로그인 화면일 때만 '비밀번호 찾기' 버튼 노출 */}
           {!isSignUp && (
             <div style={{ textAlign: 'right', marginTop: '-4px' }}>
               <span
