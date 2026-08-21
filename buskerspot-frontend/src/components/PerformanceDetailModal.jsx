@@ -142,7 +142,7 @@ function PerformanceDetailModal({
   const fetchReviews = useCallback(async () => {
     if (!perfId) return;
     try {
-      const response = await fetch(`http://localhost:8080/api/reviews/${perfId}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reviews/${perfId}`);
       if (response.ok) {
         const data = await response.json();
         setReviews(data);
@@ -175,7 +175,7 @@ function PerformanceDetailModal({
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/reviews', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
