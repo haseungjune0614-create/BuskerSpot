@@ -161,7 +161,7 @@ export default function PerformanceSearch({
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://') || imagePath.startsWith('blob:')) return imagePath;
-    return `http://localhost:8080${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+    return `${process.env.REACT_APP_API_URL}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
   };
 
   const handleGetMyCurrentLocation = () => {

@@ -30,7 +30,7 @@ export default function ArtistProfile({
 
     const fetchArtistPerformances = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/performances?artist_id=${artistId}`);
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/performances?artist_id=${artistId}`);
         const data = await res.json();
         
         let rawList = [];
@@ -75,7 +75,7 @@ export default function ArtistProfile({
   const profileImgSrc = rawProfileImg 
     ? (rawProfileImg.startsWith('http://') || rawProfileImg.startsWith('https://') || rawProfileImg.startsWith('blob:') 
         ? rawProfileImg 
-        : `http://localhost:8080${rawProfileImg.startsWith('/') ? '' : '/'}${rawProfileImg}`) 
+        : `${process.env.REACT_APP_API_URL}${rawProfileImg.startsWith('/') ? '' : '/'}${rawProfileImg}`) 
     : null;
 
   const todayStr = getTodayDateStr();
