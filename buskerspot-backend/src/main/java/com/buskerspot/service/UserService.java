@@ -212,4 +212,18 @@ public class UserService {
                 );
             });
 }
+@Transactional
+public Map<String, Object> changePassword(Long userId, String currentPassword, String newPassword) {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+    if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+        throw new CustomException("현재 비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
+    }
+
+    user.setPassword(passwordEncoder.encode(newPassword));
+    userRepository.save(user);
+
+    return Map.of("success", true, "message", "비밀번호가 성공적으로 변경되었습니다.");
+}
 }
