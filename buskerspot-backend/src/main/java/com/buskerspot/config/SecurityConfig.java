@@ -65,6 +65,7 @@ public class SecurityConfig {
                     "/api/performances",
                     "/api/performances/**",
                     "/api/search/**", 
+                    "/api/ai/**",
                     "/uploads/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
