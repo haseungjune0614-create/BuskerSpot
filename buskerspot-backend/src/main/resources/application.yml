@@ -2,8 +2,24 @@ server:
   port: 8080 # Node.js와 동일하게 5000번 포트 사용
 
 spring:
+  profiles:
+    active: prod
+---
+# 개발용 (dev)
+spring:
+  config:
+    activate:
+      on-profile: dev
   datasource:
-    url: postgresql://buskerspot_db_user:E2i6NDW244OTaYJ2odcnJxsKjIkFTCEM@dpg-d9uku16417fc738finog-a/buskerspot_db
+    url: jdbc:postgresql://localhost:5432/buskerspot_dev
+    username: postgres
+    password: dev_password
+
+---
+# 배포용 (prod)
+spring:
+  datasource:
+    url: ${jdbc:postgresql://buskerspot_db_user:E2i6NDW244OTaYJ2odcnJxsKjIkFTCEM@dpg-d9uku16417fc738finog-a/buskerspot_db}
     username: ${DB_USERNAME:buskerspot_db_user}
     password: ${DB_PASSWORD:E2i6NDW244OTaYJ2odcnJxsKjIkFTCEM}
     driver-class-name: org.postgresql.Driver
@@ -15,7 +31,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+    
 
   mail:
     host: smtp.gmail.com
