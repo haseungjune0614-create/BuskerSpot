@@ -1,35 +1,27 @@
+# ==========================================
+# 공통 설정 (기본값)
+# ==========================================
 server:
-  port: 8080 # Node.js와 동일하게 5000번 포트 사용
+  port: 8080
 
 spring:
   profiles:
-    active: prod
----
-# 개발용 (dev)
-spring:
-  config:
-    activate:
-      on-profile: dev
-  datasource:
-    url: jdbc:postgresql://localhost:5432/buskerspot_dev
-    username: postgres
-    password: dev_password
+    active: prod # 기본 실행 프로필 (Render 배포 시 prod 적용)
 
----
-# 배포용 (prod)
-spring:
   datasource:
-   url: ${SPRING_DATASOURCE_URL}
+    url: jdbc:postgresql://localhost:5432/buskerspot
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1211}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update # 테이블 자동 생성/수정 옵션 (none, update, create 등 선택 가능)
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
         format_sql: true
-    
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   mail:
     host: smtp.gmail.com
@@ -44,8 +36,8 @@ spring:
             enable: true
 
 jwt:
-secret: ${JWT_SECRET}
-  expiration: 86400000 # 토큰 유효 기간 (24시간, 밀리초 단위)
+  secret: ${JWT_SECRET:everystay_1592_band_bumsu_9027_secure_key}
+  expiration: 86400000
 
 api:
   groq:
@@ -54,6 +46,10 @@ api:
     rest-key: 1288a46c1221b166bc863a8c66516afe
     client-secret: ovvR9Fo8StMuxeBIKk0ZbAy3jBeCxipS
     redirect-uri: http://localhost:3000/oauth/kakao/callback
+  google:
+    client-id: 837963657825-gejm31g6via3o16dciknj0l70ss2sinu.apps.googleusercontent.com
+    client-secret: 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
+    redirect-uri: http://localhost:3000/oauth/google/callback
 
 logging:
   level:
@@ -61,3 +57,33 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
+
+---
+# ==========================================
+# 개발용 환경 (dev 프로필)
+# ==========================================
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/buskerspot_dev
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1211}
+
+---
+# ==========================================
+# 배포용 환경 (prod 프로필 - Render)
+# ==========================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    driver-class-name: org.postgresql.Driver
+
+jwt:
+  secret: ${JWT_SECRET}
