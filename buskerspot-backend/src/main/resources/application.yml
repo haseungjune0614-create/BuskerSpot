@@ -19,9 +19,7 @@ spring:
 # 배포용 (prod)
 spring:
   datasource:
-    url: ${jdbc:postgresql://buskerspot_db_user:E2i6NDW244OTaYJ2odcnJxsKjIkFTCEM@dpg-d9uku16417fc738finog-a/buskerspot_db}
-    username: ${DB_USERNAME:buskerspot_db_user}
-    password: ${DB_PASSWORD:E2i6NDW244OTaYJ2odcnJxsKjIkFTCEM}
+   url: ${SPRING_DATASOURCE_URL}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -46,7 +44,7 @@ spring:
             enable: true
 
 jwt:
-  secret: ${JWT_SECRET:clock_cat_1241_miles_runaway_0821_icepack_2023_imago_flower_protein_jspark_dejavu_2251_rokarmy__lucasdigne}
+secret: ${JWT_SECRET}
   expiration: 86400000 # 토큰 유효 기간 (24시간, 밀리초 단위)
 
 api:
