@@ -463,7 +463,7 @@ function NotificationsPage({ currentUser, performances, setDetailModalPerf, setS
                   {notif.message}
                 </p>
                 <span style={{ fontSize: '12px', color: '#868e96', fontWeight: 600 }}>
-                  {new Date(notif.created_at).toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  {new Date(notif.createdAt).toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
 

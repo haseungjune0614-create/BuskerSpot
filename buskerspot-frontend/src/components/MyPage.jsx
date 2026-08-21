@@ -395,7 +395,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
 
   const todayStr = getTodayDateStr();
   const upcomingMyPerformances = myPerformances.filter((perf) => {
-    const perfDateStr = (perf.performance_date || perf.date)?.split('T')[0];
+    const perfDateStr = perf.performanceDate?.split('T')[0];
     return !perfDateStr || perfDateStr >= todayStr;
   });
 
