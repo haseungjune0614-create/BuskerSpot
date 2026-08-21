@@ -27,9 +27,10 @@ public class PerformanceController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> req) {
-        return ResponseEntity.status(201).body(performanceService.createPerformance(getUserId(auth), req));
-    }
+public ResponseEntity<?> create(@RequestHeader("Authorization") String auth, @RequestBody Map<String, Object> req) {
+    var performance = performanceService.createPerformance(getUserId(auth), req);
+    return ResponseEntity.status(201).body(Map.of("success", true, "performance", performance));
+}
 
     // 💡 [신규 추가] 내가 찜한(북마크한) 공연 목록 조회
     @GetMapping("/my-bookmarks")
