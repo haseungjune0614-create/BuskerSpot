@@ -61,11 +61,11 @@ public class PerformanceService {
     if (keyword != null && !keyword.isBlank()) {
         sql.append("""
              AND (
-                p.title ILIKE ?
-                OR p.region ILIKE ?
-                OR p.location_name ILIKE ?
-                OR p.genre ILIKE ?
-                OR u.nickname ILIKE ?
+                 p.title ILIKE ?
+                 OR p.region ILIKE ?
+                 OR p.location_name ILIKE ?
+                 OR p.genre ILIKE ?
+                 OR u.nickname ILIKE ?
              )
         """);
         String likeKeyword = "%" + keyword.trim() + "%";
@@ -139,12 +139,12 @@ public Performance createPerformance(Long userId, Map<String, Object> req) {
         // APPROVED(승인) 상태로 변경될 때 팔로워들에게 알림 전송
         if (!"APPROVED".equals(oldStatus) && "APPROVED".equals(status)) {
            Long artistId = p.getArtistId() != null ? p.getArtistId() : p.getUserId();
-notificationService.notifyFollowers(
-    artistId,
-    "팔로우하신 아티스트가 새 공연을 등록했습니다: " + p.getTitle(),
-    "PERFORMANCE_APPROVED",
-    p.getId()
-);
+           notificationService.notifyFollowers(
+               artistId,
+               "팔로우하신 아티스트가 새 공연을 등록했습니다: " + p.getTitle(),
+               "PERFORMANCE_APPROVED",
+               p.getId()
+           );
         }
         
         return performanceRepository.save(p);
@@ -164,13 +164,18 @@ notificationService.notifyFollowers(
         if (req.get("longitude") != null) p.setLng(Double.valueOf(req.get("longitude").toString()));
 
         Performance saved = performanceRepository.save(p);
-notificationService.notifyFollowers(
-    saved.getArtistId(),
-    "팔로우하신 아티스트가 공연 정보를 수정했습니다: " + saved.getTitle(),
-    "PERFORMANCE_UPDATE",
-    saved.getId()
-);
-return saved;
+
+        // 승인된(APPROVED) 공연을 수정했을 때만 팔로워에게 알림 전송
+        if ("APPROVED".equals(saved.getStatus())) {
+            notificationService.notifyFollowers(
+                saved.getArtistId(),
+                "팔로우하신 아티스트가 공연 정보를 수정했습니다: " + saved.getTitle(),
+                "PERFORMANCE_UPDATE",
+                saved.getId()
+            );
+        }
+
+        return saved;
     }
 
     // 6. [관리자용] 전체 공연 목록 조회
