@@ -6,9 +6,12 @@ import './../App.css';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoDataConsumed }) {
+  // 💡 랜딩(플랩 스타일 진입 화면) vs 폼(기존 로그인/회원가입 화면) 전환 상태
+  const [view, setView] = useState('landing'); // 'landing' | 'form'
+
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false); // 💡 비밀번호 찾기 모드 상태 추가
-  
+
   // 입력 필드 상태
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,6 +34,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
   // 💡 카카오 인증 후 돌아왔을 때 상태 및 세션에 저장해둔 폼 데이터 복원
   useEffect(() => {
     if (pendingKakaoData) {
+      setView('form');
       setIsSignUp(true);
       setIsForgotPassword(false);
       setRole('ARTIST');
@@ -62,6 +66,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
 
   // 입력 및 상태 초기화 후 모달 닫기
   const handleClose = () => {
+    setView('landing');
     setErrorMessage('');
     setSuccessMessage('');
     setIsSignUp(false);
@@ -214,12 +219,12 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         const response = await fetch(`${API_URL}/api/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            email, 
-            password, 
-            nickname, 
-            role, 
-            kakaoData: role === 'ARTIST' ? kakaoProfileData : null 
+          body: JSON.stringify({
+            email,
+            password,
+            nickname,
+            role,
+            kakaoData: role === 'ARTIST' ? kakaoProfileData : null
           }),
         });
         const data = await response.json();
@@ -263,8 +268,345 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
+  // ─────────────────────────────────────────────
+  // 💡 플랩(Flip) 스타일 랜딩 화면
+  // ─────────────────────────────────────────────
+  const renderLanding = () => (
+    <div
+      style={{
+        background: '#ffffff',
+        width: '100%',
+        maxWidth: '440px',
+        maxHeight: '90vh',
+        overflowY: 'auto',
+        borderRadius: '24px',
+        padding: '40px 28px 32px',
+        boxSizing: 'border-box',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+        position: 'relative',
+        fontFamily: "'Noto Sans KR', sans-serif",
+        color: '#ff8c00',
+      }}
+    >
+      <button
+        onClick={handleClose}
+        style={{
+          position: 'absolute', top: '20px', right: '20px', background: '#fff3e0',
+          border: 'none', width: '32px', height: '32px', borderRadius: '50%',
+          fontSize: '14px', fontWeight: 800, color: '#ff8c00', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = '#ffe4b8'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#fff3e0'; }}
+      >
+        ✕
+      </button>
+
+      {/* 로고 / 태그라인 — 실제 서비스명·문구에 맞게 교체해주세요 */}
+      <div style={{ textAlign: 'center', margin: '20px 0 44px' }}>
+        <div style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '14px', color: '#ff8c00' }}>
+          BuskerSpot
+        </div>
+        <p style={{ fontSize: '0.95rem', color: '#ffab40', fontWeight: 600, margin: 0 }}>
+          아티스트와 관객을 잇는 가장 쉬운 방법
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <button
+          type="button"
+          onClick={handleKakaoAuth}
+          style={{
+            width: '100%', padding: '15px', background: '#FEE500', color: '#191919',
+            border: 'none', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '15px',
+          }}
+        >
+          💬 카카오로 3초만에 시작하기
+        </button>
+
+        <button
+          type="button"
+          onClick={() => { setView('form'); setIsSignUp(false); setErrorMessage(''); }}
+          style={{
+            width: '100%', padding: '15px', background: '#fff3e0', color: '#ff8c00',
+            border: '1px solid #ffd699', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '15px',
+          }}
+        >
+          ✉️ 이메일로 계속하기
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '18px', marginTop: '32px' }}>
+        <span
+          style={{ fontSize: '0.82rem', color: '#ff8c00', fontWeight: 600, cursor: 'pointer' }}
+          onClick={() => { setView('form'); setIsSignUp(false); setIsForgotPassword(true); setErrorMessage(''); }}
+        >
+          비밀번호 찾기
+        </span>
+        <span style={{ color: '#ffd699' }}>|</span>
+        <span
+          style={{ fontSize: '0.82rem', color: '#ff8c00', fontWeight: 600, cursor: 'pointer' }}
+          onClick={() => { setView('form'); setIsSignUp(true); setErrorMessage(''); }}
+        >
+          이메일로 가입하기
+        </span>
+      </div>
+    </div>
+  );
+
+  // ─────────────────────────────────────────────
+  // 기존 로그인 / 회원가입 폼 화면 (그대로 유지)
+  // ─────────────────────────────────────────────
+  const renderForm = () => (
+    <div
+      style={{
+        background: '#ffffff', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto',
+        borderRadius: '24px', padding: '72px 28px 28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+        position: 'relative', fontFamily: "'Noto Sans KR', sans-serif"
+      }}
+    >
+      <button
+        onClick={() => { setView('landing'); setErrorMessage(''); setSuccessMessage(''); setIsForgotPassword(false); }}
+        style={{
+          position: 'absolute', top: '20px', left: '20px', background: '#f1f3f5',
+          border: 'none', width: '32px', height: '32px', borderRadius: '50%',
+          fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f3f5'; }}
+        aria-label="뒤로가기"
+      >
+        ←
+      </button>
+      <button
+        onClick={handleClose}
+        style={{
+          position: 'absolute', top: '20px', right: '20px', background: '#f1f3f5',
+          border: 'none', width: '32px', height: '32px', borderRadius: '50%',
+          fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f3f5'; }}
+      >
+        ✕
+      </button>
+
+      <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#212529', margin: '0 0 16px 0', letterSpacing: '-0.02em' }}>
+        {isForgotPassword ? '비밀번호 찾기' : isSignUp ? '회원가입' : '로그인'}
+      </h2>
+
+      {errorMessage && <p style={{ color: '#fa5252', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{errorMessage}</p>}
+      {successMessage && <p style={{ color: '#0ca678', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{successMessage}</p>}
+
+      {/* 💡 비밀번호 찾기 뷰 */}
+      {isForgotPassword ? (
+        <form onSubmit={handleForgotPasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>가입 이메일 주소</label>
+            <input
+              type="email"
+              placeholder="example@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            style={{
+              width: '100%', padding: '13px', background: 'linear-gradient(135deg, #ff8c00, #ffab40)',
+              color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, cursor: 'pointer',
+              fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)'
+            }}
+          >
+            임시 비밀번호 발급받기
+          </button>
+          <p style={{ marginTop: '12px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
+            비밀번호가 기억나셨나요?{' '}
+            <span
+              style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }}
+              onClick={() => {
+                setIsForgotPassword(false);
+                setErrorMessage('');
+                setSuccessMessage('');
+              }}
+            >
+              로그인으로 돌아가기
+            </span>
+          </p>
+        </form>
+      ) : (
+        /* 기존 로그인 및 회원가입 뷰 */
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {isSignUp && (
+            <>
+              {/* 유저 역할 선택 버튼 */}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setRole('USER')}
+                  style={{
+                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'USER' ? '2px solid #ff8c00' : '1px solid #dee2e6',
+                    background: role === 'USER' ? 'rgba(255,140,0,0.08)' : '#fff',
+                    color: role === 'USER' ? '#ff8c00' : '#495057', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
+                  }}
+                >
+                  👤 일반 관객
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('ARTIST')}
+                  style={{
+                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'ARTIST' ? '2px solid #ff8c00' : '1px solid #dee2e6',
+                    background: role === 'ARTIST' ? 'rgba(255,140,0,0.08)' : '#fff',
+                    color: role === 'ARTIST' ? '#ff8c00' : '#495057', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
+                  }}
+                >
+                  🎤 아티스트
+                </button>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>닉네임</label>
+                <input
+                  type="text"
+                  placeholder="닉네임 (2자 이상)"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+                  required
+                />
+              </div>
+            </>
+          )}
+
+          {/* 1. 이메일 & 이메일 인증번호 입력 영역 (공통) */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>이메일 주소</label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="email"
+                placeholder="example@email.com"
+                value={email}
+                disabled={isEmailVerified}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{ flex: 1, padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', background: isEmailVerified ? '#f1f3f5' : '#fff', boxSizing: 'border-box', outline: 'none' }}
+                required
+              />
+              {isSignUp && !isEmailVerified && (
+                <button type="button" onClick={handleSendEmailCode} style={{ padding: '0 16px', background: '#495057', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
+                  발송
+                </button>
+              )}
+            </div>
+          </div>
+
+          {isSignUp && isEmailCodeSent && !isEmailVerified && (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="text"
+                placeholder="이메일 인증번호 6자리"
+                value={emailCode}
+                onChange={(e) => setEmailCode(e.target.value)}
+                style={{ flex: 1, padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+              />
+              <button type="button" onClick={handleVerifyEmailCode} style={{ padding: '0 16px', background: '#ff8c00', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
+                인증
+              </button>
+            </div>
+          )}
+
+          {/* 2. 카카오톡 인증 영역 (아티스트 선택 시에만 노출) */}
+          {isSignUp && role === 'ARTIST' && (
+            <div>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>아티스트 본인 확인</label>
+              {isKakaoVerified ? (
+                <div style={{ padding: '12px 14px', background: '#fff9db', border: '1px solid #fcc419', borderRadius: '12px', fontSize: '13.5px', color: '#f08c00', fontWeight: 700, textAlign: 'center' }}>
+                  💬 카카오톡 본인 인증 완료됨
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleKakaoAuth}
+                  style={{
+                    width: '100%', padding: '12px', background: '#FEE500', color: '#191919',
+                    border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
+                  }}
+                >
+                  💬 카카오톡으로 간편 인증하기
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* 비밀번호 입력 */}
+          <div>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>비밀번호</label>
+            <input
+              type="password"
+              placeholder="영문+숫자 8자 이상"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+              required
+            />
+          </div>
+
+          {/* 💡 로그인 화면일 때만 '비밀번호 찾기' 버튼 노출 */}
+          {!isSignUp && (
+            <div style={{ textAlign: 'right', marginTop: '-4px' }}>
+              <span
+                style={{ fontSize: '0.8rem', color: '#6c757d', cursor: 'pointer', fontWeight: 600 }}
+                onClick={() => {
+                  setIsForgotPassword(true);
+                  setErrorMessage('');
+                  setSuccessMessage('');
+                }}
+              >
+                비밀번호를 잊으셨나요?
+              </span>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            style={{
+              width: '100%', padding: '13px', background: 'linear-gradient(135deg, #ff8c00, #ffab40)',
+              color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, cursor: 'pointer',
+              fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)',
+              transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+            }}
+          >
+            {isSignUp ? '가입 완료' : '로그인'}
+          </button>
+
+          <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
+            {isSignUp ? '이미 계정이 있으신가요?' : '계정이 없으신가요?'}{' '}
+            <span
+              style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }}
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setErrorMessage('');
+                setSuccessMessage('');
+              }}
+            >
+              {isSignUp ? '로그인' : '회원가입'}
+            </span>
+          </p>
+        </form>
+      )}
+    </div>
+  );
+
   return (
-    <div 
+    <div
       onClick={handleClose}
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
@@ -272,235 +614,8 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
       }}
     >
-      <div 
-        onClick={(e) => e.stopPropagation()} 
-        style={{
-          background: '#ffffff', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto',
-          borderRadius: '24px', padding: '28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
-          position: 'relative', fontFamily: "'Noto Sans KR', sans-serif"
-        }}
-      >
-        <button 
-          onClick={handleClose}
-          style={{
-            position: 'absolute', top: '20px', right: '20px', background: '#f1f3f5',
-            border: 'none', width: '32px', height: '32px', borderRadius: '50%',
-            fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f3f5'; }}
-        >
-          ✕
-        </button>
-
-        <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#212529', margin: '0 0 16px 0', letterSpacing: '-0.02em' }}>
-          {isForgotPassword ? '비밀번호 찾기' : isSignUp ? '회원가입' : '로그인'}
-        </h2>
-
-        {errorMessage && <p style={{ color: '#fa5252', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{errorMessage}</p>}
-        {successMessage && <p style={{ color: '#0ca678', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{successMessage}</p>}
-
-        {/* 💡 비밀번호 찾기 뷰 */}
-        {isForgotPassword ? (
-          <form onSubmit={handleForgotPasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>가입 이메일 주소</label>
-              <input
-                type="email"
-                placeholder="example@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
-                required
-              />
-            </div>
-            <button 
-              type="submit" 
-              style={{
-                width: '100%', padding: '13px', background: 'linear-gradient(135deg, #ff8c00, #ffab40)',
-                color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, cursor: 'pointer',
-                fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)'
-              }}
-            >
-              임시 비밀번호 발급받기
-            </button>
-            <p style={{ marginTop: '12px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
-              비밀번호가 기억나셨나요?{' '}
-              <span 
-                style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }} 
-                onClick={() => { 
-                  setIsForgotPassword(false); 
-                  setErrorMessage(''); 
-                  setSuccessMessage(''); 
-                }}
-              >
-                로그인으로 돌아가기
-              </span>
-            </p>
-          </form>
-        ) : (
-          /* 기존 로그인 및 회원가입 뷰 */
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {isSignUp && (
-              <>
-                {/* 유저 역할 선택 버튼 */}
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button
-                    type="button"
-                    onClick={() => setRole('USER')}
-                    style={{
-                      flex: 1, padding: '11px', borderRadius: '12px', border: role === 'USER' ? '2px solid #ff8c00' : '1px solid #dee2e6',
-                      background: role === 'USER' ? 'rgba(255,140,0,0.08)' : '#fff',
-                      color: role === 'USER' ? '#ff8c00' : '#495057', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
-                    }}
-                  >
-                    👤 일반 관객
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setRole('ARTIST')}
-                    style={{
-                      flex: 1, padding: '11px', borderRadius: '12px', border: role === 'ARTIST' ? '2px solid #ff8c00' : '1px solid #dee2e6',
-                      background: role === 'ARTIST' ? 'rgba(255,140,0,0.08)' : '#fff',
-                      color: role === 'ARTIST' ? '#ff8c00' : '#495057', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
-                    }}
-                  >
-                    🎤 아티스트
-                  </button>
-                </div>
-
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>닉네임</label>
-                  <input
-                    type="text"
-                    placeholder="닉네임 (2자 이상)"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
-                    required
-                  />
-                </div>
-              </>
-            )}
-
-            {/* 1. 이메일 & 이메일 인증번호 입력 영역 (공통) */}
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>이메일 주소</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="email"
-                  placeholder="example@email.com"
-                  value={email}
-                  disabled={isEmailVerified}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{ flex: 1, padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', background: isEmailVerified ? '#f1f3f5' : '#fff', boxSizing: 'border-box', outline: 'none' }}
-                  required
-                />
-                {isSignUp && !isEmailVerified && (
-                  <button type="button" onClick={handleSendEmailCode} style={{ padding: '0 16px', background: '#495057', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
-                    발송
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {isSignUp && isEmailCodeSent && !isEmailVerified && (
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input
-                  type="text"
-                  placeholder="이메일 인증번호 6자리"
-                  value={emailCode}
-                  onChange={(e) => setEmailCode(e.target.value)}
-                  style={{ flex: 1, padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
-                />
-                <button type="button" onClick={handleVerifyEmailCode} style={{ padding: '0 16px', background: '#ff8c00', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
-                  인증
-                </button>
-              </div>
-            )}
-
-            {/* 2. 카카오톡 인증 영역 (아티스트 선택 시에만 노출) */}
-            {isSignUp && role === 'ARTIST' && (
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>아티스트 본인 확인</label>
-                {isKakaoVerified ? (
-                  <div style={{ padding: '12px 14px', background: '#fff9db', border: '1px solid #fcc419', borderRadius: '12px', fontSize: '13.5px', color: '#f08c00', fontWeight: 700, textAlign: 'center' }}>
-                    💬 카카오톡 본인 인증 완료됨
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={handleKakaoAuth}
-                    style={{
-                      width: '100%', padding: '12px', background: '#FEE500', color: '#191919',
-                      border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
-                    }}
-                  >
-                    💬 카카오톡으로 간편 인증하기
-                  </button>
-                )}
-              </div>
-            )}
-
-            {/* 비밀번호 입력 */}
-            <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>비밀번호</label>
-              <input
-                type="password"
-                placeholder="영문+숫자 8자 이상"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
-                required
-              />
-            </div>
-
-            {/* 💡 로그인 화면일 때만 '비밀번호 찾기' 버튼 노출 */}
-            {!isSignUp && (
-              <div style={{ textAlign: 'right', marginTop: '-4px' }}>
-                <span 
-                  style={{ fontSize: '0.8rem', color: '#6c757d', cursor: 'pointer', fontWeight: 600 }}
-                  onClick={() => {
-                    setIsForgotPassword(true);
-                    setErrorMessage('');
-                    setSuccessMessage('');
-                  }}
-                >
-                  비밀번호를 잊으셨나요?
-                </span>
-              </div>
-            )}
-
-            <button 
-              type="submit" 
-              style={{
-                width: '100%', padding: '13px', background: 'linear-gradient(135deg, #ff8c00, #ffab40)',
-                color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, cursor: 'pointer',
-                fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)',
-                transition: 'transform 0.15s ease, box-shadow 0.15s ease'
-              }}
-            >
-              {isSignUp ? '가입 완료' : '로그인'}
-            </button>
-
-            <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
-              {isSignUp ? '이미 계정이 있으신가요?' : '계정이 없으신가요?'}{' '}
-              <span 
-                style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }} 
-                onClick={() => { 
-                  setIsSignUp(!isSignUp); 
-                  setErrorMessage(''); 
-                  setSuccessMessage(''); 
-                }}
-              >
-                {isSignUp ? '로그인' : '회원가입'}
-              </span>
-            </p>
-          </form>
-        )}
+      <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: '440px' }}>
+        {view === 'landing' ? renderLanding() : renderForm()}
       </div>
     </div>
   );
