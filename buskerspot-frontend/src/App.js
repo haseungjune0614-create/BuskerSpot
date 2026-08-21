@@ -322,7 +322,6 @@ function NotificationsPage({ currentUser, performances, setDetailModalPerf, setS
     if (currentUser) {
       fetchNotifications();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   const fetchNotifications = async () => {
@@ -438,68 +437,64 @@ function NotificationsPage({ currentUser, performances, setDetailModalPerf, setS
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {notifications.map((notif) => {
-            const targetPerf = safePerformances.find(p => p.id === notif.performance_id);
-
-            return (
-              <div
-                key={notif.id}
-                onClick={() => {
-                  if (!notif.is_read) handleReadNotification(notif.id);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '20px 24px',
-                  borderRadius: '16px',
-                  background: notif.is_read ? '#ffffff' : '#fffdf0',
-                  border: '1px solid',
-                  borderColor: notif.is_read ? '#dee2e6' : '#ffe066',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  boxSizing: 'border-box',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <div style={{ flex: 1, paddingRight: '16px' }}>
-                  <p style={{ margin: '0 0 6px 0', fontSize: '15px', color: '#212529', fontWeight: notif.is_read ? 500 : 700, lineHeight: '1.4' }}>
-                    {notif.message}
-                  </p>
-                  <span style={{ fontSize: '12px', color: '#868e96', fontWeight: 600 }}>
-                    {new Date(notif.created_at).toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
-                  {!notif.is_read && (
-                    <span style={{ fontSize: '12px', background: '#fa5252', color: '#fff', padding: '5px 12px', borderRadius: '999px', fontWeight: 800 }}>
-                      안 읽음
-                    </span>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleViewDetail(notif);
-                    }}
-                    style={{
-                      background: '#ff8c00',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '10px',
-                      padding: '8px 14px',
-                      fontSize: '12.5px',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 6px rgba(255,140,0,0.2)'
-                    }}
-                  >
-                    상세보기 →
-                  </button>
-                </div>
+          {notifications.map((notif) => (
+            <div
+              key={notif.id}
+              onClick={() => {
+                if (!notif.is_read) handleReadNotification(notif.id);
+              }}
+              style={{
+                width: '100%',
+                padding: '20px 24px',
+                borderRadius: '16px',
+                background: notif.is_read ? '#ffffff' : '#fffdf0',
+                border: '1px solid',
+                borderColor: notif.is_read ? '#dee2e6' : '#ffe066',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                boxSizing: 'border-box',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <div style={{ flex: 1, paddingRight: '16px' }}>
+                <p style={{ margin: '0 0 6px 0', fontSize: '15px', color: '#212529', fontWeight: notif.is_read ? 500 : 700, lineHeight: '1.4' }}>
+                  {notif.message}
+                </p>
+                <span style={{ fontSize: '12px', color: '#868e96', fontWeight: 600 }}>
+                  {new Date(notif.created_at).toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                </span>
               </div>
-            );
-          })}
+
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+                {!notif.is_read && (
+                  <span style={{ fontSize: '12px', background: '#fa5252', color: '#fff', padding: '5px 12px', borderRadius: '999px', fontWeight: 800 }}>
+                    안 읽음
+                  </span>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleViewDetail(notif);
+                  }}
+                  style={{
+                    background: '#ff8c00',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '10px',
+                    padding: '8px 14px',
+                    fontSize: '12.5px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 6px rgba(255,140,0,0.2)'
+                  }}
+                >
+                  상세보기 →
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -565,7 +560,7 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [pendingKakaoData, setPendingKakaoData] = useState(null);
-  const [pendingGoogleData, setPendingGoogleData] = useState(null); // 💡 구글 회원가입 대기 데이터 상태 추가
+  const [pendingGoogleData, setPendingGoogleData] = useState(null);
 
   const handleTabChange = useCallback((newTab) => {
     const protectedTabs = ['following', 'bookmarks', 'mypage', 'notifications'];
@@ -582,6 +577,7 @@ function App() {
   const [inputGenre, setInputGenre] = useState('ALL');
   const [inputSort, setInputSort] = useState('time');
 
+  // 1. 공연 목록 조회
   const fetchPerformances = useCallback(async () => {
     try {
       const queryParams = new URLSearchParams({
@@ -607,6 +603,7 @@ function App() {
     }
   }, [inputDate, inputRegion, inputGenre, inputSort, center.lat, center.lng]);
 
+  // 2. 유저 팔로우/북마크 정보 및 팔로잉 공연 조회
   const fetchUserData = useCallback(async () => {
     if (!currentUser) {
       setFollowedArtistIds([]);
@@ -661,8 +658,8 @@ function App() {
       const bookmarkRes = await fetch(`${API_BASE_URL}/api/performances/my-bookmarks`, { headers });
       if (bookmarkRes.ok) {
         const bookmarkData = await bookmarkRes.json();
-        if (bookmarkData.success && Array.isArray(bookmarkData.performances)) {
-          setBookmarkedIds(bookmarkData.performances.map((p) => p.id));
+        if (bookmarkData.success && Array.isArray(bookmarkData.bookmarks)) {
+          setBookmarkedIds(bookmarkData.bookmarks);
         }
       }
     } catch (error) {
@@ -756,7 +753,7 @@ function App() {
             handleDataRefresh();
             alert(`${data.user.nickname}님, 환영합니다!`);
           } else {
-            setPendingGoogleData(data.googleData); // 💡 구글 전용 대기 데이터에 올바르게 저장
+            setPendingGoogleData(data.googleData);
             setIsAuthModalOpen(true);
           }
         } else {
@@ -785,6 +782,7 @@ function App() {
     fetchPerformances();
   }, [fetchPerformances]);
 
+  // 팔로우 토글
   const handleToggleFollow = useCallback(async (artistId) => {
     if (!currentUser) {
       setIsAuthModalOpen(true);
@@ -810,6 +808,7 @@ function App() {
     }
   }, [currentUser, fetchUserData]);
 
+  // 북마크 토글
   const handleToggleBookmark = useCallback(async (performanceId, e) => {
     if (e) e.stopPropagation();
     const token = localStorage.getItem('token') || currentUser?.token;
@@ -826,7 +825,7 @@ function App() {
       });
       const data = await res.json();
       if (data.success) {
-        if (data.isBookmarked) {
+        if (data.bookmarked) {
           setBookmarkedIds((prev) => [...(Array.isArray(prev) ? prev : []), performanceId]);
         } else {
           setBookmarkedIds((prev) => (Array.isArray(prev) ? prev : []).filter((id) => id !== performanceId));

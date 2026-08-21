@@ -36,7 +36,6 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
   // 실시간 인기 검색어 상태 추가
   const [popularKeywords, setPopularKeywords] = useState(['어쿠스틱', '힙합', '인디밴드', '홍대', '강남', '발라드', '재즈']);
 
-  
   const isMobile = useIsMobile(860);
 
   const artistUserKey = currentUser ? `artist_search_history_${currentUser.id || currentUser.email}` : null;
@@ -62,8 +61,6 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
       setArtistSearchHistory(saved ? JSON.parse(saved) : []);
     }
   }, [artistUserKey]);
-
-  
 
   const fetchRecentPerformances = useCallback(async () => {
     try {
@@ -103,8 +100,6 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
       fetchPopularKeywords();
     }
   }, [isSearchPageOpen, fetchRecentPerformances, fetchPopularKeywords]);
-
- 
 
   const saveArtistSearchHistory = (query) => {
     if (!query || !query.trim() || !artistUserKey) return;
@@ -171,7 +166,6 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
       localStorage.removeItem(artistUserKey);
     }
   };
-
 
   const navItems = [
     { key: 'search', label: '공연 찾기' },
@@ -305,7 +299,6 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
             </nav>
 
             <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              {/* 💡 데스크탑에서도 검색창을 클릭/포커스하면 통합검색 오버레이창(isSearchPageOpen)이 열리도록 수정 */}
               <div
                 onClick={() => setIsSearchPageOpen(true)}
                 style={{
@@ -440,7 +433,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
         )}
       </header>
 
-      {/* 통합검색 페이지 화면 (오버레이 모드 - 데스크탑/모바일 공용) */}
+      {/* 통합검색 페이지 화면 (오버레이 모드) */}
       {isSearchPageOpen && (
         <div style={{
           position: 'fixed',
