@@ -658,9 +658,9 @@ function App() {
       const bookmarkRes = await fetch(`${API_BASE_URL}/api/performances/my-bookmarks`, { headers });
       if (bookmarkRes.ok) {
         const bookmarkData = await bookmarkRes.json();
-        if (bookmarkData.success && Array.isArray(bookmarkData.bookmarks)) {
-          setBookmarkedIds(bookmarkData.bookmarks);
-        }
+        if (bookmarkData.success && Array.isArray(bookmarkData.performances)) {
+  setBookmarkedIds(bookmarkData.performances.map((p) => p.id));
+}
       }
     } catch (error) {
       console.error('App.js: 유저 정보 가져오기 실패:', error);
