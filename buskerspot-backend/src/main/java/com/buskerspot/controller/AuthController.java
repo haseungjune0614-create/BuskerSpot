@@ -96,8 +96,15 @@ public ResponseEntity<?> kakaoCallback(@RequestBody Map<String, String> req) {
     if (code == null || code.isBlank()) {
         return ResponseEntity.badRequest().body(Map.of("success", false, "message", "인가 코드가 없습니다."));
     }
-    Map<String, Object> kakaoData = kakaoService.getKakaoProfile(code);
-    return ResponseEntity.ok(Map.of("success", true, "kakaoData", kakaoData));
+
+    Map<String, Object> kakaoProfile = kakaoService.getKakaoProfile(code);
+    String kakaoId = (String) kakaoProfile.get("kakaoId");
+    String nickname = (String) kakaoProfile.get("nickname");
+    String email = (String) kakaoProfile.get("email");
+    String profileImage = (String) kakaoProfile.get("profileImage");
+
+    Map<String, Object> result = userService.handleKakaoLogin(kakaoId, nickname, email, profileImage);
+    return ResponseEntity.ok(result);
 }
 @PostMapping("/auth/google/callback")
 public ResponseEntity<?> googleCallback(@RequestBody Map<String, String> req) {
