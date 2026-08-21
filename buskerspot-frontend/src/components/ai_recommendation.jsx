@@ -64,9 +64,10 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
   const [recommendedList, setRecommendedList] = useState([]);
   const [hasSearched, setHasSearched] = useState(false);
   const [isCachedResult, setIsCachedResult] = useState(false);
-
+  const [isMoodBased, setIsMoodBased] = useState(false);
+  const [reportExpanded, setReportExpanded] = useState(false);
+  
   const isMobile = useIsMobile(900);
-  // 💡 모바일에서는 검색 기록 패널을 기본적으로 접어둔다
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   useEffect(() => {
@@ -99,6 +100,8 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
     setRecommendedList([]);
     setHasSearched(true);
     setIsCachedResult(false);
+    setIsMoodBased(false);
+    setReportExpanded(false);
 
     try {
       const res = await fetch(`${API_URL}/api/ai/recommend`, {
@@ -111,9 +114,11 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
       });
       const data = await res.json();
 
-      // Java 백엔드 응답 스펙(report)에 맞춘 조건문
       if (data && data.report) {
         setAiReport(data.report || '');
+        setIsMoodBased(!!data.moodBased);
+        setReportExpanded(false);
+
         const mappedRecs = (data.recommendations || []).map(perf => ({
           ...perf,
           id: perf.id || perf.performance_id,
@@ -254,7 +259,7 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
   return (
     <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', width: '100%', minHeight: 'calc(100vh - 60px)', background: '#f8f9fa', fontFamily: "'Noto Sans KR', sans-serif", boxSizing: 'border-box' }}>
 
-      {/* 💡 [사이드바 / 모바일에서는 접이식 검색 기록 패널] */}
+      {/* 사이드바 / 모바일 접이식 검색 기록 패널 */}
       {isMobile ? (
         <div style={{ background: '#ffffff', borderBottom: '1px solid #dee2e6', boxSizing: 'border-box' }}>
           <button
@@ -329,7 +334,7 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
         </aside>
       )}
 
-      {/* 💡 [메인 영역] */}
+      {/* 메인 영역 */}
       <main style={{ flex: 1, padding: isMobile ? '20px 16px' : '36px 48px', boxSizing: 'border-box', minWidth: 0 }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', width: '100%', boxSizing: 'border-box' }}>
           
@@ -365,7 +370,7 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
                 type="text"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="예: 퇴근시간 서현역 인근에서 열리는 잔잔한 어쿠스틱 공연"
+                placeholder="예: 오늘 하루가 지치고 힘들어서 마음을 위로해 줄 따뜻한 노래를 듣고 싶어"
                 style={{ 
                   flex: 1, 
                   padding: '12px 16px', 
@@ -426,7 +431,7 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
 
           {aiReport && !loading && (
             <div style={{
-              background: 'rgba(255,140,0,0.05)',
+              background: isMoodBased ? 'linear-gradient(135deg, #fff7ed, #fef3e2)' : 'rgba(255,140,0,0.05)',
               border: '1px solid rgba(255,140,0,0.2)',
               borderRadius: '16px',
               padding: isMobile ? '16px 18px' : '18px 22px',
@@ -438,14 +443,14 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
               flexDirection: 'column',
               gap: '8px',
               boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
-              lineHeight: '1.5',
+              lineHeight: '1.6',
               width: '100%',
               boxSizing: 'border-box'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 800, color: '#ff8c00' }}>
-                  <span>🤖</span>
-                  <span>AI 큐레이터 리포트</span>
+                  <span>{isMoodBased ? '💛' : '🤖'}</span>
+                  <span>{isMoodBased ? 'AI 큐레이터의 이야기' : 'AI 큐레이터 리포트'}</span>
                 </div>
                 {isCachedResult && (
                   <span style={{ fontSize: '11px', background: 'rgba(12,166,120,0.1)', color: '#0ca678', padding: '3px 10px', borderRadius: '999px', fontWeight: 800 }}>
@@ -453,7 +458,38 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
                   </span>
                 )}
               </div>
-              <div style={{ fontWeight: 500, color: '#495057' }}>{aiReport}</div>
+
+              <div
+                style={{
+                  fontWeight: 500,
+                  color: '#495057',
+                  whiteSpace: 'pre-line',
+                  ...(isMoodBased && !reportExpanded && aiReport.length > 150
+                    ? { display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }
+                    : {})
+                }}
+              >
+                {aiReport}
+              </div>
+
+              {isMoodBased && aiReport.length > 150 && (
+                <button
+                  type="button"
+                  onClick={() => setReportExpanded((v) => !v)}
+                  style={{
+                    alignSelf: 'flex-start',
+                    background: 'none',
+                    border: 'none',
+                    color: '#ff8c00',
+                    fontSize: '12.5px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    padding: '2px 0'
+                  }}
+                >
+                  {reportExpanded ? '접기 ▲' : '이야기 더 보기 ▼'}
+                </button>
+              )}
             </div>
           )}
 
@@ -506,7 +542,6 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
                     <div style={{ padding: isMobile ? '16px' : '20px', boxSizing: 'border-box' }}>
                       <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', gap: isMobile ? '12px' : '16px' }}>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: isMobile ? '12px' : '16px' }}>
-                          {/* 💡 날짜 및 시간 표시 영역 */}
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '70px', gap: '4px' }}>
                             <span style={{ fontSize: '11px', color: '#868e96', fontWeight: 700 }}>
                               {formatDate(perf.performance_date) || '일자 미정'}
@@ -577,7 +612,6 @@ function AIRecommendation({ currentUser, onSelectDetail, bookmarkedIds = [], onT
                           </p>
                         </div>
 
-                        {/* 💡 찜 버튼 & 상세보기 버튼 */}
                         <div style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '8px', alignItems: 'stretch', width: isMobile ? '100%' : 'auto' }}>
                           <button
                             type="button"

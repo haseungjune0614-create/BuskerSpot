@@ -30,6 +30,12 @@ public class QueryAnalysis {
     @JsonProperty("target_date")
     private String targetDate;
 
+    // 추가
+    private String mood; // 예: "지친 하루", "설렘", "혼자만의 시간" 등, 없으면 null
+
+    @JsonProperty("mood_intensity")
+    private String moodIntensity; // "low" | "medium" | "high" | null
+
     public static QueryAnalysis empty() {
         return new QueryAnalysis();
     }
