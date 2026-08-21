@@ -3,8 +3,6 @@ import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import './../App.css';
 
-// 배포 환경에서는 REACT_APP_API_URL 환경변수를 사용하고,
-// 로컬 개발 환경에서는 localhost:5000으로 폴백합니다.
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoDataConsumed, pendingGoogleData, onGoogleDataConsumed }) {
@@ -132,7 +130,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 카카오 간편 인증 요청 (모바일 앱 호환 브라우저 플러그인 적용)
+  // 카카오 간편 인증 요청 (Render 콜백 주소 고정)
   const handleKakaoAuth = async () => {
     setErrorMessage('');
     setSuccessMessage('');
@@ -144,16 +142,10 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       return;
     }
 
-    const formData = {
-      email,
-      nickname,
-      password,
-    };
+    const formData = { email, nickname, password };
     sessionStorage.setItem('kakao_signup_form', JSON.stringify(formData));
 
-    const REDIRECT_URI =
-      process.env.REACT_APP_KAKAO_REDIRECT_URI ||
-      `${window.location.origin}/oauth/kakao/callback`;
+    const REDIRECT_URI = 'https://buskerspot.onrender.com/oauth/kakao/callback';
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
     if (Capacitor.isNativePlatform()) {
@@ -163,7 +155,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 구글 간편 인증 요청 (모바일 앱 호환 브라우저 플러그인 적용)
+  // 구글 간편 인증 요청 (Render 콜백 주소 고정)
   const handleGoogleAuth = async () => {
     setErrorMessage('');
     setSuccessMessage('');
@@ -178,10 +170,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     const formData = { email, nickname, password };
     sessionStorage.setItem('google_signup_form', JSON.stringify(formData));
 
-    const REDIRECT_URI =
-      process.env.REACT_APP_GOOGLE_REDIRECT_URI ||
-      `${window.location.origin}/oauth/google/callback`;
-
+    const REDIRECT_URI = 'https://buskerspot.onrender.com/oauth/google/callback';
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=email%20profile`;
 
     if (Capacitor.isNativePlatform()) {
@@ -262,7 +251,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
   const renderLanding = () => (
     <div
       style={{
-        background: '#ffffff',
+        background: '#1e1e24',
         width: '100%',
         maxWidth: '440px',
         maxHeight: '90vh',
@@ -270,22 +259,23 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         borderRadius: '24px',
         padding: '40px 28px 32px',
         boxSizing: 'border-box',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.4)',
         position: 'relative',
         fontFamily: "'Noto Sans KR', sans-serif",
-        color: '#ff8c00',
+        color: '#f8f9fa',
+        border: '1px solid #2e2e38'
       }}
     >
       <button
         onClick={handleClose}
         style={{
-          position: 'absolute', top: '20px', right: '20px', background: '#fff3e0',
-          border: 'none', width: '32px', height: '32px', borderRadius: '50%',
-          fontSize: '14px', fontWeight: 800, color: '#ff8c00', cursor: 'pointer',
+          position: 'absolute', top: '20px', right: '20px', background: '#2a2a32',
+          border: '1px solid #3f3f4e', width: '32px', height: '32px', borderRadius: '50%',
+          fontSize: '14px', fontWeight: 800, color: '#a0a0b0', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = '#ffe4b8'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = '#fff3e0'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = '#3f3f4e'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#2a2a32'; }}
       >
         ✕
       </button>
@@ -294,13 +284,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         <div style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '14px', color: '#ff8c00' }}>
           BuskerSpot
         </div>
-        <p style={{ fontSize: '0.95rem', color: '#ffab40', fontWeight: 600, margin: 0 }}>
+        <p style={{ fontSize: '0.95rem', color: '#a0a0b0', fontWeight: 600, margin: 0 }}>
           아티스트와 관객을 잇는 가장 쉬운 방법
         </p>
       </div>
 
       {errorMessage && <p style={{ color: '#fa5252', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{errorMessage}</p>}
-      {successMessage && <p style={{ color: '#0ca678', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{successMessage}</p>}
+      {successMessage && <p style={{ color: '#20c997', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{successMessage}</p>}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <button
@@ -321,30 +311,27 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         <button
           type="button"
           onClick={handleGoogleAuth}
-          className="gsi-material-button"
-          style={{ width: '100%', borderRadius: '999px', height: '48px' }}
+          style={{
+            width: '100%', padding: '15px', background: '#ffffff', color: '#1f1f1f',
+            border: '1px solid #2e2e38', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '15px',
+          }}
         >
-          <div className="gsi-material-button-state"></div>
-          <div className="gsi-material-button-content-wrapper" style={{ justifyContent: 'center', gap: '10px' }}>
-            <div className="gsi-material-button-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ display: 'block', width: '20px', height: '20px' }}>
-                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
-                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
-                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
-                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-                <path fill="none" d="M0 0h48v48H0z"></path>
-              </svg>
-            </div>
-            <span className="gsi-material-button-contents" style={{ fontWeight: 700, fontSize: '15px', color: '#1f1f1f', flexGrow: 0 }}>Google로 계속하기</span>
-          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: '20px', height: '20px' }}>
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+          </svg>
+          Google로 계속하기
         </button>
 
         <button
           type="button"
           onClick={() => { setView('form'); setIsSignUp(false); setErrorMessage(''); }}
           style={{
-            width: '100%', padding: '15px', background: '#fff3e0', color: '#ff8c00',
-            border: '1px solid #ffd699', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
+            width: '100%', padding: '15px', background: '#2a2a32', color: '#ff8c00',
+            border: '1px solid #3f3f4e', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '15px',
           }}
         >
@@ -358,42 +345,42 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
   const renderForm = () => (
     <div
       style={{
-        background: '#ffffff', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto',
-        borderRadius: '24px', padding: '48px 28px 28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
-        position: 'relative', fontFamily: "'Noto Sans KR', sans-serif"
+        background: '#1e1e24', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto',
+        borderRadius: '24px', padding: '48px 28px 28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+        position: 'relative', fontFamily: "'Noto Sans KR', sans-serif", color: '#f8f9fa', border: '1px solid #2e2e38'
       }}
     >
       <button
         onClick={handleClose}
         style={{
-          position: 'absolute', top: '20px', right: '20px', background: '#f1f3f5',
-          border: 'none', width: '32px', height: '32px', borderRadius: '50%',
-          fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
+          position: 'absolute', top: '20px', right: '20px', background: '#2a2a32',
+          border: '1px solid #3f3f4e', width: '32px', height: '32px', borderRadius: '50%',
+          fontSize: '14px', fontWeight: 800, color: '#a0a0b0', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f3f5'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = '#3f3f4e'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#2a2a32'; }}
       >
         ✕
       </button>
 
-      <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#212529', margin: '0 0 16px 0', letterSpacing: '-0.02em' }}>
+      <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#f8f9fa', margin: '0 0 16px 0', letterSpacing: '-0.02em' }}>
         {isForgotPassword ? '비밀번호 찾기' : isSignUp ? '회원가입' : '로그인'}
       </h2>
 
       {errorMessage && <p style={{ color: '#fa5252', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{errorMessage}</p>}
-      {successMessage && <p style={{ color: '#0ca678', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{successMessage}</p>}
+      {successMessage && <p style={{ color: '#20c997', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{successMessage}</p>}
 
       {isForgotPassword ? (
         <form onSubmit={handleForgotPasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>가입 이메일 주소</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>가입 이메일 주소</label>
             <input
               type="email"
               placeholder="example@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #2e2e38', background: '#2a2a32', color: '#f8f9fa', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
               required
             />
           </div>
@@ -407,7 +394,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           >
             임시 비밀번호 발급받기
           </button>
-          <p style={{ marginTop: '12px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
+          <p style={{ marginTop: '12px', textAlign: 'center', fontSize: '0.85rem', color: '#a0a0b0', fontWeight: 600 }}>
             비밀번호가 기억나셨나요?{' '}
             <span
               style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }}
@@ -430,9 +417,9 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                   type="button"
                   onClick={() => setRole('USER')}
                   style={{
-                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'USER' ? '2px solid #ff8c00' : '1px solid #dee2e6',
-                    background: role === 'USER' ? 'rgba(255,140,0,0.08)' : '#fff',
-                    color: role === 'USER' ? '#ff8c00' : '#495057', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
+                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'USER' ? '2px solid #ff8c00' : '1px solid #2e2e38',
+                    background: role === 'USER' ? 'rgba(255,140,0,0.15)' : '#2a2a32',
+                    color: role === 'USER' ? '#ff8c00' : '#a0a0b0', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
                   }}
                 >
                   👤 일반 관객
@@ -441,9 +428,9 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                   type="button"
                   onClick={() => setRole('ARTIST')}
                   style={{
-                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'ARTIST' ? '2px solid #ff8c00' : '1px solid #dee2e6',
-                    background: role === 'ARTIST' ? 'rgba(255,140,0,0.08)' : '#fff',
-                    color: role === 'ARTIST' ? '#ff8c00' : '#495057', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
+                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'ARTIST' ? '2px solid #ff8c00' : '1px solid #2e2e38',
+                    background: role === 'ARTIST' ? 'rgba(255,140,0,0.15)' : '#2a2a32',
+                    color: role === 'ARTIST' ? '#ff8c00' : '#a0a0b0', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
                   }}
                 >
                   🎤 아티스트
@@ -451,13 +438,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>닉네임</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>닉네임</label>
                 <input
                   type="text"
                   placeholder="닉네임 (2자 이상)"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #2e2e38', background: '#2a2a32', color: '#f8f9fa', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
                   required
                 />
               </div>
@@ -465,25 +452,22 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>이메일 주소</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>이메일 주소</label>
             <input
               type="email"
               placeholder="example@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', background: '#fff', boxSizing: 'border-box', outline: 'none' }}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #2e2e38', background: '#2a2a32', color: '#f8f9fa', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
               required
             />
           </div>
 
           {isSignUp && role === 'ARTIST' && !googleProfileData && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>아티스트 본인 확인</label>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>아티스트 본인 확인</label>
               {isKakaoVerified ? (
-                <div style={{ padding: '12px 14px', background: '#fff9db', border: '1px solid #fcc419', borderRadius: '12px', fontSize: '13.5px', color: '#f08c00', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ width: '18px', height: '18px', display: 'block' }}>
-                    <path fill="#f08c00" d="M12 3C6.477 3 2 6.145 2 10.024c0 2.456 1.583 4.606 3.963 5.852-.172.63-.623 2.285-.714 2.634-.112.434.158.427.336.311.139-.091 2.203-1.498 2.556-1.745.594.086 1.205.132 1.83 1.32 4.477 0 8.973-3.145 8.973-7.024C19 6.145 15.023 3 12 3z"/>
-                  </svg>
+                <div style={{ padding: '12px 14px', background: 'rgba(255, 140, 0, 0.15)', border: '1px solid #ff8c00', borderRadius: '12px', fontSize: '13.5px', color: '#ff8c00', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   카카오톡 본인 인증 완료됨
                 </div>
               ) : (
@@ -494,12 +478,8 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                     width: '100%', padding: '12px', background: '#FEE500', color: '#191919',
                     border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '14px',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.05)'
                   }}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ width: '18px', height: '18px', display: 'block' }}>
-                    <path fill="#191919" d="M12 3C6.477 3 2 6.145 2 10.024c0 2.456 1.583 4.606 3.963 5.852-.172.63-.623 2.285-.714 2.634-.112.434.158.427.336.311.139-.091 2.203-1.498 2.556-1.745.594.086 1.205.132 1.83 1.32 4.477 0 8.973-3.145 8.973-7.024C19 6.145 15.023 3 12 3z"/>
-                  </svg>
                   카카오톡으로 간편 인증하기
                 </button>
               )}
@@ -507,13 +487,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>비밀번호</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>비밀번호</label>
             <input
               type="password"
               placeholder="영문+숫자 8자 이상"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #2e2e38', background: '#2a2a32', color: '#f8f9fa', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
               required
             />
           </div>
@@ -521,7 +501,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           {!isSignUp && (
             <div style={{ textAlign: 'right', marginTop: '-4px' }}>
               <span
-                style={{ fontSize: '0.8rem', color: '#6c757d', cursor: 'pointer', fontWeight: 600 }}
+                style={{ fontSize: '0.8rem', color: '#a0a0b0', cursor: 'pointer', fontWeight: 600 }}
                 onClick={() => {
                   setIsForgotPassword(true);
                   setErrorMessage('');
@@ -538,20 +518,18 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             style={{
               width: '100%', padding: '13px', background: 'linear-gradient(135deg, #ff8c00, #ffab40)',
               color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, cursor: 'pointer',
-              fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)',
-              transition: 'transform 0.15s ease, box-shadow 0.15s ease'
+              fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)'
             }}
           >
             {isSignUp ? '가입 완료' : '로그인'}
           </button>
 
-          {/* 소셜 간편 로그인 아이콘 버튼 영역 */}
           {!isForgotPassword && (
             <div style={{ marginTop: '18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0 16px' }}>
-                <div style={{ flex: 1, height: '1px', background: '#e9ecef' }} />
-                <span style={{ fontSize: '11.5px', color: '#adb5bd', fontWeight: 700 }}>또는 간편 로그인</span>
-                <div style={{ flex: 1, height: '1px', background: '#e9ecef' }} />
+                <div style={{ flex: 1, height: '1px', background: '#2e2e38' }} />
+                <span style={{ fontSize: '11.5px', color: '#6c727f', fontWeight: 700 }}>또는 간편 로그인</span>
+                <div style={{ flex: 1, height: '1px', background: '#2e2e38' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
                 <button
@@ -562,7 +540,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                     width: '48px', height: '48px', borderRadius: '50%',
                     background: '#FEE500', border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
                   }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ width: '22px', height: '22px', display: 'block' }}>
@@ -575,9 +552,8 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                   title="Google로 계속하기"
                   style={{
                     width: '48px', height: '48px', borderRadius: '50%',
-                    background: '#fff', border: '1px solid #dee2e6', cursor: 'pointer',
+                    background: '#2a2a32', border: '1px solid #3f3f4e', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
                   }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: '20px', height: '20px' }}>
@@ -585,14 +561,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                     <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
                     <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
                     <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
-                    <path fill="none" d="M0 0h48v48H0z"></path>
                   </svg>
                 </button>
               </div>
             </div>
           )}
 
-          <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
+          <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.85rem', color: '#a0a0b0', fontWeight: 600 }}>
             {isSignUp ? '이미 계정이 있으신가요?' : '계정이 없으신가요?'}{' '}
             <span
               style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }}
@@ -615,7 +590,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       onClick={handleClose}
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.45)', backdropFilter: 'blur(4px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)',
         display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
       }}
     >
