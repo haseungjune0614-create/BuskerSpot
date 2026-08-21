@@ -29,16 +29,12 @@ const getTodayDateStr = () => {
 
 export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAuthModal, onOpenRegisterModal, onLogout, onSearch, onRegisterSearchOpen, unreadCount = 0 }) {
   const [artistKeyword, setArtistKeyword] = useState('');
-
-  // 독립된 통합검색 페이지(오버레이) 열림 여부 상태
   const [isSearchPageOpen, setIsSearchPageOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [recentPerformances, setRecentPerformances] = useState([]);
-
-  // 실시간 인기 검색어 상태 추가
   const [popularKeywords, setPopularKeywords] = useState(['어쿠스틱', '힙합', '인디밴드', '홍대', '강남', '발라드', '재즈']);
 
   const isMobile = useIsMobile(860);
-
   const artistUserKey = currentUser ? `artist_search_history_${currentUser.id || currentUser.email}` : null;
 
   const [artistSearchHistory, setArtistSearchHistory] = useState(() => {
@@ -47,7 +43,6 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
     return saved ? JSON.parse(saved) : [];
   });
 
-  // 부모(App.js)로 검색창을 여는 함수 전달
   useEffect(() => {
     if (onRegisterSearchOpen) {
       onRegisterSearchOpen(() => setIsSearchPageOpen(true));
@@ -69,12 +64,10 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
       const data = await res.json();
       if (data.success && data.performances) {
         const todayStr = getTodayDateStr();
-
         const upcomingPerfs = data.performances.filter((perf) => {
           const perfDateStr = (perf.performance_date || perf.date)?.split('T')[0];
           return !perfDateStr || perfDateStr >= todayStr;
         });
-
         const sorted = upcomingPerfs.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
         setRecentPerformances(sorted.slice(0, 5));
       }
@@ -133,9 +126,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
     saveArtistSearchHistory(keyword);
     recordSearchKeyword(keyword);
     setIsSearchPageOpen(false);
-    if (onSearch) {
-      onSearch(keyword);
-    }
+    if (onSearch) onSearch(keyword);
   };
 
   const handleSelectHistory = (item) => {
@@ -143,9 +134,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
     setIsSearchPageOpen(false);
     saveArtistSearchHistory(item);
     recordSearchKeyword(item);
-    if (onSearch) {
-      onSearch(item);
-    }
+    if (onSearch) onSearch(item);
   };
 
   const handleDeleteHistoryItem = (e, indexToDelete) => {
@@ -153,19 +142,14 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
     const updated = artistSearchHistory.filter((_, idx) => idx !== indexToDelete);
     setArtistSearchHistory(updated);
     if (artistUserKey) {
-      if (updated.length === 0) {
-        localStorage.removeItem(artistUserKey);
-      } else {
-        localStorage.setItem(artistUserKey, JSON.stringify(updated));
-      }
+      if (updated.length === 0) localStorage.removeItem(artistUserKey);
+      else localStorage.setItem(artistUserKey, JSON.stringify(updated));
     }
   };
 
   const clearHistory = () => {
     setArtistSearchHistory([]);
-    if (artistUserKey) {
-      localStorage.removeItem(artistUserKey);
-    }
+    if (artistUserKey) localStorage.removeItem(artistUserKey);
   };
 
   const navItems = [
@@ -232,6 +216,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
           box-shadow: 0 0 0 3px rgba(255,140,0,0.15);
         }
         .bsp-top-icon-btn:hover { background-color: rgba(41,37,36,0.06); }
+        .bsp-menu-item:hover { background-color: #faf6f2 !important; }
 
         .bsp-bottom-tab {
           flex: 1;
@@ -279,9 +264,9 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
           <span style={{ WebkitTextFillColor: 'initial' }}>🎸</span> <span>BuskerSpot</span>
         </div>
 
-        {/* 데스크탑 전용 메뉴 및 검색 */}
+        {/* 데스크탑 전용 메뉴 및 검색 (검색창을 오른쪽으로 밀어내기 위해 flex구조 활용) */}
         {!isMobile && (
-          <div className="bsp-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '20px', flexShrink: 0 }}>
+          <div className="bsp-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '30px', flex: 1, justifyContent: 'flex-end', paddingRight: '20px', flexShrink: 0 }}>
             <nav style={{ ...mainStyles.menuGroup, flexShrink: 0, whiteSpace: 'nowrap' }}>
               {navItems.map((item) => (
                 <button
@@ -304,7 +289,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
               <div
                 onClick={() => setIsSearchPageOpen(true)}
                 style={{
-                  width: '210px', height: '38px', padding: '0 36px 0 16px', border: 'none', borderRadius: '999px',
+                  width: '240px', height: '38px', padding: '0 36px 0 16px', border: 'none', borderRadius: '999px',
                   backgroundColor: '#faf6f2', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center',
                   color: '#a8a29e', cursor: 'pointer', boxSizing: 'border-box', position: 'relative'
                 }}
@@ -318,7 +303,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
 
         {/* 데스크탑 우측 액션 그룹 */}
         {!isMobile && (
-          <div className="bsp-desktop-only" style={{ ...mainStyles.actionGroup, flexShrink: 0, flexWrap: 'nowrap' }}>
+          <div className="bsp-desktop-only" style={{ ...mainStyles.actionGroup, flexShrink: 0, flexWrap: 'nowrap', position: 'relative' }}>
             {currentUser && (
               <button
                 className="bsp-top-icon-btn"
@@ -339,42 +324,87 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
             )}
             {currentUser && <MessageBell />}
 
-            {currentUser?.role === 'ARTIST' && (
-              <button className="bsp-register-btn" style={{ ...mainStyles.registerBtn, flexShrink: 0 }} onClick={onOpenRegisterModal}>
-                + 공연 등록
-              </button>
+            {currentUser && (
+              <div style={{ ...mainStyles.userChip, overflow: 'hidden', maxWidth: '130px', flexShrink: 0 }}>
+                {currentUser.role === 'ADMIN' && <span>🛡️</span>}
+                {currentUser.role === 'ARTIST' && <span>🎤</span>}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', maxWidth: '80px', verticalAlign: 'middle' }}>
+                  <b>{currentUser.nickname}</b>
+                </span>
+                님
+              </div>
             )}
 
             {currentUser ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                <div style={{ ...mainStyles.userChip, maxWidth: '140px', overflow: 'hidden' }}>
-                  <span>🛡️</span>
-                  <span
-                    style={{
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      display: 'inline-block',
-                      maxWidth: '90px',
-                      verticalAlign: 'middle'
-                    }}
-                  >
-                    <b>{currentUser.nickname}</b>
-                  </span>
-                  님
-                </div>
-                {currentUser.role === 'ADMIN' && (
-                  <button className="bsp-sub-btn" style={{ ...mainStyles.subActionBtn, flexShrink: 0 }} onClick={() => setActiveTab('admin')}>관리자 페이지</button>
+              <div style={{ position: 'relative', flexShrink: 0 }}>
+                <button
+                  type="button"
+                  className="bsp-top-icon-btn"
+                  onClick={() => setIsMenuOpen((prev) => !prev)}
+                  style={{
+                    width: '38px', height: '38px', borderRadius: '50%', border: 'none',
+                    backgroundColor: isMenuOpen ? '#ffe3e3' : '#faf6f2', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0
+                  }}
+                  title="메뉴"
+                >
+                  ☰
+                </button>
+
+                {isMenuOpen && (
+                  <>
+                    <div
+                      onClick={() => setIsMenuOpen(false)}
+                      style={{ position: 'fixed', inset: 0, zIndex: 1099 }}
+                    />
+                    <div
+                      style={{
+                        position: 'absolute', top: '46px', right: 0, minWidth: '180px',
+                        backgroundColor: '#fff', borderRadius: '14px', border: '1px solid #f1eee7',
+                        boxShadow: '0 14px 30px -10px rgba(41,37,36,0.25)', padding: '8px',
+                        display: 'flex', flexDirection: 'column', gap: '2px', zIndex: 1100, boxSizing: 'border-box'
+                      }}
+                    >
+                      {currentUser.role === 'ARTIST' && (
+                        <button
+                          className="bsp-menu-item"
+                          style={{ ...mainStyles.subActionBtn, textAlign: 'left', backgroundColor: 'transparent', color: '#ff8c00', width: '100%' }}
+                          onClick={() => { setIsMenuOpen(false); onOpenRegisterModal(); }}
+                        >
+                          + 공연 등록
+                        </button>
+                      )}
+                      {currentUser.role === 'ADMIN' && (
+                        <button
+                          className="bsp-menu-item"
+                          style={{ ...mainStyles.subActionBtn, textAlign: 'left', backgroundColor: 'transparent', width: '100%' }}
+                          onClick={() => { setIsMenuOpen(false); setActiveTab('admin'); }}
+                        >
+                          관리자 페이지
+                        </button>
+                      )}
+                      <button
+                        className="bsp-menu-item"
+                        style={{ ...mainStyles.subActionBtn, textAlign: 'left', backgroundColor: 'transparent', width: '100%' }}
+                        onClick={() => { setIsMenuOpen(false); setActiveTab('mypage'); }}
+                      >
+                        마이페이지
+                      </button>
+                      <button
+                        className="bsp-menu-item"
+                        style={{ ...mainStyles.subActionBtn, textAlign: 'left', backgroundColor: 'transparent', color: '#fa5252', width: '100%' }}
+                        onClick={() => { setIsMenuOpen(false); onLogout(); }}
+                      >
+                        로그아웃
+                      </button>
+                    </div>
+                  </>
                 )}
-                <button className="bsp-sub-btn" style={{ ...mainStyles.subActionBtn, flexShrink: 0 }} onClick={() => setActiveTab('mypage')}>마이페이지</button>
-                <button className="bsp-sub-btn bsp-logout-btn" style={{ ...mainStyles.subActionBtn, color: '#fa5252', backgroundColor: '#fff5f5', flexShrink: 0 }} onClick={onLogout}>로그아웃</button>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                <button className="bsp-login-btn" style={{ ...mainStyles.subActionBtn, backgroundColor: '#ff8c00', color: '#fff', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)', flexShrink: 0 }} onClick={onOpenAuthModal}>
-                  로그인 / 회원가입
-                </button>
-              </div>
+              <button className="bsp-login-btn" style={{ ...mainStyles.subActionBtn, backgroundColor: '#ff8c00', color: '#fff', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)', flexShrink: 0 }} onClick={onOpenAuthModal}>
+                로그인 / 회원가입
+              </button>
             )}
           </div>
         )}
