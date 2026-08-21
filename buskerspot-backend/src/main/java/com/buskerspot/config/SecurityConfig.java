@@ -35,8 +35,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000")); // 프론트엔드 주소 허용
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")); // PATCH 추가
+        
+        // 프론트엔드 배포 주소 및 로컬 주소 허용
+        configuration.setAllowedOrigins(List.of(
+            "https://buskerspot.pages.dev",
+            "http://localhost:3000"
+        ));
+        
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 
@@ -46,28 +52,28 @@ public class SecurityConfig {
     }
 
     @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(csrf -> csrf.disable())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-            // preflight(OPTIONS) 요청은 무조건 인증 없이 통과시켜야 함
-            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers(
-                "/api/auth/**",
-                "/api/performances",
-                "/api/performances/**",
-                 "/api/search/**", 
-                "/uploads/**"
-            ).permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-            // 💡 비로그인도 가능해야 하는 아티스트 검색/조회
-            .requestMatchers(HttpMethod.GET, "/api/users/search-artist", "/api/users/{id}").permitAll()
-            .anyRequest().authenticated()
-        )
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                // preflight(OPTIONS) 요청은 무조건 인증 없이 통과시켜야 함
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(
+                    "/api/auth/**",
+                    "/api/performances",
+                    "/api/performances/**",
+                    "/api/search/**", 
+                    "/uploads/**"
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                // 💡 비로그인도 가능해야 하는 아티스트 검색/조회
+                .requestMatchers(HttpMethod.GET, "/api/users/search-artist", "/api/users/{id}").permitAll()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-    return http.build();
-}
+        return http.build();
+    }
 }
