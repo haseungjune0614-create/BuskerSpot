@@ -9,8 +9,8 @@ import AuthModal from './components/AuthModal';
 import RegisterPerformanceModal from './components/RegisterPerformanceModal';
 import Navbar from './components/Navbar';
 
-// React (Create React App) 기준 환경변수 설정
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+// 💡 환경변수 문제 원천 차단: Render 배포 주소로 직접 고정
+const API_BASE_URL = 'https://buskerspot.onrender.com';
 
 // 이미지 URL 처리 헬퍼 함수
 const getImageUrl = (path) => {
