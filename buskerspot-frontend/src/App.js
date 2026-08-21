@@ -58,7 +58,7 @@ const getPerformanceStatus = (dateStr, startTime, endTime) => {
   }
 };
 
-// 💡 화면 폭을 감지해서 모바일 레이아웃 여부를 반환하는 커스텀 훅
+// 화면 폭을 감지해서 모바일 레이아웃 여부를 반환하는 커스텀 훅
 const useIsMobile = (breakpoint = 768) => {
   const [isMobile, setIsMobile] = useState(
     typeof window !== 'undefined' ? window.innerWidth <= breakpoint : false
@@ -74,7 +74,7 @@ const useIsMobile = (breakpoint = 768) => {
   return isMobile;
 };
 
-// 💡 이미지 확대용 모달 컴포넌트
+// 이미지 확대용 모달 컴포넌트
 function ImageModal({ imageUrl, onClose }) {
   if (!imageUrl) return null;
 
@@ -102,7 +102,7 @@ function ImageModal({ imageUrl, onClose }) {
   );
 }
 
-// 💡 상단 검색 결과 아티스트 프로필 전용 모달 컴포넌트
+// 상단 검색 결과 아티스트 프로필 전용 모달 컴포넌트
 function ArtistProfileModal({ artist, onClose, isFollowed, onToggleFollow, bookmarkedIds, onToggleBookmark, onSelectDetail, onImageClick, renderCustomHeader }) {
   if (!artist) return null;
 
@@ -179,7 +179,7 @@ function ArtistProfileModal({ artist, onClose, isFollowed, onToggleFollow, bookm
   );
 }
 
-// 💡 검색된 아티스트 및 공연 통합 리스트 나열 모달 컴포넌트
+// 검색된 아티스트 및 공연 통합 리스트 나열 모달 컴포넌트
 function PerformanceListModal({ performances, onClose, onSelectItem, getImageUrl }) {
   const safePerformances = Array.isArray(performances) ? performances : [];
   if (safePerformances.length === 0) return null;
@@ -313,7 +313,7 @@ function PerformanceListModal({ performances, onClose, onSelectItem, getImageUrl
   );
 }
 
-// 💡 알림 전용 페이지 컴포넌트
+// 알림 전용 페이지 컴포넌트
 function NotificationsPage({ currentUser, performances, setDetailModalPerf, setSelectedArtistProfile }) {
   const [notifications, setNotifications] = useState([]);
   const safePerformances = Array.isArray(performances) ? performances : [];
@@ -659,8 +659,8 @@ function App() {
       if (bookmarkRes.ok) {
         const bookmarkData = await bookmarkRes.json();
         if (bookmarkData.success && Array.isArray(bookmarkData.performances)) {
-  setBookmarkedIds(bookmarkData.performances.map((p) => p.id));
-}
+          setBookmarkedIds(bookmarkData.performances.map((p) => p.id));
+        }
       }
     } catch (error) {
       console.error('App.js: 유저 정보 가져오기 실패:', error);
@@ -893,12 +893,12 @@ function App() {
 
     const artistMap = new Map();
     safePerformances.forEach(p => {
-      const name = p.artist_nickname ||p.stage_name || p.organizer_name || '';
+      const name = p.artist_nickname || p.stage_name || p.organizer_name || '';
       const genre = p.genre || '';
       
       const isMatch = name.toLowerCase().includes(searchKey) || 
-                      name.toLowerCase().includes(trimmedKey.toLowerCase()) || 
-                      genre.toLowerCase().includes(searchKey);
+                    name.toLowerCase().includes(trimmedKey.toLowerCase()) || 
+                    genre.toLowerCase().includes(searchKey);
 
       if (isMatch && (p.artist_id || p.user_id)) {
         const aId = p.artist_id || p.user_id;
@@ -1191,7 +1191,7 @@ function App() {
                     {upcomingBookmarks.length === 0 ? (
                       <p style={{ fontSize: '0.9rem', color: '#6c757d', fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '40px 0' }}>예정된 찜한 공연이 없습니다.</p>
                     ) : (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px', width: '100%' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px', width: '100%' }}>
                         {upcomingBookmarks.map(perf => renderBookmarkCard(perf, false))}
                       </div>
                     )}
@@ -1204,7 +1204,7 @@ function App() {
                     {pastBookmarks.length === 0 ? (
                       <p style={{ fontSize: '0.9rem', color: '#6c757d', fontStyle: 'italic', margin: 0, textAlign: 'center', padding: '40px 0' }}>지난 찜한 공연이 없습니다.</p>
                     ) : (
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px', width: '100%' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(340px, 1fr))', gap: '20px', width: '100%' }}>
                         {pastBookmarks.map(perf => renderBookmarkCard(perf, true))}
                       </div>
                     )}
