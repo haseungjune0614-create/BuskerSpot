@@ -1,10 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LocationPickerModal from './LocationPickerModal';
 
-// 💡 다른 컴포넌트들과 동일하게 환경변수를 사용하도록 API_BASE_URL 설정
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
+const useIsMobile = (breakpoint = 860) => {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth <= breakpoint : false
+  );
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= breakpoint);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [breakpoint]);
+  return isMobile;
+};
+
 function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSuccess }) {
+  const isMobile = useIsMobile(860);
+
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [startTime, setStartTime] = useState('19:00');
@@ -110,7 +124,6 @@ function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSucc
     };
 
     try {
-      // 💡 하드코딩된 5000번 포트 대신 API_BASE_URL 변수 활용
       const res = await fetch(`${API_BASE_URL}/api/performances`, {
         method: 'POST',
         headers: {
@@ -142,23 +155,32 @@ function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSucc
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.45)', backdropFilter: 'blur(4px)',
-          display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
+          display: 'flex', justifyContent: 'center', alignItems: isMobile ? 'flex-end' : 'center', zIndex: 1100
         }}
       >
         <div 
           onClick={(e) => e.stopPropagation()} 
           style={{
-            background: '#ffffff', width: '100%', maxWidth: '480px', borderRadius: '24px',
-            padding: '28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
-            position: 'relative', fontFamily: "'Noto Sans KR', sans-serif"
+            background: '#ffffff',
+            width: '100%',
+            maxWidth: isMobile ? '100%' : '480px',
+            maxHeight: isMobile ? '88vh' : 'none',
+            overflowY: isMobile ? 'auto' : 'visible',
+            borderRadius: isMobile ? '20px 20px 0 0' : '24px',
+            padding: isMobile ? '18px' : '28px',
+            boxSizing: 'border-box',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+            position: 'relative',
+            fontFamily: "'Noto Sans KR', sans-serif"
           }}
         >
           <button 
             onClick={onClose}
             style={{
-              position: 'absolute', top: '20px', right: '20px', background: '#f1f3f5',
-              border: 'none', width: '32px', height: '32px', borderRadius: '50%',
-              fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
+              position: 'absolute', top: isMobile ? '14px' : '20px', right: isMobile ? '14px' : '20px',
+              background: '#f1f3f5', border: 'none',
+              width: isMobile ? '28px' : '32px', height: isMobile ? '28px' : '32px', borderRadius: '50%',
+              fontSize: isMobile ? '12px' : '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
@@ -167,65 +189,65 @@ function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSucc
             ✕
           </button>
 
-          <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#212529', margin: '0 0 20px 0', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: isMobile ? '1.1rem' : '1.35rem', fontWeight: 900, color: '#212529', margin: isMobile ? '0 0 14px 0' : '0 0 20px 0', letterSpacing: '-0.02em' }}>
             🎸 버스킹 공연 등록
           </h2>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '14px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>공연 제목</label>
+              <label style={{ display: 'block', fontSize: isMobile ? '0.72rem' : '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>공연 제목</label>
               <input
                 type="text"
                 placeholder="예: 수내역 광장 버스킹"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }}
+                style={{ width: '100%', padding: isMobile ? '9px 12px' : '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: isMobile ? '13px' : '14px', boxSizing: 'border-box', outline: 'none', transition: 'border-color 0.2s' }}
                 onFocus={(e) => { e.currentTarget.style.borderColor = '#ff8c00'; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = '#dee2e6'; }}
                 required
               />
             </div>
             
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <div style={{ flex: 1.2 }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>공연 날짜</label>
+            <div style={{ display: 'flex', gap: isMobile ? '8px' : '10px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+              <div style={{ flex: isMobile ? '1 1 100%' : 1.2 }}>
+                <label style={{ display: 'block', fontSize: isMobile ? '0.72rem' : '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>공연 날짜</label>
                 <input
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  style={{ width: '100%', padding: '11px 12px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '13px', boxSizing: 'border-box', outline: 'none' }}
+                  style={{ width: '100%', padding: isMobile ? '9px 10px' : '11px 12px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: isMobile ? '12px' : '13px', boxSizing: 'border-box', outline: 'none' }}
                   required
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>시작 시간</label>
+                <label style={{ display: 'block', fontSize: isMobile ? '0.72rem' : '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>시작 시간</label>
                 <input
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  style={{ width: '100%', padding: '11px 10px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '13px', boxSizing: 'border-box', outline: 'none' }}
+                  style={{ width: '100%', padding: isMobile ? '9px 8px' : '11px 10px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: isMobile ? '12px' : '13px', boxSizing: 'border-box', outline: 'none' }}
                   required
                 />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>종료 시간</label>
+                <label style={{ display: 'block', fontSize: isMobile ? '0.72rem' : '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>종료 시간</label>
                 <input
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  style={{ width: '100%', padding: '11px 10px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '13px', boxSizing: 'border-box', outline: 'none' }}
+                  style={{ width: '100%', padding: isMobile ? '9px 8px' : '11px 10px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: isMobile ? '12px' : '13px', boxSizing: 'border-box', outline: 'none' }}
                   required
                 />
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: isMobile ? '8px' : '10px' }}>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>공연 지역</label>
+                <label style={{ display: 'block', fontSize: isMobile ? '0.72rem' : '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>공연 지역</label>
                 <select 
                   value={region} 
                   onChange={(e) => setRegion(e.target.value)} 
-                  style={{ width: '100%', padding: '11px 12px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '13.5px', background: '#fff', boxSizing: 'border-box', outline: 'none' }}
+                  style={{ width: '100%', padding: isMobile ? '9px 10px' : '11px 12px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: isMobile ? '12.5px' : '13.5px', background: '#fff', boxSizing: 'border-box', outline: 'none' }}
                 >
                   <option value="서울">서울</option>
                   <option value="경기">경기</option>
@@ -247,11 +269,11 @@ function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSucc
                 </select>
               </div>
               <div style={{ flex: 1 }}>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>음악 장르</label>
+                <label style={{ display: 'block', fontSize: isMobile ? '0.72rem' : '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>음악 장르</label>
                 <select 
                   value={genre} 
                   onChange={(e) => setGenre(e.target.value)} 
-                  style={{ width: '100%', padding: '11px 12px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '13.5px', background: '#fff', boxSizing: 'border-box', outline: 'none' }}
+                  style={{ width: '100%', padding: isMobile ? '9px 10px' : '11px 12px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: isMobile ? '12.5px' : '13.5px', background: '#fff', boxSizing: 'border-box', outline: 'none' }}
                 >
                   <option value="Acoustic">어쿠스틱 / 발라드</option>
                   <option value="Band">밴드 / 록</option>
@@ -265,28 +287,28 @@ function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSucc
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>상세 위치 및 지도 선택</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <label style={{ display: 'block', fontSize: isMobile ? '0.72rem' : '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>상세 위치 및 지도 선택</label>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
                 <input
                   type="text"
                   placeholder="상세 위치 (예: 수내역 앞 광장)"
                   value={locationName}
                   onChange={(e) => setLocationName(e.target.value)}
-                  style={{ flex: 1, padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+                  style={{ flex: isMobile ? '1 1 100%' : 1, padding: isMobile ? '9px 12px' : '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: isMobile ? '13px' : '14px', boxSizing: 'border-box', outline: 'none' }}
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setIsPickerOpen(true)}
                   style={{
-                    padding: '0 16px',
+                    padding: isMobile ? '9px 14px' : '0 16px',
                     background: selectedCoords ? '#0ca678' : '#212529',
                     color: '#fff',
                     border: 'none',
                     borderRadius: '12px',
                     cursor: 'pointer',
                     whiteSpace: 'nowrap',
-                    fontSize: '13px',
+                    fontSize: isMobile ? '12px' : '13px',
                     fontWeight: 700,
                     transition: 'background 0.2s'
                   }}
@@ -297,27 +319,27 @@ function RegisterPerformanceModal({ isOpen, onClose, currentUser, onRegisterSucc
             </div>
 
             {selectedCoords && (
-              <p style={{ fontSize: '12px', color: '#0ca678', margin: '-4px 0 0 4px', fontWeight: 600 }}>
+              <p style={{ fontSize: isMobile ? '11px' : '12px', color: '#0ca678', margin: '-4px 0 0 4px', fontWeight: 600 }}>
                 ✓ [{region}] 지역 자동 반영됨 (위도 {selectedCoords.lat.toFixed(4)}, 경도 {selectedCoords.lng.toFixed(4)})
               </p>
             )}
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>공연 설명 및 관객 안내</label>
+              <label style={{ display: 'block', fontSize: isMobile ? '0.72rem' : '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>공연 설명 및 관객 안내</label>
               <textarea
                 placeholder="관객분들에게 전할 안내 사항이나 소개를 입력해주세요."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                style={{ width: '100%', height: '80px', padding: '12px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '13.5px', boxSizing: 'border-box', outline: 'none', resize: 'none', fontFamily: 'inherit' }}
+                style={{ width: '100%', height: isMobile ? '64px' : '80px', padding: isMobile ? '10px 12px' : '12px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: isMobile ? '12.5px' : '13.5px', boxSizing: 'border-box', outline: 'none', resize: 'none', fontFamily: 'inherit' }}
               />
             </div>
 
             <button 
               type="submit" 
               style={{
-                width: '100%', padding: '13px', background: 'linear-gradient(135deg, #ff8c00, #ffab40)',
+                width: '100%', padding: isMobile ? '11px' : '13px', background: 'linear-gradient(135deg, #ff8c00, #ffab40)',
                 color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, cursor: 'pointer',
-                fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)',
+                fontSize: isMobile ? '14px' : '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)',
                 transition: 'transform 0.15s ease, box-shadow 0.15s ease'
               }}
               onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
