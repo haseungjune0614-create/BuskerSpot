@@ -6,7 +6,6 @@ import './../App.css';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoDataConsumed, pendingGoogleData, onGoogleDataConsumed }) {
-  // 랜딩(플랩 스타일 진입 화면) vs 폼(기존 로그인/회원가입 화면) 전환 상태 (기본값을 'form'으로 변경)
   const [view, setView] = useState('form'); // 'landing' | 'form'
 
   const [isSignUp, setIsSignUp] = useState(false);
@@ -17,11 +16,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
   const [role, setRole] = useState('USER'); // 'USER' | 'ARTIST'
-
-  // 이메일 인증 관련 상태
-  const [emailCode, setEmailCode] = useState('');
-  const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [isEmailCodeSent, setIsEmailCodeSent] = useState(false);
 
   // 카카오 인증 완료 여부 상태 (아티스트 전용)
   const [isKakaoVerified, setIsKakaoVerified] = useState(false);
@@ -50,10 +44,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         setEmail(parsed.email || '');
         setNickname(parsed.nickname || '');
         setPassword(parsed.password || '');
-        if (parsed.isEmailVerified) {
-          setIsEmailVerified(true);
-          setIsEmailCodeSent(true);
-        }
         sessionStorage.removeItem('kakao_signup_form');
       }
 
@@ -73,8 +63,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
 
       if (pendingGoogleData.email) {
         setEmail(pendingGoogleData.email);
-        setIsEmailVerified(true);
-        setIsEmailCodeSent(true);
       }
       if (pendingGoogleData.name || pendingGoogleData.nickname) {
         setNickname(pendingGoogleData.name || pendingGoogleData.nickname);
@@ -108,68 +96,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     setPassword('');
     setNickname('');
     setRole('USER');
-    setEmailCode('');
-    setIsEmailVerified(false);
-    setIsEmailCodeSent(false);
     setIsKakaoVerified(false);
     setKakaoProfileData(null);
     setGoogleProfileData(null);
     onClose();
   };
 
-  // 1. 이메일 인증번호 발송 요청
-  const handleSendEmailCode = async () => {
-    if (!email) {
-      setErrorMessage('이메일을 입력해주세요.');
-      return;
-    }
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const res = await fetch(`${API_URL}/api/auth/send-email-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setIsEmailCodeSent(true);
-        setSuccessMessage('이메일로 인증번호가 발송되었습니다.');
-      } else {
-        setErrorMessage(data.message || '이메일 인증번호 발송 실패');
-      }
-    } catch (err) {
-      setErrorMessage('서버 통신 오류 (이메일 인증 발송)');
-    }
-  };
-
-  // 2. 이메일 인증번호 검증 요청
-  const handleVerifyEmailCode = async () => {
-    if (!emailCode) {
-      setErrorMessage('이메일 인증번호를 입력해주세요.');
-      return;
-    }
-    setErrorMessage('');
-    setSuccessMessage('');
-    try {
-      const res = await fetch(`${API_URL}/api/auth/verify-email-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code: emailCode }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setIsEmailVerified(true);
-        setSuccessMessage('이메일 인증이 완료되었습니다.');
-      } else {
-        setErrorMessage(data.message || '이메일 인증 실패');
-      }
-    } catch (err) {
-      setErrorMessage('서버 통신 오류 (이메일 인증 검증)');
-    }
-  };
-
-  // 3. 비밀번호 찾기 (임시 비밀번호 발급) 요청
+  // 비밀번호 찾기 (임시 비밀번호 발급) 요청
   const handleForgotPasswordSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
@@ -213,7 +146,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       email,
       nickname,
       password,
-      isEmailVerified,
     };
     sessionStorage.setItem('kakao_signup_form', JSON.stringify(formData));
 
@@ -237,7 +169,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       return;
     }
 
-    const formData = { email, nickname, password, isEmailVerified };
+    const formData = { email, nickname, password };
     sessionStorage.setItem('google_signup_form', JSON.stringify(formData));
 
     const REDIRECT_URI =
@@ -256,11 +188,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     setSuccessMessage('');
 
     if (isSignUp) {
-      if (!isEmailVerified) {
-        setErrorMessage('이메일 인증을 완료해 주세요.');
-        return;
-      }
-
       if (role === 'ARTIST' && !isKakaoVerified && !googleProfileData) {
         setErrorMessage('아티스트 가입 시 본인 인증(또는 소셜 연동)은 필수입니다.');
         return;
@@ -286,7 +213,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           alert('회원가입이 완료되었습니다! 로그인해 주세요.');
           setIsSignUp(false);
           setPassword('');
-          setIsEmailVerified(false);
           setIsKakaoVerified(false);
           setKakaoProfileData(null);
           setGoogleProfileData(null);
@@ -322,7 +248,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 플랩(Flip) 스타일 랜딩 화면 (view가 'landing'일 경우에만 사용되나, 기본값이 'form'으로 바뀌어 직접 노출되진 않습니다)
+  // 랜딩 화면 (기본값이 'form'이라 직접 노출되진 않지만 구조상 유지)
   const renderLanding = () => (
     <div
       style={{
@@ -527,38 +453,15 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
 
           <div>
             <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>이메일 주소</label>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                type="email"
-                placeholder="example@email.com"
-                value={email}
-                disabled={isEmailVerified}
-                onChange={(e) => setEmail(e.target.value)}
-                style={{ flex: 1, padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', background: isEmailVerified ? '#f1f3f5' : '#fff', boxSizing: 'border-box', outline: 'none' }}
-                required
-              />
-              {isSignUp && !isEmailVerified && (
-                <button type="button" onClick={handleSendEmailCode} style={{ padding: '0 16px', background: '#495057', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
-                  발송
-                </button>
-              )}
-            </div>
+            <input
+              type="email"
+              placeholder="example@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', background: '#fff', boxSizing: 'border-box', outline: 'none' }}
+              required
+            />
           </div>
-
-          {isSignUp && isEmailCodeSent && !isEmailVerified && (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <input
-                type="text"
-                placeholder="이메일 인증번호 6자리"
-                value={emailCode}
-                onChange={(e) => setEmailCode(e.target.value)}
-                style={{ flex: 1, padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
-              />
-              <button type="button" onClick={handleVerifyEmailCode} style={{ padding: '0 16px', background: '#ff8c00', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: 700 }}>
-                인증
-              </button>
-            </div>
-          )}
 
           {isSignUp && role === 'ARTIST' && !googleProfileData && (
             <div>
