@@ -243,6 +243,7 @@ export default function PerformanceSearch({
     handleGetMyCurrentLocation();
   }, []);
 
+  // 오늘 날짜 설정
   const setToday = () => {
     setInputDate(new Date().toISOString().split('T')[0]);
   };
@@ -271,6 +272,7 @@ export default function PerformanceSearch({
     return true;
   });
 
+  // 정렬된 결과 반환
   const sortedPerformances = [...finalFilteredPerformances].sort((a, b) => {
     if (inputSort === 'time') return (a.start_time || '').localeCompare(b.start_time || '');
     if (inputSort === 'popularity') return (b.follower_count || 0) - (a.follower_count || 0);
@@ -347,7 +349,7 @@ export default function PerformanceSearch({
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', background: C.surface, padding: '12px 18px', borderRadius: '12px', border: `1px solid ${C.border}`, boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
             <span style={{ fontSize: '14px', fontWeight: 800, color: C.text }}>🔍 검색 필터 {isFilterOpen ? '접기' : '펼치기'}</span>
-            <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="bsp-icon-btn" style={{ padding: '6px 12px' }}>
+            <button type="button" onClick={() => setIsFilterOpen(!isFilterOpen)} className="bsp-icon-btn" style={{ padding: '6px 12px' }}>
               {isFilterOpen ? '▲ 닫기' : '▼ 열기'}
             </button>
           </div>
@@ -358,7 +360,7 @@ export default function PerformanceSearch({
                 <span style={{ color: C.textMuted, fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '8px' }}>날짜</span>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <input type="date" value={inputDate} onChange={(e) => setInputDate(e.target.value)} className="bsp-date-input" />
-                  <button className="bsp-pill bsp-pill--marigold" onClick={setToday} style={{ padding: '8px 16px', fontSize: '13px', background: C.marigoldDim, color: C.marigold, border: `1px solid ${C.marigold}`, borderRadius: '999px', fontWeight: 700, cursor: 'pointer' }}>오늘</button>
+                  <button type="button" className="bsp-pill bsp-pill--marigold" onClick={setToday} style={{ padding: '8px 16px', fontSize: '13px', background: C.marigoldDim, color: C.marigold, border: `1px solid ${C.marigold}`, borderRadius: '999px', fontWeight: 700, cursor: 'pointer' }}>오늘</button>
                 </div>
               </div>
 
@@ -404,7 +406,7 @@ export default function PerformanceSearch({
                 </div>
               </div>
 
-              <button className="bsp-search-btn" onClick={() => { handleSearch(); setIsFilterOpen(false); }}>
+              <button type="button" className="bsp-search-btn" onClick={() => { handleSearch(); setIsFilterOpen(false); }}>
                 🔍 이 조건으로 검색
               </button>
             </div>
@@ -420,8 +422,8 @@ export default function PerformanceSearch({
                 버스킹 목록 <span style={{ color: C.marigold }}>({sortedPerformances.length}개 검색됨)</span>
               </h3>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button className="bsp-icon-btn" onClick={handleGetMyCurrentLocation}>📍 내 위치 새로고침</button>
-                <button className="bsp-icon-btn" onClick={() => setIsMapVisible(!isMapVisible)}>{isMapVisible ? '🗺️ 지도 접기' : '🗺️ 지도 보기'}</button>
+                <button type="button" className="bsp-icon-btn" onClick={handleGetMyCurrentLocation}>📍 내 위치 새로고침</button>
+                <button type="button" className="bsp-icon-btn" onClick={() => setIsMapVisible(!isMapVisible)}>{isMapVisible ? '🗺️ 지도 접기' : '🗺️ 지도 보기'}</button>
               </div>
             </div>
 
@@ -486,13 +488,14 @@ export default function PerformanceSearch({
                       </div>
 
                       <div className="bsp-card-actions" style={{ display: 'flex', flexDirection: isMobile ? 'row' : 'column', gap: '8px', alignItems: 'stretch', width: isMobile ? '100%' : 'auto' }}>
-                        <button onClick={(e) => handleToggleBookmark(perf.id, e)} style={{ background: isBookmarked ? C.coralDim : C.surfaceAlt, color: isBookmarked ? C.coral : C.textMuted, border: `1px solid ${C.border}`, borderRadius: '999px', padding: '6px 12px', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}>
+                        <button type="button" onClick={(e) => handleToggleBookmark(perf.id, e)} style={{ background: isBookmarked ? C.coralDim : C.surfaceAlt, color: isBookmarked ? C.coral : C.textMuted, border: `1px solid ${C.border}`, borderRadius: '999px', padding: '6px 12px', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}>
                           {isBookmarked ? '❤️' : '🤍'} 찜
                         </button>
-                        <button onClick={(e) => { e.stopPropagation(); setDetailModalPerf(perf); }} style={{ background: C.marigold, color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', fontSize: '12.5px' }}>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); setDetailModalPerf(perf); }} style={{ background: C.marigold, color: '#fff', border: 'none', borderRadius: '10px', padding: '8px 14px', fontWeight: 800, cursor: 'pointer', fontSize: '12.5px' }}>
                           상세보기
                         </button>
                         <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (setSelectedArtistProfile) {
