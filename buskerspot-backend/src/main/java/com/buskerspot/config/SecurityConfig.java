@@ -68,6 +68,7 @@ public class SecurityConfig {
                     "/api/performances",
                     "/api/performances/**",
                     "/api/search/**", 
+                    "/api/ai/**",
                     "/uploads/**",
                     "/login/oauth2/**",
                     "/oauth2/**"
