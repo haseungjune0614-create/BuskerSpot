@@ -6,8 +6,8 @@ import './../App.css';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoDataConsumed, pendingGoogleData, onGoogleDataConsumed }) {
-  // 랜딩(플랩 스타일 진입 화면) vs 폼(기존 로그인/회원가입 화면) 전환 상태
-  const [view, setView] = useState('landing'); // 'landing' | 'form'
+  // 랜딩(플랩 스타일 진입 화면) vs 폼(기존 로그인/회원가입 화면) 전환 상태 (기본값을 'form'으로 변경)
+  const [view, setView] = useState('form'); // 'landing' | 'form'
 
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -27,7 +27,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
   const [isKakaoVerified, setIsKakaoVerified] = useState(false);
   const [kakaoProfileData, setKakaoProfileData] = useState(null);
 
-  // 💡 구글 인증 프로필 데이터 상태 추가 (구글은 카카오와 달리 role 강제 및 본인인증 배지 없음)
+  // 구글 인증 프로필 데이터 상태 추가
   const [googleProfileData, setGoogleProfileData] = useState(null);
 
   // 메시지 상태
@@ -63,7 +63,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   }, [pendingKakaoData, onKakaoDataConsumed]);
 
-  // 💡 구글 간편 회원가입 후 돌아왔을 때 처리 (카카오와 분리, 역할 및 인증 강제 지정 없음)
+  // 구글 간편 회원가입 후 돌아왔을 때 처리
   useEffect(() => {
     if (pendingGoogleData) {
       setView('form');
@@ -71,10 +71,9 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       setIsForgotPassword(false);
       setGoogleProfileData(pendingGoogleData);
 
-      // 구글 프로필 데이터에 이메일이나 이름이 포함되어 있다면 기본 세팅
       if (pendingGoogleData.email) {
         setEmail(pendingGoogleData.email);
-        setIsEmailVerified(true); // 구글은 이미 인증된 이메일이므로 완료 처리
+        setIsEmailVerified(true);
         setIsEmailCodeSent(true);
       }
       if (pendingGoogleData.name || pendingGoogleData.nickname) {
@@ -100,7 +99,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
 
   // 입력 및 상태 초기화 후 모달 닫기
   const handleClose = () => {
-    setView('landing');
+    setView('form');
     setErrorMessage('');
     setSuccessMessage('');
     setIsSignUp(false);
@@ -278,7 +277,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             role,
             kakaoData: role === 'ARTIST' ? kakaoProfileData : null,
             kakaoId: role === 'ARTIST' && kakaoProfileData ? kakaoProfileData.kakaoId : null,
-            googleData: googleProfileData, // 💡 구글 회원가입 데이터 전달
+            googleData: googleProfileData,
             googleId: googleProfileData ? googleProfileData.googleId || googleProfileData.sub : null
           }),
         });
@@ -323,7 +322,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 플랩(Flip) 스타일 랜딩 화면
+  // 플랩(Flip) 스타일 랜딩 화면 (view가 'landing'일 경우에만 사용되나, 기본값이 'form'으로 바뀌어 직접 노출되진 않습니다)
   const renderLanding = () => (
     <div
       style={{
@@ -413,48 +412,18 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           ✉️ 이메일로 계속하기
         </button>
       </div>
-
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '18px', marginTop: '32px' }}>
-        <span
-          style={{ fontSize: '0.82rem', color: '#ff8c00', fontWeight: 600, cursor: 'pointer' }}
-          onClick={() => { setView('form'); setIsSignUp(false); setIsForgotPassword(true); setErrorMessage(''); }}
-        >
-          비밀번호 찾기
-        </span>
-        <span style={{ color: '#ffd699' }}>|</span>
-        <span
-          style={{ fontSize: '0.82rem', color: '#ff8c00', fontWeight: 600, cursor: 'pointer' }}
-          onClick={() => { setView('form'); setIsSignUp(true); setErrorMessage(''); }}
-        >
-          이메일로 가입하기
-        </span>
-      </div>
     </div>
   );
 
-  // 기존 로그인 / 회원가입 폼 화면
+  // 로그인 / 회원가입 폼 화면 (기본 화면)
   const renderForm = () => (
     <div
       style={{
         background: '#ffffff', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto',
-        borderRadius: '24px', padding: '72px 28px 28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+        borderRadius: '24px', padding: '48px 28px 28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
         position: 'relative', fontFamily: "'Noto Sans KR', sans-serif"
       }}
     >
-      <button
-        onClick={() => { setView('landing'); setErrorMessage(''); setSuccessMessage(''); setIsForgotPassword(false); }}
-        style={{
-          position: 'absolute', top: '20px', left: '20px', background: '#f1f3f5',
-          border: 'none', width: '32px', height: '32px', borderRadius: '50%',
-          fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
-        }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f3f5'; }}
-        aria-label="뒤로가기"
-      >
-        ←
-      </button>
       <button
         onClick={handleClose}
         style={{
@@ -653,6 +622,51 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           >
             {isSignUp ? '가입 완료' : '로그인'}
           </button>
+
+          {/* 소셜 간편 로그인 아이콘 버튼 영역 */}
+          {!isForgotPassword && (
+            <div style={{ marginTop: '18px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0 16px' }}>
+                <div style={{ flex: 1, height: '1px', background: '#e9ecef' }} />
+                <span style={{ fontSize: '11.5px', color: '#adb5bd', fontWeight: 700 }}>또는 간편 로그인</span>
+                <div style={{ flex: 1, height: '1px', background: '#e9ecef' }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+                <button
+                  type="button"
+                  onClick={handleKakaoAuth}
+                  title="카카오로 계속하기"
+                  style={{
+                    width: '48px', height: '48px', borderRadius: '50%',
+                    background: '#FEE500', border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                  }}
+                >
+                  💬
+                </button>
+                <button
+                  type="button"
+                  onClick={handleGoogleAuth}
+                  title="Google로 계속하기"
+                  style={{
+                    width: '48px', height: '48px', borderRadius: '50%',
+                    background: '#fff', border: '1px solid #dee2e6', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: '20px', height: '20px' }}>
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+                    <path fill="none" d="M0 0h48v48H0z"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
 
           <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
             {isSignUp ? '이미 계정이 있으신가요?' : '계정이 없으신가요?'}{' '}
