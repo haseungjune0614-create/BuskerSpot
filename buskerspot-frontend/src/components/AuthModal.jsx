@@ -247,11 +247,11 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 랜딩 화면
+  // 랜딩 화면 (라이트 테마 적용)
   const renderLanding = () => (
     <div
       style={{
-        background: '#1e1e24',
+        background: '#ffffff',
         width: '100%',
         maxWidth: '440px',
         maxHeight: '90vh',
@@ -259,23 +259,23 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         borderRadius: '24px',
         padding: '40px 28px 32px',
         boxSizing: 'border-box',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.4)',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
         position: 'relative',
         fontFamily: "'Noto Sans KR', sans-serif",
-        color: '#f8f9fa',
-        border: '1px solid #2e2e38'
+        color: '#212529',
+        border: '1px solid #dee2e6'
       }}
     >
       <button
         onClick={handleClose}
         style={{
-          position: 'absolute', top: '20px', right: '20px', background: '#2a2a32',
-          border: '1px solid #3f3f4e', width: '32px', height: '32px', borderRadius: '50%',
-          fontSize: '14px', fontWeight: 800, color: '#a0a0b0', cursor: 'pointer',
+          position: 'absolute', top: '20px', right: '20px', background: '#f8f9fa',
+          border: '1px solid #dee2e6', width: '32px', height: '32px', borderRadius: '50%',
+          fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = '#3f3f4e'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = '#2a2a32'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#f8f9fa'; }}
       >
         ✕
       </button>
@@ -284,13 +284,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         <div style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: '14px', color: '#ff8c00' }}>
           BuskerSpot
         </div>
-        <p style={{ fontSize: '0.95rem', color: '#a0a0b0', fontWeight: 600, margin: 0 }}>
+        <p style={{ fontSize: '0.95rem', color: '#6c757d', fontWeight: 600, margin: 0 }}>
           아티스트와 관객을 잇는 가장 쉬운 방법
         </p>
       </div>
 
       {errorMessage && <p style={{ color: '#fa5252', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{errorMessage}</p>}
-      {successMessage && <p style={{ color: '#20c997', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{successMessage}</p>}
+      {successMessage && <p style={{ color: '#0ca678', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px', textAlign: 'center' }}>{successMessage}</p>}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <button
@@ -313,7 +313,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           onClick={handleGoogleAuth}
           style={{
             width: '100%', padding: '15px', background: '#ffffff', color: '#1f1f1f',
-            border: '1px solid #2e2e38', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
+            border: '1px solid #dee2e6', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '15px',
           }}
         >
@@ -330,8 +330,8 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           type="button"
           onClick={() => { setView('form'); setIsSignUp(false); setErrorMessage(''); }}
           style={{
-            width: '100%', padding: '15px', background: '#2a2a32', color: '#ff8c00',
-            border: '1px solid #3f3f4e', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
+            width: '100%', padding: '15px', background: '#f8f9fa', color: '#ff8c00',
+            border: '1px solid #dee2e6', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '15px',
           }}
         >
@@ -341,46 +341,46 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     </div>
   );
 
-  // 로그인 / 회원가입 폼 화면
+  // 로그인 / 회원가입 폼 화면 (라이트 테마 적용)
   const renderForm = () => (
     <div
       style={{
-        background: '#1e1e24', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto',
-        borderRadius: '24px', padding: '48px 28px 28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-        position: 'relative', fontFamily: "'Noto Sans KR', sans-serif", color: '#f8f9fa', border: '1px solid #2e2e38'
+        background: '#ffffff', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto',
+        borderRadius: '24px', padding: '48px 28px 28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+        position: 'relative', fontFamily: "'Noto Sans KR', sans-serif", color: '#212529', border: '1px solid #dee2e6'
       }}
     >
       <button
         onClick={handleClose}
         style={{
-          position: 'absolute', top: '20px', right: '20px', background: '#2a2a32',
-          border: '1px solid #3f3f4e', width: '32px', height: '32px', borderRadius: '50%',
-          fontSize: '14px', fontWeight: 800, color: '#a0a0b0', cursor: 'pointer',
+          position: 'absolute', top: '20px', right: '20px', background: '#f8f9fa',
+          border: '1px solid #dee2e6', width: '32px', height: '32px', borderRadius: '50%',
+          fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.background = '#3f3f4e'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = '#2a2a32'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#f8f9fa'; }}
       >
         ✕
       </button>
 
-      <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#f8f9fa', margin: '0 0 16px 0', letterSpacing: '-0.02em' }}>
+      <h2 style={{ fontSize: '1.35rem', fontWeight: 900, color: '#212529', margin: '0 0 16px 0', letterSpacing: '-0.02em' }}>
         {isForgotPassword ? '비밀번호 찾기' : isSignUp ? '회원가입' : '로그인'}
       </h2>
 
       {errorMessage && <p style={{ color: '#fa5252', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{errorMessage}</p>}
-      {successMessage && <p style={{ color: '#20c997', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{successMessage}</p>}
+      {successMessage && <p style={{ color: '#0ca678', fontSize: '0.85rem', fontWeight: 600, marginBottom: '12px' }}>{successMessage}</p>}
 
       {isForgotPassword ? (
         <form onSubmit={handleForgotPasswordSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>가입 이메일 주소</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>가입 이메일 주소</label>
             <input
               type="email"
               placeholder="example@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #2e2e38', background: '#2a2a32', color: '#f8f9fa', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', background: '#f8f9fa', color: '#212529', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
               required
             />
           </div>
@@ -389,12 +389,12 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             style={{
               width: '100%', padding: '13px', background: 'linear-gradient(135deg, #ff8c00, #ffab40)',
               color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, cursor: 'pointer',
-              fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)'
+              fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.4)'
             }}
           >
             임시 비밀번호 발급받기
           </button>
-          <p style={{ marginTop: '12px', textAlign: 'center', fontSize: '0.85rem', color: '#a0a0b0', fontWeight: 600 }}>
+          <p style={{ marginTop: '12px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
             비밀번호가 기억나셨나요?{' '}
             <span
               style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }}
@@ -417,9 +417,9 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                   type="button"
                   onClick={() => setRole('USER')}
                   style={{
-                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'USER' ? '2px solid #ff8c00' : '1px solid #2e2e38',
-                    background: role === 'USER' ? 'rgba(255,140,0,0.15)' : '#2a2a32',
-                    color: role === 'USER' ? '#ff8c00' : '#a0a0b0', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
+                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'USER' ? '2px solid #ff8c00' : '1px solid #dee2e6',
+                    background: role === 'USER' ? 'rgba(255,140,0,0.1)' : '#f8f9fa',
+                    color: role === 'USER' ? '#ff8c00' : '#6c757d', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
                   }}
                 >
                   👤 일반 관객
@@ -428,9 +428,9 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                   type="button"
                   onClick={() => setRole('ARTIST')}
                   style={{
-                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'ARTIST' ? '2px solid #ff8c00' : '1px solid #2e2e38',
-                    background: role === 'ARTIST' ? 'rgba(255,140,0,0.15)' : '#2a2a32',
-                    color: role === 'ARTIST' ? '#ff8c00' : '#a0a0b0', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
+                    flex: 1, padding: '11px', borderRadius: '12px', border: role === 'ARTIST' ? '2px solid #ff8c00' : '1px solid #dee2e6',
+                    background: role === 'ARTIST' ? 'rgba(255,140,0,0.1)' : '#f8f9fa',
+                    color: role === 'ARTIST' ? '#ff8c00' : '#6c757d', fontWeight: 700, cursor: 'pointer', fontSize: '13.5px', transition: 'all 0.2s'
                   }}
                 >
                   🎤 아티스트
@@ -438,13 +438,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>닉네임</label>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>닉네임</label>
                 <input
                   type="text"
                   placeholder="닉네임 (2자 이상)"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
-                  style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #2e2e38', background: '#2a2a32', color: '#f8f9fa', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+                  style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', background: '#f8f9fa', color: '#212529', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
                   required
                 />
               </div>
@@ -452,22 +452,22 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>이메일 주소</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>이메일 주소</label>
             <input
               type="email"
               placeholder="example@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #2e2e38', background: '#2a2a32', color: '#f8f9fa', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', background: '#f8f9fa', color: '#212529', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
               required
             />
           </div>
 
           {isSignUp && role === 'ARTIST' && !googleProfileData && (
             <div>
-              <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>아티스트 본인 확인</label>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>아티스트 본인 확인</label>
               {isKakaoVerified ? (
-                <div style={{ padding: '12px 14px', background: 'rgba(255, 140, 0, 0.15)', border: '1px solid #ff8c00', borderRadius: '12px', fontSize: '13.5px', color: '#ff8c00', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <div style={{ padding: '12px 14px', background: 'rgba(255, 140, 0, 0.1)', border: '1px solid #ff8c00', borderRadius: '12px', fontSize: '13.5px', color: '#ff8c00', fontWeight: 700, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                   카카오톡 본인 인증 완료됨
                 </div>
               ) : (
@@ -487,13 +487,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           )}
 
           <div>
-            <label style={{ display: 'block', fontSize: '0.8rem', color: '#a0a0b0', fontWeight: 700, marginBottom: '6px' }}>비밀번호</label>
+            <label style={{ display: 'block', fontSize: '0.8rem', color: '#6c757d', fontWeight: 700, marginBottom: '6px' }}>비밀번호</label>
             <input
               type="password"
               placeholder="영문+숫자 8자 이상"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #2e2e38', background: '#2a2a32', color: '#f8f9fa', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
+              style={{ width: '100%', padding: '11px 14px', borderRadius: '12px', border: '1px solid #dee2e6', background: '#f8f9fa', color: '#212529', fontSize: '14px', boxSizing: 'border-box', outline: 'none' }}
               required
             />
           </div>
@@ -501,7 +501,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           {!isSignUp && (
             <div style={{ textAlign: 'right', marginTop: '-4px' }}>
               <span
-                style={{ fontSize: '0.8rem', color: '#a0a0b0', cursor: 'pointer', fontWeight: 600 }}
+                style={{ fontSize: '0.8rem', color: '#6c757d', cursor: 'pointer', fontWeight: 600 }}
                 onClick={() => {
                   setIsForgotPassword(true);
                   setErrorMessage('');
@@ -518,7 +518,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             style={{
               width: '100%', padding: '13px', background: 'linear-gradient(135deg, #ff8c00, #ffab40)',
               color: '#fff', border: 'none', borderRadius: '14px', fontWeight: 800, cursor: 'pointer',
-              fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.5)'
+              fontSize: '15px', marginTop: '6px', boxShadow: '0 8px 18px -6px rgba(255,140,0,0.4)'
             }}
           >
             {isSignUp ? '가입 완료' : '로그인'}
@@ -527,9 +527,9 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           {!isForgotPassword && (
             <div style={{ marginTop: '18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0 16px' }}>
-                <div style={{ flex: 1, height: '1px', background: '#2e2e38' }} />
-                <span style={{ fontSize: '11.5px', color: '#6c727f', fontWeight: 700 }}>또는 간편 로그인</span>
-                <div style={{ flex: 1, height: '1px', background: '#2e2e38' }} />
+                <div style={{ flex: 1, height: '1px', background: '#dee2e6' }} />
+                <span style={{ fontSize: '11.5px', color: '#adb5bd', fontWeight: 700 }}>또는 간편 로그인</span>
+                <div style={{ flex: 1, height: '1px', background: '#dee2e6' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
                 <button
@@ -552,7 +552,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                   title="Google로 계속하기"
                   style={{
                     width: '48px', height: '48px', borderRadius: '50%',
-                    background: '#2a2a32', border: '1px solid #3f3f4e', cursor: 'pointer',
+                    background: '#ffffff', border: '1px solid #dee2e6', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
@@ -567,7 +567,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             </div>
           )}
 
-          <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.85rem', color: '#a0a0b0', fontWeight: 600 }}>
+          <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
             {isSignUp ? '이미 계정이 있으신가요?' : '계정이 없으신가요?'}{' '}
             <span
               style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }}
@@ -590,7 +590,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       onClick={handleClose}
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(4px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)',
         display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
       }}
     >
