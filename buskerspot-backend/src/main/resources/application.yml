@@ -10,7 +10,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/buskerspot
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:1234}
+    password: ${DB_PASSWORD:1211}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -66,7 +66,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/buskerspot_dev
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:1234}
+    password: ${DB_PASSWORD:1211}
 
 ---
 # ==========================================
