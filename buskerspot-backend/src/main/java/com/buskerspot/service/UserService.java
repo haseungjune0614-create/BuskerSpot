@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -211,30 +212,51 @@ public class UserService {
         return Map.of("success", true, "message", "임시 비밀번호가 이메일로 전송되었습니다.");
     }
 
+    @Transactional
     public Map<String, Object> handleGoogleLogin(String googleId, String nickname, String email, String profileImage) {
-        return userRepository.findByGoogleId(googleId)
-                .map(user -> {
-                    String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole(), user.getNickname());
-                    return Map.<String, Object>of(
-                            "success", true,
-                            "existingUser", true,
-                            "token", token,
-                            "user", user
-                    );
-                })
-                .orElseGet(() -> {
-                    Map<String, Object> googleData = Map.of(
-                            "googleId", googleId,
-                            "nickname", nickname != null ? nickname : "",
-                            "email", email != null ? email : "",
-                            "profileImage", profileImage != null ? profileImage : ""
-                    );
-                    return Map.of(
-                            "success", true,
-                            "existingUser", false,
-                            "googleData", googleData
-                    );
-                });
+        // 1. googleId로 먼저 조회
+        Optional<User> byGoogleId = userRepository.findByGoogleId(googleId);
+        if (byGoogleId.isPresent()) {
+            User user = byGoogleId.get();
+            String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole(), user.getNickname());
+            return Map.of(
+                    "success", true,
+                    "existingUser", true,
+                    "token", token,
+                    "user", user
+            );
+        }
+
+        // 2. googleId로 못 찾았지만 같은 이메일로 가입된 계정이 있으면 googleId를 연결(계정 통합)
+        if (email != null && !email.isBlank()) {
+            Optional<User> byEmail = userRepository.findByEmail(email);
+            if (byEmail.isPresent()) {
+                User user = byEmail.get();
+                user.setGoogleId(googleId);
+                userRepository.save(user);
+
+                String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole(), user.getNickname());
+                return Map.of(
+                        "success", true,
+                        "existingUser", true,
+                        "token", token,
+                        "user", user
+                );
+            }
+        }
+
+        // 3. 완전히 새로운 사용자
+        Map<String, Object> googleData = Map.of(
+                "googleId", googleId,
+                "nickname", nickname != null ? nickname : "",
+                "email", email != null ? email : "",
+                "profileImage", profileImage != null ? profileImage : ""
+        );
+        return Map.of(
+                "success", true,
+                "existingUser", false,
+                "googleData", googleData
+        );
     }
 
     @Transactional

@@ -34,7 +34,6 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       setView('form');
       setIsSignUp(true);
       setIsForgotPassword(false);
-      setRole('ARTIST');
       setKakaoProfileData(pendingKakaoData);
       setIsKakaoVerified(true);
 
@@ -44,6 +43,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         setEmail(parsed.email || '');
         setNickname(parsed.nickname || '');
         setPassword(parsed.password || '');
+        setRole(parsed.role || 'USER');
         sessionStorage.removeItem('kakao_signup_form');
       }
 
@@ -142,10 +142,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       return;
     }
 
-    const formData = { email, nickname, password };
+    const formData = { email, nickname, password, role };
     sessionStorage.setItem('kakao_signup_form', JSON.stringify(formData));
 
-    const REDIRECT_URI = 'https://buskerspot.onrender.com/oauth/kakao/callback';
+    const REDIRECT_URI = window.location.hostname === 'localhost'
+      ? 'http://localhost:3000/oauth/kakao/callback'
+      : 'https://buskerspot.pages.dev/oauth/kakao/callback';
+
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
     if (Capacitor.isNativePlatform()) {
@@ -170,7 +173,10 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     const formData = { email, nickname, password };
     sessionStorage.setItem('google_signup_form', JSON.stringify(formData));
 
-    const REDIRECT_URI = 'https://buskerspot.onrender.com/oauth/google/callback';
+    const REDIRECT_URI = window.location.hostname === 'localhost'
+      ? 'http://localhost:3000/oauth/google/callback'
+      : 'https://buskerspot.pages.dev/oauth/google/callback';
+
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=email%20profile`;
 
     if (Capacitor.isNativePlatform()) {
@@ -201,8 +207,8 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             password,
             nickname,
             role,
-            kakaoData: role === 'ARTIST' ? kakaoProfileData : null,
-            kakaoId: role === 'ARTIST' && kakaoProfileData ? kakaoProfileData.kakaoId : null,
+            kakaoData: kakaoProfileData,
+            kakaoId: kakaoProfileData ? kakaoProfileData.kakaoId : null,
             googleData: googleProfileData,
             googleId: googleProfileData ? googleProfileData.googleId || googleProfileData.sub : null
           }),
@@ -529,7 +535,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             <div style={{ marginTop: '18px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0 16px' }}>
                 <div style={{ flex: 1, height: '1px', background: '#dee2e6' }} />
-                <span style={{ fontSize: '11.5px', color: '#adb5bd', fontWeight: 700 }}>또는 간편 로그인</span>
+                <span style={{ fontSize: '11.5px', color: '#adb5bd', fontWeight: 700 }}>회원가입 및 간편 로그인</span>
                 <div style={{ flex: 1, height: '1px', background: '#dee2e6' }} />
               </div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
@@ -570,19 +576,21 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
             </div>
           )}
 
-          <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
-            {isSignUp ? '이미 계정이 있으신가요?' : '계정이 없으신가요?'}{' '}
-            <span
-              style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }}
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setErrorMessage('');
-                setSuccessMessage('');
-              }}
-            >
-              {isSignUp ? '로그인' : '회원가입'}
-            </span>
-          </p>
+          {isSignUp && (
+            <p style={{ marginTop: '16px', textAlign: 'center', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 }}>
+              이미 계정이 있으신가요?{' '}
+              <span
+                style={{ color: '#ff8c00', cursor: 'pointer', fontWeight: 800 }}
+                onClick={() => {
+                  setIsSignUp(false);
+                  setErrorMessage('');
+                  setSuccessMessage('');
+                }}
+              >
+                로그인
+              </span>
+            </p>
+          )}
         </form>
       )}
     </div>
