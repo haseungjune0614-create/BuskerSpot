@@ -3,6 +3,7 @@ package com.buskerspot.service;
 import com.buskerspot.common.exception.CustomException;
 import com.buskerspot.entity.Performance;
 import com.buskerspot.entity.User;
+import com.buskerspot.repository.MessageRecipientRepository;
 import com.buskerspot.repository.PerformanceRepository;
 import com.buskerspot.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class AdminService {
 
     private final UserRepository userRepository;
     private final PerformanceRepository performanceRepository;
+    private final MessageRecipientRepository messageRecipientRepository;
 
     // 1. 전체 사용자 목록 조회 (관리자용)
     public List<User> getAllUsers(Long adminUserId) {
@@ -31,6 +33,10 @@ public class AdminService {
         validateAdmin(adminUserId);
         User targetUser = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new CustomException("존재하지 않는 사용자입니다.", HttpStatus.NOT_FOUND));
+
+        // 이 유저를 참조하는 연관 데이터를 먼저 정리
+        messageRecipientRepository.deleteByUser_Id(targetUserId);
+
         userRepository.delete(targetUser);
     }
 
