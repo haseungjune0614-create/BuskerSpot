@@ -261,7 +261,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
   style={{ ...mainStyles.logoContainer, flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
   onClick={() => { setArtistKeyword(''); if (onSearch) onSearch(''); setActiveTab('search'); setIsSearchPageOpen(false); }}
 >
-  <img src="/logo-icon.png" alt="BuskerSpot" style={{ height: '32px', width: 'auto' }} />
+  <img src="/logo-icon.png" alt="BuskerSpot" style={{ height: '44px', width: 'auto' }} />
   <span>BuskerSpot</span>
 </div>
 
