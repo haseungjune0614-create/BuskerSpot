@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -141,7 +142,7 @@ public class AiService {
     private List<String> getDistinctRegions() {
         try {
             return jdbcTemplate.queryForList(
-                    "SELECT DISTINCT region FROM performances WHERE region IS NOT NULL",
+                    "SELECT DISTINCT region FROM performances WHERE region IS NOT NULL AND status = 'APPROVED'",
                     String.class
             );
         } catch (Exception e) {
@@ -230,12 +231,18 @@ public class AiService {
 
             List<Object> params = new ArrayList<>();
             LocalDate today = LocalDate.now();
+            LocalTime nowTime = LocalTime.now();
             List<String> whereClauses = new ArrayList<>();
 
+            // 💡 1. 승인된 공연(APPROVED)만 조회하도록 고정 필터 추가
+            whereClauses.add("p.status = 'APPROVED'");
+
+            // 💡 2. 날짜 및 이미 지난 시간 필터링 보강
             if (targetDate != null && !targetDate.isBlank()) {
                 if ("today".equalsIgnoreCase(targetDate)) {
-                    whereClauses.add("p.performance_date = ?::date");
+                    whereClauses.add("p.performance_date = ?::date AND p.start_time >= ?::time");
                     params.add(today.toString());
+                    params.add(nowTime.toString());
                 } else if ("tomorrow".equalsIgnoreCase(targetDate)) {
                     whereClauses.add("p.performance_date = ?::date");
                     params.add(today.plusDays(1).toString());
@@ -249,12 +256,16 @@ public class AiService {
                     whereClauses.add("p.performance_date = ?::date");
                     params.add(targetDate);
                 } else {
-                    whereClauses.add("p.performance_date >= ?::date");
+                    whereClauses.add("(p.performance_date > ?::date OR (p.performance_date = ?::date AND p.start_time >= ?::time))");
                     params.add(today.toString());
+                    params.add(today.toString());
+                    params.add(nowTime.toString());
                 }
             } else {
-                whereClauses.add("p.performance_date >= ?::date");
+                whereClauses.add("(p.performance_date > ?::date OR (p.performance_date = ?::date AND p.start_time >= ?::time))");
                 params.add(today.toString());
+                params.add(today.toString());
+                params.add(nowTime.toString());
             }
 
             if (hasTime && timeStart != null && !timeStart.isBlank()) {
@@ -329,6 +340,7 @@ public class AiService {
             boolean isFallback = false;
             if (rows.isEmpty()) {
                 isFallback = true;
+                // 💡 3. Fallback 쿼리에도 status = 'APPROVED' 및 지난 시간 제외 조건 적용
                 String fallbackQuery = """
                     SELECT
                         p.id, p.artist_id, p.title, u.nickname AS stage_name, p.performance_date, p.start_time,
@@ -340,12 +352,13 @@ public class AiService {
                     FROM performances p
                     LEFT JOIN users u ON p.artist_id = u.id OR p.user_id = u.id
                     LEFT JOIN reviews r ON p.id = r.performance_id
-                    WHERE p.performance_date >= ?::date
+                    WHERE p.status = 'APPROVED'
+                      AND (p.performance_date > ?::date OR (p.performance_date = ?::date AND p.start_time >= ?::time))
                     GROUP BY p.id, p.artist_id, p.title, u.nickname, p.performance_date, p.start_time, p.region, p.genre, p.location_name, p.description, u.profile_image
                     ORDER BY p.performance_date ASC, p.start_time ASC
                     LIMIT 20
                     """.formatted(MAX_REVIEW_COMMENT_LENGTH, REVIEW_DELIMITER);
-                rows = jdbcTemplate.queryForList(fallbackQuery, today.toString());
+                rows = jdbcTemplate.queryForList(fallbackQuery, today.toString(), today.toString(), nowTime.toString());
             }
 
             StringBuilder dataStr = new StringBuilder();
