@@ -130,7 +130,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 카카오 간편 인증 요청 (Render 콜백 주소 고정)
+  // 카카오 간편 인증 요청
   const handleKakaoAuth = async () => {
     setErrorMessage('');
     setSuccessMessage('');
@@ -155,7 +155,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 구글 간편 인증 요청 (Render 콜백 주소 고정)
+  // 구글 간편 인증 요청
   const handleGoogleAuth = async () => {
     setErrorMessage('');
     setSuccessMessage('');
@@ -259,7 +259,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
         borderRadius: '24px',
         padding: '40px 28px 32px',
         boxSizing: 'border-box',
-        boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+        boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
         position: 'relative',
         fontFamily: "'Noto Sans KR', sans-serif",
         color: '#212529',
@@ -269,13 +269,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       <button
         onClick={handleClose}
         style={{
-          position: 'absolute', top: '20px', right: '20px', background: '#f8f9fa',
+          position: 'absolute', top: '20px', right: '20px', background: '#f1f3f5',
           border: '1px solid #dee2e6', width: '32px', height: '32px', borderRadius: '50%',
-          fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
+          fontSize: '14px', fontWeight: 800, color: '#6c757d', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
         }}
         onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = '#f8f9fa'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f3f5'; }}
       >
         ✕
       </button>
@@ -312,9 +312,10 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           type="button"
           onClick={handleGoogleAuth}
           style={{
-            width: '100%', padding: '15px', background: '#ffffff', color: '#1f1f1f',
+            width: '100%', padding: '15px', background: '#ffffff', color: '#212529',
             border: '1px solid #dee2e6', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '15px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
           }}
         >
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: '20px', height: '20px' }}>
@@ -330,7 +331,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
           type="button"
           onClick={() => { setView('form'); setIsSignUp(false); setErrorMessage(''); }}
           style={{
-            width: '100%', padding: '15px', background: '#f8f9fa', color: '#ff8c00',
+            width: '100%', padding: '15px', background: '#f1f3f5', color: '#ff8c00',
             border: '1px solid #dee2e6', borderRadius: '999px', fontWeight: 800, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '15px',
           }}
@@ -346,20 +347,20 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     <div
       style={{
         background: '#ffffff', width: '100%', maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto',
-        borderRadius: '24px', padding: '48px 28px 28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+        borderRadius: '24px', padding: '48px 28px 28px', boxSizing: 'border-box', boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
         position: 'relative', fontFamily: "'Noto Sans KR', sans-serif", color: '#212529', border: '1px solid #dee2e6'
       }}
     >
       <button
         onClick={handleClose}
         style={{
-          position: 'absolute', top: '20px', right: '20px', background: '#f8f9fa',
+          position: 'absolute', top: '20px', right: '20px', background: '#f1f3f5',
           border: '1px solid #dee2e6', width: '32px', height: '32px', borderRadius: '50%',
-          fontSize: '14px', fontWeight: 800, color: '#495057', cursor: 'pointer',
+          fontSize: '14px', fontWeight: 800, color: '#6c757d', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.2s'
         }}
         onMouseEnter={(e) => { e.currentTarget.style.background = '#e9ecef'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.background = '#f8f9fa'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = '#f1f3f5'; }}
       >
         ✕
       </button>
@@ -540,6 +541,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                     width: '48px', height: '48px', borderRadius: '50%',
                     background: '#FEE500', border: 'none', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                   }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ width: '22px', height: '22px', display: 'block' }}>
@@ -554,6 +556,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
                     width: '48px', height: '48px', borderRadius: '50%',
                     background: '#ffffff', border: '1px solid #dee2e6', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                   }}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: '20px', height: '20px' }}>
@@ -590,7 +593,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
       onClick={handleClose}
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(4px)',
+        backgroundColor: 'rgba(0, 0, 0, 0.4)', backdropFilter: 'blur(4px)',
         display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100
       }}
     >

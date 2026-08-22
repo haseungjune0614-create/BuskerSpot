@@ -48,12 +48,11 @@ public class UserController {
     }
 
     // 4. 아티스트 검색
-    @GetMapping("/search-artist")
-    public ResponseEntity<?> searchArtist(@RequestParam String keyword) {
-        var artists = userService.searchArtists(keyword);
-        artists.forEach(a -> a.setPassword(null)); // 💡 비밀번호 해시값 노출 방지
-        return ResponseEntity.ok(Map.of("success", true, "artists", artists));
-    }
+@GetMapping("/search-artist")
+public ResponseEntity<?> searchArtist(@RequestParam String keyword) {
+    var artists = userService.searchArtists(keyword);
+    return ResponseEntity.ok(Map.of("success", true, "artists", artists));
+}
 
     // 5. 아티스트 프로필 조회 (id 기반)
     @GetMapping("/{id}")
