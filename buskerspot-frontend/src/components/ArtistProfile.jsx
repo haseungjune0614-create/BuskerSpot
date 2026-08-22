@@ -86,7 +86,8 @@ export default function ArtistProfile({
     ? (rawInsta.startsWith('http') ? rawInsta : `https://instagram.com/${rawInsta.replace('@', '')}`) 
     : null;
 
-  const rawProfileImg = artist.profile_image || artist.artist_profile_image;
+  // 💡 앞뒤 공백 제거(.trim())를 추가하여 이중 URL 생성 원천 차단
+  const rawProfileImg = (artist.profile_image || artist.artist_profile_image)?.trim();
   const profileImgSrc = rawProfileImg 
     ? (rawProfileImg.startsWith('http://') || rawProfileImg.startsWith('https://') || rawProfileImg.startsWith('blob:') 
         ? rawProfileImg 
