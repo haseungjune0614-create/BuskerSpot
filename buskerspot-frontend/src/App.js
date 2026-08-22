@@ -581,13 +581,13 @@ function App() {
   const fetchPerformances = useCallback(async () => {
     try {
       const queryParams = new URLSearchParams({
-  date: inputDate,
-  region: inputRegion,
-  genre: inputGenre === '전체' ? 'ALL' : inputGenre,  // ← API로 보낼 때만 변환
-  sort: inputSort,
-  lat: center.lat,
-  lng: center.lng
-});
+        date: inputDate,
+        region: inputRegion,
+        genre: inputGenre === '전체' ? 'ALL' : inputGenre,
+        sort: inputSort,
+        lat: center.lat,
+        lng: center.lng
+      });
 
       const response = await fetch(`${API_BASE_URL}/api/performances?${queryParams.toString()}`);
       if (!response.ok) throw new Error('공연 데이터 불러오기 실패');
@@ -853,7 +853,6 @@ function App() {
       searchKey = 'indie';
     }
 
-    let matchedArtists = [];
     let matchedPerfs = [];
 
     try {
@@ -868,6 +867,30 @@ function App() {
       }
     } catch (err) {
       console.warn('검색 API 호출 실패, 로컬 데이터로 대체합니다.');
+    }
+
+    // 💡 신규: 아티스트 이름 직접 검색 (공연 유무와 상관없이 아티스트 자체를 찾기 위함)
+    let apiArtists = [];
+    try {
+      const artistRes = await fetch(`${API_BASE_URL}/api/users/search-artist?keyword=${encodeURIComponent(trimmedKey)}`);
+      if (artistRes.ok) {
+        const artistData = await artistRes.json();
+        if (artistData.success && Array.isArray(artistData.artists)) {
+          apiArtists = artistData.artists.map((u) => ({
+            artist_id: u.id,
+            stage_name: u.bandName || u.nickname,
+            genre: u.genre || 'ALL',
+            profile_image: u.profileImage,
+            introduction: u.introduction,
+            follower_count: u.followerCount ?? 0,
+            average_rating: u.averageRating ?? 0,
+            review_count: u.reviewCount ?? 0,
+            isArtist: true
+          }));
+        }
+      }
+    } catch (err) {
+      console.warn('아티스트 검색 API 호출 실패:', err);
     }
 
     const filterByKeyword = (p) => {
@@ -891,13 +914,16 @@ function App() {
     [...apiMatchedPerfs, ...localMatchedPerfs].forEach(p => allPerfsMap.set(p.id, p));
     const finalPerfs = Array.from(allPerfsMap.values());
 
+    // 💡 아티스트 목록: API 검색 결과를 우선으로 하고, 로컬 공연 데이터에서 보조로 매칭
     const artistMap = new Map();
+    apiArtists.forEach((a) => artistMap.set(a.artist_id, a));
+
     safePerformances.forEach(p => {
       const name = p.artist_nickname || p.stage_name || p.organizer_name || '';
       const genre = p.genre || '';
-      
-      const isMatch = name.toLowerCase().includes(searchKey) || 
-                    name.toLowerCase().includes(trimmedKey.toLowerCase()) || 
+
+      const isMatch = name.toLowerCase().includes(searchKey) ||
+                    name.toLowerCase().includes(trimmedKey.toLowerCase()) ||
                     genre.toLowerCase().includes(searchKey);
 
       if (isMatch && (p.artist_id || p.user_id)) {
@@ -917,7 +943,7 @@ function App() {
         }
       }
     });
-    matchedArtists = Array.from(artistMap.values());
+    const matchedArtists = Array.from(artistMap.values());
 
     const combinedResults = [...matchedArtists, ...finalPerfs];
 
