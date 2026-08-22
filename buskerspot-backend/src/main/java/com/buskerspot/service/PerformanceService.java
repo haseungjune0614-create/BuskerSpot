@@ -53,7 +53,7 @@ public class PerformanceService {
 
     // 💡 날짜 필터링 추가 — 선택한 날짜 이후(당일 포함) 공연만 조회
     if (params.get("date") != null && !params.get("date").isBlank()) {
-        sql.append(" AND p.performance_date >= ?");
+        sql.append(" AND p.performance_date = ?");
         sqlParams.add(java.time.LocalDate.parse(params.get("date")));
     }
 
