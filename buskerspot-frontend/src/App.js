@@ -574,20 +574,20 @@ function App() {
 
   const [inputDate, setInputDate] = useState(getTodayDateStr());
   const [inputRegion, setInputRegion] = useState('전체');
-  const [inputGenre, setInputGenre] = useState('ALL');
+  const [inputGenre, setInputGenre] = useState('전체');
   const [inputSort, setInputSort] = useState('time');
 
   // 1. 공연 목록 조회
   const fetchPerformances = useCallback(async () => {
     try {
       const queryParams = new URLSearchParams({
-        date: inputDate,
-        region: inputRegion,
-        genre: inputGenre,
-        sort: inputSort,
-        lat: center.lat,
-        lng: center.lng
-      });
+  date: inputDate,
+  region: inputRegion,
+  genre: inputGenre === '전체' ? 'ALL' : inputGenre,  // ← API로 보낼 때만 변환
+  sort: inputSort,
+  lat: center.lat,
+  lng: center.lng
+});
 
       const response = await fetch(`${API_BASE_URL}/api/performances?${queryParams.toString()}`);
       if (!response.ok) throw new Error('공연 데이터 불러오기 실패');
