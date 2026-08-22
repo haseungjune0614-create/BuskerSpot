@@ -1,0 +1,53 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/buskerspot_dev}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:1211}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000
+
+api:
+  groq:
+    key: ${API_GROQ_KEY}
+  kakao:
+    rest-key: ${API_KAKAO_REST_KEY}
+    client-secret: ${API_KAKAO_CLIENT_SECRET}
+    redirect-uri: ${API_KAKAO_REDIRECT_URI:http://localhost:3000/oauth/kakao/callback}
+  google:
+    client-id: ${API_GOOGLE_CLIENT_ID}
+    client-secret: ${API_GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${API_GOOGLE_REDIRECT_URI:http://localhost:3000/oauth/google/callback}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
