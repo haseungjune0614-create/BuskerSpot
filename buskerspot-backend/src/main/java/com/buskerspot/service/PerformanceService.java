@@ -42,6 +42,7 @@ public class PerformanceService {
         Long artistId = Long.valueOf(params.get("artist_id"));
         sqlParams.add(artistId);
         sqlParams.add(artistId);
+        sql.append(" AND p.status = 'APPROVED'");
     } else {
         sql.append(" AND p.status = 'APPROVED'");
     }
