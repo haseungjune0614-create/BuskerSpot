@@ -5,6 +5,8 @@ import com.buskerspot.config.JwtTokenProvider;
 import com.buskerspot.dto.auth.ProfileUpdateRequest;
 import com.buskerspot.dto.auth.RegisterRequest;
 import com.buskerspot.entity.User;
+import com.buskerspot.repository.FollowRepository;
+import com.buskerspot.repository.ReviewRepository;
 import com.buskerspot.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,8 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final NotificationService notificationService;
     private final EmailService emailService;
+    private final FollowRepository followRepository;
+    private final ReviewRepository reviewRepository;
 
     private final List<String> forbiddenWords = List.of(
         "씨발", "병신", "바보", "멍청이", "fuck", "shit", "bitch", "bastard",
@@ -138,8 +142,27 @@ public class UserService {
         return saved;
     }
 
-    public List<User> searchArtists(String keyword) {
-        return userRepository.findByRoleAndKeyword("ARTIST", "%" + keyword.toLowerCase() + "%");
+    public List<Map<String, Object>> searchArtists(String keyword) {
+        List<User> artists = userRepository.findByRoleAndKeyword("ARTIST", "%" + keyword.toLowerCase() + "%");
+
+        return artists.stream().map(a -> {
+            long followerCount = followRepository.countByFollowingId(a.getId());
+            Double avgRating = reviewRepository.findAverageRatingByArtistId(a.getId());
+            long reviewCount = reviewRepository.countByArtistId(a.getId());
+
+            Map<String, Object> map = new java.util.HashMap<>();
+            map.put("id", a.getId());
+            map.put("nickname", a.getNickname());
+            map.put("bandName", a.getBandName());
+            map.put("genre", a.getGenre());
+            map.put("profileImage", a.getProfileImage());
+            map.put("introduction", a.getIntroduction());
+            map.put("instagramUrl", a.getInstagramUrl());
+            map.put("followerCount", followerCount);
+            map.put("averageRating", avgRating != null ? avgRating : 0.0);
+            map.put("reviewCount", reviewCount);
+            return map;
+        }).toList();
     }
 
     public User getArtistProfile(Long id) {
@@ -187,43 +210,45 @@ public class UserService {
 
         return Map.of("success", true, "message", "임시 비밀번호가 이메일로 전송되었습니다.");
     }
-    public Map<String, Object> handleGoogleLogin(String googleId, String nickname, String email, String profileImage) {
-    return userRepository.findByGoogleId(googleId)
-            .map(user -> {
-                String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole(), user.getNickname());
-                return Map.<String, Object>of(
-                        "success", true,
-                        "existingUser", true,
-                        "token", token,
-                        "user", user
-                );
-            })
-            .orElseGet(() -> {
-                Map<String, Object> googleData = Map.of(
-                        "googleId", googleId,
-                        "nickname", nickname != null ? nickname : "",
-                        "email", email != null ? email : "",
-                        "profileImage", profileImage != null ? profileImage : ""
-                );
-                return Map.of(
-                        "success", true,
-                        "existingUser", false,
-                        "googleData", googleData
-                );
-            });
-}
-@Transactional
-public Map<String, Object> changePassword(Long userId, String currentPassword, String newPassword) {
-    User user = userRepository.findById(userId)
-            .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
-    if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-        throw new CustomException("현재 비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
+    public Map<String, Object> handleGoogleLogin(String googleId, String nickname, String email, String profileImage) {
+        return userRepository.findByGoogleId(googleId)
+                .map(user -> {
+                    String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole(), user.getNickname());
+                    return Map.<String, Object>of(
+                            "success", true,
+                            "existingUser", true,
+                            "token", token,
+                            "user", user
+                    );
+                })
+                .orElseGet(() -> {
+                    Map<String, Object> googleData = Map.of(
+                            "googleId", googleId,
+                            "nickname", nickname != null ? nickname : "",
+                            "email", email != null ? email : "",
+                            "profileImage", profileImage != null ? profileImage : ""
+                    );
+                    return Map.of(
+                            "success", true,
+                            "existingUser", false,
+                            "googleData", googleData
+                    );
+                });
     }
 
-    user.setPassword(passwordEncoder.encode(newPassword));
-    userRepository.save(user);
+    @Transactional
+    public Map<String, Object> changePassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
-    return Map.of("success", true, "message", "비밀번호가 성공적으로 변경되었습니다.");
-}
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new CustomException("현재 비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return Map.of("success", true, "message", "비밀번호가 성공적으로 변경되었습니다.");
+    }
 }
