@@ -281,7 +281,7 @@ public class AiService {
             }
 
             if (artistName != null && !artistName.isBlank()) {
-                conditions.add("p.stage_name ILIKE ?");
+                conditions.add("u.nickname ILIKE ?");
                 params.add("%" + artistName + "%");
             }
 
@@ -305,7 +305,7 @@ public class AiService {
 
             String query = """
                 SELECT
-                    p.id, p.artist_id, p.title, p.stage_name, p.performance_date, p.start_time,
+                    p.id, p.artist_id, p.title, u.nickname AS stage_name, p.performance_date, p.start_time,
                     p.region, p.genre, p.location_name, p.description,
                     u.profile_image AS profile_image,
                     COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
@@ -319,7 +319,7 @@ public class AiService {
                 LEFT JOIN users u ON p.artist_id = u.id OR p.user_id = u.id
                 LEFT JOIN reviews r ON p.id = r.performance_id
                 WHERE %s
-                GROUP BY p.id, p.artist_id, p.title, p.stage_name, p.performance_date, p.start_time, p.region, p.genre, p.location_name, p.description, u.profile_image
+                GROUP BY p.id, p.artist_id, p.title, u.nickname, p.performance_date, p.start_time, p.region, p.genre, p.location_name, p.description, u.profile_image
                 ORDER BY %s
                 LIMIT 40
                 """.formatted(MAX_REVIEW_COMMENT_LENGTH, REVIEW_DELIMITER, whereStr, orderClause);
@@ -331,7 +331,7 @@ public class AiService {
                 isFallback = true;
                 String fallbackQuery = """
                     SELECT
-                        p.id, p.artist_id, p.title, p.stage_name, p.performance_date, p.start_time,
+                        p.id, p.artist_id, p.title, u.nickname AS stage_name, p.performance_date, p.start_time,
                         p.region, p.genre, p.location_name, p.description,
                         u.profile_image AS profile_image,
                         COALESCE(ROUND(AVG(r.rating)::numeric, 1), 0) AS avg_rating,
@@ -341,7 +341,7 @@ public class AiService {
                     LEFT JOIN users u ON p.artist_id = u.id OR p.user_id = u.id
                     LEFT JOIN reviews r ON p.id = r.performance_id
                     WHERE p.performance_date >= ?::date
-                    GROUP BY p.id, p.artist_id, p.title, p.stage_name, p.performance_date, p.start_time, p.region, p.genre, p.location_name, p.description, u.profile_image
+                    GROUP BY p.id, p.artist_id, p.title, u.nickname, p.performance_date, p.start_time, p.region, p.genre, p.location_name, p.description, u.profile_image
                     ORDER BY p.performance_date ASC, p.start_time ASC
                     LIMIT 20
                     """.formatted(MAX_REVIEW_COMMENT_LENGTH, REVIEW_DELIMITER);
@@ -414,7 +414,7 @@ public class AiService {
 [큐레이션 원칙]
 1. 사용자가 특정 지역, 장르, 아티스트, 날짜, 시간(예: 저녁 6시)을 검색했다면 해당 조건에 부합하는 공연을 최우선으로 선정하세요.
 2. mood가 존재하면, ai_reason은 단순 조건 매칭 설명이 아니라 그 공연의 분위기/시간대/리뷰에서 느껴지는 현장감이
-   사용자의 지금 감정과 왜 어울리는지 감성적으로 서술하세요.
+    사용자의 지금 감정과 왜 어울리는지 감성적으로 서술하세요.
 3. 반드시 [후보 공연 목록]에 실제로 존재하는 공연 ID(performance_id)만을 선택하세요.
 
 [후보 공연 목록]
