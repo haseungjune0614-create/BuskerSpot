@@ -267,7 +267,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
         {/* 데스크탑 전용 메뉴 및 검색 */}
         {!isMobile && (
           <div className="bsp-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '30px', flex: 1, justifyContent: 'flex-end', paddingRight: '20px', flexShrink: 0 }}>
-            <nav style={{ ...mainStyles.menuGroup, flexShrink: 0, whiteSpace: 'nowrap' }}>
+            <nav style={{ ...mainStyles.menuGroup, flexShrink: 0, whiteSpace: 'nowrap', marginRight: '100px' }}> 
               {navItems.map((item) => (
                 <button
                   key={item.key}
@@ -285,7 +285,7 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
               ))}
             </nav>
 
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexShrink: 0, marginRight: '30px' }}>
               <div
                 onClick={() => setIsSearchPageOpen(true)}
                 style={{
