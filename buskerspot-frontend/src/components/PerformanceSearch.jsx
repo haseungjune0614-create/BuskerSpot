@@ -417,15 +417,15 @@ export default function PerformanceSearch({
       <main style={{ background: C.bg, minHeight: '100vh', padding: isMobile ? '20px 12px 40px' : '32px 20px 60px' }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '16px' : '24px', alignItems: 'flex-start' }}>
           <section style={{ flex: isMobile ? 'none' : (isMapVisible ? '1.1' : '1'), width: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-              <h3 style={{ color: C.text, fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
-                버스킹 목록 <span style={{ color: C.marigold }}>({sortedPerformances.length}개 검색됨)</span>
-              </h3>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button type="button" className="bsp-icon-btn" onClick={handleGetMyCurrentLocation}>📍 내 위치 새로고침</button>
-                <button type="button" className="bsp-icon-btn" onClick={() => setIsMapVisible(!isMapVisible)}>{isMapVisible ? '🗺️ 지도 접기' : '🗺️ 지도 보기'}</button>
-              </div>
-            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '8px' }}>
+  <h3 style={{ color: C.text, fontSize: isMobile ? '0.95rem' : '1.1rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap' }}>
+    버스킹 목록 <span style={{ color: C.marigold }}>({sortedPerformances.length}개 검색됨)</span>
+  </h3>
+  <div style={{ display: 'flex', gap: '8px' }}>
+    <button type="button" className="bsp-icon-btn" onClick={handleGetMyCurrentLocation} style={{ fontSize: isMobile ? '11px' : '12.5px', padding: isMobile ? '6px 10px' : '8px 14px' }}>📍 내 위치 새로고침</button>
+    <button type="button" className="bsp-icon-btn" onClick={() => setIsMapVisible(!isMapVisible)} style={{ fontSize: isMobile ? '11px' : '12.5px', padding: isMobile ? '6px 10px' : '8px 14px' }}>{isMapVisible ? '🗺️ 지도 접기' : '🗺️ 지도 보기'}</button>
+  </div>
+</div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '14px' }}>
               {sortedPerformances.length > 0 ? (

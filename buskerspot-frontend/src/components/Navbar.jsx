@@ -258,11 +258,33 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
         }}
       >
         <div
-  style={{ ...mainStyles.logoContainer, flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+  style={{
+    ...mainStyles.logoContainer,
+    flexShrink: 1,
+    minWidth: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: isMobile ? '5px' : '8px',
+    cursor: 'pointer',
+    overflow: 'hidden'
+  }}
   onClick={() => { setArtistKeyword(''); if (onSearch) onSearch(''); setActiveTab('search'); setIsSearchPageOpen(false); }}
 >
-  <img src="/logo-icon.png" alt="BuskerSpot" style={{ height: '44px', width: 'auto' }} />
-  <span>BuskerSpot</span>
+  <img
+    src="/logo-icon.png"
+    alt="BuskerSpot"
+    style={{ height: isMobile ? '28px' : '44px', width: 'auto', flexShrink: 0 }}
+  />
+  <span
+    style={{
+      fontSize: isMobile ? '1.05rem' : undefined,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis'
+    }}
+  >
+    BuskerSpot
+  </span>
 </div>
 
         {/* 데스크탑 전용 메뉴 및 검색 */}
