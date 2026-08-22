@@ -20,17 +20,6 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: buskerspot0803@gmail.com
-    password: lnuukcffijpkuayo
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
 
 jwt:
   secret: ${JWT_SECRET:everystay_1592_band_bumsu_9027_secure_key}
@@ -38,15 +27,17 @@ jwt:
 
 api:
   groq:
-    key: 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
+    key: ${GROQ_API_KEY}
+  resend:
+    key: ${RESEND_API_KEY}
   kakao:
-    rest-key: 1288a46c1221b166bc863a8c66516afe
-    client-secret: ovvR9Fo8StMuxeBIKk0ZbAy3jBeCxipS
-    redirect-uri: http://localhost:3000/oauth/kakao/callback
+    rest-key: ${KAKAO_REST_KEY}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:3000/oauth/kakao/callback}
   google:
-    client-id: 837963657825-gejm31g6via3o16dciknj0l70ss2sinu.apps.googleusercontent.com
-    client-secret: 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
-    redirect-uri: http://localhost:3000/oauth/google/callback
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:3000/oauth/google/callback}
 
 logging:
   level:
