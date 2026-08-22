@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Map, MapMarker } from 'react-kakao-maps-sdk';
 
 // ==========================================
@@ -28,7 +28,7 @@ const useIsMobile = (breakpoint = 768) => {
     typeof window !== 'undefined' ? window.innerWidth <= breakpoint : false
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= breakpoint);
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -222,9 +222,6 @@ export default function PerformanceSearch({
   const waveHeights = [12, 20, 28, 16, 24, 32, 18, 10, 22, 26, 14, 20, 30, 16, 8, 22, 28, 12];
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [inputSubRegion, setInputSubRegion] = useState('전체');
-  const [artistQuery, setArtistQuery] = useState('');
-  const [matchedArtists, setMatchedArtists] = useState([]);
-  const [isArtistSearching, setIsArtistSearching] = useState(false);
 
   const isMobile = useIsMobile(768);
   const isSmallPhone = useIsMobile(480);
@@ -242,57 +239,9 @@ export default function PerformanceSearch({
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     handleGetMyCurrentLocation();
   }, []);
-
-  // 아티스트 검색 API 호출 (디바운스 적용)
-  useEffect(() => {
-    const q = artistQuery.trim();
-
-    if (!q) {
-      setMatchedArtists([]);
-      setIsArtistSearching(false);
-      return;
-    }
-
-    setIsArtistSearching(true);
-    const controller = new AbortController();
-
-    const timer = setTimeout(async () => {
-      try {
-        const url = `${process.env.REACT_APP_API_URL || ''}/api/users/search-artist?keyword=${encodeURIComponent(q)}`;
-        const res = await fetch(url, { signal: controller.signal });
-        const data = await res.json();
-
-        const normalized = (data.success ? data.artists : []).map((u) => ({
-  artist_id: u.id,
-  artist_nickname: u.bandName || u.nickname,
-  stage_name: u.bandName || u.nickname,
-  genre: u.genre,
-  profile_image: u.profileImage,
-  introduction: u.introduction,
-  instagram_url: u.instagramUrl,
-  follower_count: u.followerCount ?? 0,
-  average_rating: u.averageRating ?? 0,
-  review_count: u.reviewCount ?? 0,
-}));
-        setMatchedArtists(normalized);
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          console.warn('아티스트 검색 실패:', err);
-          setMatchedArtists([]);
-        }
-      } finally {
-        setIsArtistSearching(false);
-      }
-    }, 300);
-
-    return () => {
-      clearTimeout(timer);
-      controller.abort();
-    };
-  }, [artistQuery]);
 
   // 오늘 날짜 설정
   const setToday = () => {
@@ -395,133 +344,6 @@ export default function PerformanceSearch({
             지금 내 주변에서 펼쳐지는 버스킹
           </h1>
           <p style={{ color: C.textMuted, fontSize: isMobile ? '0.85rem' : '0.95rem', margin: 0 }}>오늘의 라이브 공연을 확인하고 버스커를 직접 응원해보세요</p>
-
-          {/* 🔎 아티스트 이름 검색 입력 및 드롭다운 */}
-          <div style={{ position: 'relative', maxWidth: '420px', margin: '18px auto 0' }}>
-            <input
-              type="text"
-              value={artistQuery}
-              onChange={(e) => setArtistQuery(e.target.value)}
-              placeholder="🎤 아티스트 이름으로 검색해보세요"
-              style={{
-                width: '100%',
-                padding: '11px 16px',
-                borderRadius: '999px',
-                border: `1px solid ${C.border}`,
-                background: C.surface,
-                color: C.text,
-                fontSize: '13.5px',
-                outline: 'none',
-                boxSizing: 'border-box',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              }}
-            />
-
-            {isArtistSearching && (
-              <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, right: 0, textAlign: 'center', fontSize: '12px', color: C.textFaint, zIndex: 20, background: C.surface, padding: '10px', borderRadius: '14px', border: `1px solid ${C.border}` }}>
-                검색 중...
-              </div>
-            )}
-
-            {!isArtistSearching && matchedArtists.length > 0 && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 'calc(100% + 8px)',
-                  left: 0,
-                  right: 0,
-                  background: C.surface,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: '14px',
-                  boxShadow: '0 10px 28px rgba(0,0,0,0.08)',
-                  zIndex: 20,
-                  overflow: 'hidden',
-                  textAlign: 'left',
-                }}
-              >
-                {matchedArtists.map((artist) => {
-                  const profileImg = getImageUrl(artist.profile_image);
-
-                  return (
-                    <div
-                      key={artist.artist_id}
-                      onClick={() => {
-                        setSelectedArtistProfile({
-                          artist_id: artist.artist_id,
-                          stage_name: artist.stage_name,
-                          genre: artist.genre,
-                          profile_image: artist.profile_image,
-                          introduction: artist.introduction,
-                          instagram_url: artist.instagram_url,
-                          follower_count: artist.follower_count,
-                          average_rating: artist.average_rating,
-                          review_count: artist.review_count,
-                        });
-                        setArtistQuery('');
-                        setMatchedArtists([]);
-                      }}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '10px 14px',
-                        cursor: 'pointer',
-                        borderBottom: `1px solid ${C.border}`,
-                        transition: 'background 0.12s ease',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = C.surfaceAlt)}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = C.surface)}
-                    >
-                      {profileImg ? (
-                        <img
-                          src={profileImg}
-                          alt=""
-                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: `1px solid ${C.border}` }}
-                        />
-                      ) : (
-                        <DefaultMicrophoneAvatar size={40} />
-                      )}
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '13.5px', fontWeight: 800, color: C.text }}>{artist.stage_name}</div>
-<div style={{ display: 'flex', gap: '6px', marginTop: '2px', alignItems: 'center' }}>
-  {artist.genre && (
-    <span style={{ fontSize: '11px', fontWeight: 700, color: C.marigold, background: C.marigoldDim, padding: '2px 8px', borderRadius: '999px' }}>
-      {artist.genre}
-    </span>
-  )}
-  <span style={{ fontSize: '11px', color: C.textMuted }}>
-    ⭐ {artist.review_count > 0 ? Number(artist.average_rating).toFixed(1) : '0.0'} · 👥 {artist.follower_count}명
-  </span>
-</div>
-                        )
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {!isArtistSearching && artistQuery.trim() && matchedArtists.length === 0 && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: 'calc(100% + 8px)',
-                  left: 0,
-                  right: 0,
-                  background: C.surface,
-                  border: `1px solid ${C.border}`,
-                  borderRadius: '14px',
-                  padding: '14px',
-                  fontSize: '12.5px',
-                  color: C.textFaint,
-                  textAlign: 'center',
-                  zIndex: 20,
-                }}
-              >
-                일치하는 아티스트가 없습니다.
-              </div>
-            )}
-          </div>
 
           {!isMobile && <Waveform heights={waveHeights} />}
 
