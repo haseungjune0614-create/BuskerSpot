@@ -145,7 +145,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     const formData = { email, nickname, password, role };
     sessionStorage.setItem('kakao_signup_form', JSON.stringify(formData));
 
-    const REDIRECT_URI = window.location.hostname === 'localhost'
+    const REDIRECT_URI = (window.location.hostname === 'localhost' && !Capacitor.isNativePlatform())
       ? 'http://localhost:3000/oauth/kakao/callback'
       : 'https://buskerspot.pages.dev/oauth/kakao/callback';
 
@@ -173,7 +173,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     const formData = { email, nickname, password };
     sessionStorage.setItem('google_signup_form', JSON.stringify(formData));
 
-    const REDIRECT_URI = window.location.hostname === 'localhost'
+    const REDIRECT_URI = (window.location.hostname === 'localhost' && !Capacitor.isNativePlatform())
       ? 'http://localhost:3000/oauth/google/callback'
       : 'https://buskerspot.pages.dev/oauth/google/callback';
 
