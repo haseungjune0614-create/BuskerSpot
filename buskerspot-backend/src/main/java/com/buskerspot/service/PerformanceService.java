@@ -32,8 +32,7 @@ public class PerformanceService {
                COUNT(DISTINCT f.id)::int AS follower_count,
                COALESCE((SELECT AVG(r.rating) FROM reviews r JOIN performances p2 ON r.performance_id = p2.id
                          WHERE COALESCE(p2.artist_id, p2.user_id) = COALESCE(p.artist_id, p.user_id)), 0) AS average_rating,
-               COALESCE((SELECT COUNT(r.id) FROM reviews r JOIN performances p2 ON r.performance_id = p2.id
-                         WHERE COALESCE(p2.artist_id, p2.user_id) = COALESCE(p.artist_id, p.user_id)), 0)::int AS review_count
+               COALESCE((SELECT COUNT(r.id) FROM reviews r WHERE r.performance_id = p.id), 0)::int AS review_count
         FROM performances p
         LEFT JOIN users u ON p.artist_id = u.id OR p.user_id = u.id
         LEFT JOIN follows f ON p.artist_id = f.following_id OR p.user_id = f.following_id
