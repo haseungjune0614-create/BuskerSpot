@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
+import { SocialLogin } from '@capgo/capacitor-social-login';
 import './../App.css';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -130,10 +131,42 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     }
   };
 
-  // 카카오 간편 인증 요청
+  // 카카오 간편 인증 요청 (네이티브 및 웹 분기 처리 적용)
   const handleKakaoAuth = async () => {
     setErrorMessage('');
     setSuccessMessage('');
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const result = await SocialLogin.login({
+          provider: 'kakao',
+          options: {},
+        });
+
+        const accessToken = result.result.accessToken;
+        const response = await fetch(`${API_URL}/api/auth/kakao/native`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ accessToken }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          if (onLoginSuccess) onLoginSuccess(data.user);
+          handleClose();
+          window.location.reload();
+        } else {
+          setErrorMessage(data.message || '카카오 로그인 실패');
+        }
+      } catch (error) {
+        console.error('카카오 로그인 에러:', error);
+        setErrorMessage('카카오 로그인 중 오류가 발생했습니다.');
+      }
+      return;
+    }
 
     const REST_API_KEY = process.env.REACT_APP_KAKAO_REST_API_KEY;
 
@@ -151,11 +184,7 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
 
     const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
 
-    if (Capacitor.isNativePlatform()) {
-      await Browser.open({ url: kakaoAuthUrl });
-    } else {
-      window.location.href = kakaoAuthUrl;
-    }
+    window.location.href = kakaoAuthUrl;
   };
 
   // 구글 간편 인증 요청
