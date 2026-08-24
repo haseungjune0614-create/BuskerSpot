@@ -149,21 +149,22 @@ export default function ArtistProfile({
   return (
     <div style={{
       background: '#ffffff',
-      border: '1px solid #dee2e6',
-      borderRadius: '18px',
-      padding: isMobile ? '18px' : '28px',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+      border: '1px solid #eaecef',
+      borderRadius: '24px',
+      padding: isMobile ? '20px' : '32px',
+      boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
       display: 'flex',
       flexDirection: 'column',
-      gap: '20px',
+      gap: '24px',
       width: '100%',
       maxWidth: '600px',
       margin: '0 auto',
       fontFamily: "'Noto Sans KR', sans-serif",
       boxSizing: 'border-box'
     }}>
+      {/* 상단 프로필 영역 */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', width: '100%', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', width: '100%', minWidth: 0 }}>
           <div 
             onClick={(e) => {
               e.stopPropagation();
@@ -172,19 +173,20 @@ export default function ArtistProfile({
               }
             }}
             style={{
-              width: '68px',
-              height: '68px',
+              width: '76px',
+              height: '76px',
               borderRadius: '50%',
               overflow: 'hidden',
-              background: 'linear-gradient(135deg, #ff8c00 0%, #0ca678 130%)',
+              background: 'linear-gradient(135deg, #ff8c00 0%, #ff5e62 100%)',
               color: '#fff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '28px',
-              boxShadow: '0 4px 14px rgba(255,140,0,0.2)',
+              fontSize: '30px',
+              boxShadow: '0 6px 16px rgba(255,140,0,0.25)',
               flexShrink: 0,
-              cursor: profileImgSrc && !imgError ? 'pointer' : 'default'
+              cursor: profileImgSrc && !imgError ? 'pointer' : 'default',
+              border: '3px solid #fff'
             }}
             title={profileImgSrc && !imgError ? "사진 확대하기" : ""}
           >
@@ -206,22 +208,18 @@ export default function ArtistProfile({
           </div>
 
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{
-                  background: '#f1f3f5',
-                  color: '#6c757d',
-                  padding: '3px 10px',
-                  borderRadius: '999px',
-                  fontSize: '11.5px',
-                  fontWeight: 700
-                }}>
-                  {artist.genre || 'Acoustic'}
-                </span>
-                <span style={{ fontSize: '12px', color: '#adb5bd', fontWeight: 600 }}>
-                  ID: {artistId}
-                </span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+              <span style={{
+                background: '#fff3e0',
+                color: '#e65100',
+                padding: '4px 12px',
+                borderRadius: '999px',
+                fontSize: '12px',
+                fontWeight: 700,
+                letterSpacing: '-0.3px'
+              }}>
+                {artist.genre || 'Acoustic'}
+              </span>
 
               {instagramUrl && (
                 <a
@@ -232,71 +230,74 @@ export default function ArtistProfile({
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    padding: '6px 14px',
+                    gap: '5px',
+                    padding: '6px 12px',
                     borderRadius: '999px',
                     background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
                     color: '#fff',
-                    fontSize: '12px',
-                    fontWeight: 800,
+                    fontSize: '11.5px',
+                    fontWeight: 700,
                     textDecoration: 'none',
-                    boxShadow: '0 3px 10px rgba(220, 39, 67, 0.25)',
-                    transition: 'transform 0.1s ease',
+                    boxShadow: '0 3px 10px rgba(220, 39, 67, 0.2)',
+                    transition: 'transform 0.15s ease',
                     whiteSpace: 'nowrap'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
-                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
-                  <span style={{ fontSize: '14px' }}>📸</span>
+                  <span style={{ fontSize: '13px' }}>📸</span>
                   <span>인스타그램</span>
                 </a>
               )}
             </div>
 
-            <h2 style={{ margin: 0, fontSize: '1.3rem', fontWeight: 900, color: '#212529', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.5px' }}>
               {artist.stage_name || artist.nickname}
             </h2>
           </div>
         </div>
       </div>
 
+      {/* 통계 요약 박스 (평점 & 팔로워) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '12px',
-        background: '#f1f3f5',
-        padding: isMobile ? '12px' : '16px',
-        borderRadius: '12px',
+        background: '#f8f9fa',
+        padding: isMobile ? '14px' : '18px',
+        borderRadius: '16px',
         textAlign: 'center',
-        border: '1px solid #dee2e6'
+        border: '1px solid #edf2f7'
       }}>
         <div>
-          <div style={{ fontSize: '11.5px', color: '#6c757d', marginBottom: '4px', fontWeight: 700 }}>⭐ 전체 평점 평균</div>
-          <div style={{ fontSize: isMobile ? '0.85rem' : '1.1rem', fontWeight: 900, color: '#ff8c00', whiteSpace: 'nowrap' }}>
-            {avgRating} <span style={{ fontSize: isMobile ? '10.5px' : '12px', color: '#6c757d', fontWeight: 600 }}>({reviewCount}개 리뷰)</span>
+          <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px', fontWeight: 700 }}>⭐ 전체 평점 평균</div>
+          <div style={{ fontSize: isMobile ? '0.9rem' : '1.15rem', fontWeight: 900, color: '#dd6b20', whiteSpace: 'nowrap' }}>
+            {avgRating} <span style={{ fontSize: isMobile = '11px' ? '11px' : '12px', color: '#a0aec0', fontWeight: 600 }}>({reviewCount}개 리뷰)</span>
           </div>
         </div>
-        <div style={{ borderLeft: '1px solid #dee2e6' }}>
-          <div style={{ fontSize: '11.5px', color: '#6c757d', marginBottom: '4px', fontWeight: 700 }}>❤️ 팔로워 수</div>
-          <div style={{ fontSize: isMobile ? '0.85rem' : '1.1rem', fontWeight: 900, color: '#212529' }}>
+        <div style={{ borderLeft: '1px solid #e2e8f0' }}>
+          <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px', fontWeight: 700 }}>❤️ 팔로워 수</div>
+          <div style={{ fontSize: isMobile ? '0.9rem' : '1.15rem', fontWeight: 900, color: '#1a202c' }}>
             {artist.follower_count ?? 0}명
           </div>
         </div>
       </div>
 
+      {/* 아티스트 소개 박스 */}
       <div>
-        <h4 style={{ margin: '0 0 6px 0', fontSize: '13px', color: '#495057', fontWeight: 800, textTransform: 'uppercase' }}>📖 아티스트 소개</h4>
-        <p style={{ margin: 0, fontSize: '13.5px', color: '#495057', lineHeight: '1.5', background: '#f8f9fa', padding: '14px', borderRadius: '12px', border: '1px solid #dee2e6', fontWeight: 500 }}>
+        <h4 style={{ margin: '0 0 8px 0', fontSize: '12.5px', color: '#4a5568', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>📖 아티스트 소개</h4>
+        <p style={{ margin: 0, fontSize: '14px', color: '#2d3748', lineHeight: '1.6', background: '#fafbfc', padding: '16px', borderRadius: '14px', border: '1px solid #edf2f7', fontWeight: 500, wordBreak: 'break-all' }}>
           {bioText && bioText.trim() !== ''
             ? bioText
             : '등록된 아티스트 소개글이 없습니다.'}
         </p>
       </div>
 
+      {/* 아티스트 공연 일정 섹션 */}
       {!hidePerformances && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
-            <h4 style={{ margin: 0, fontSize: isMobile ? '12px' : '13px', color: '#495057', fontWeight: 800, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+            <h4 style={{ margin: 0, fontSize: '12.5px', color: '#4a5568', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
               📅 아티스트 공연 일정
             </h4>
             
@@ -304,16 +305,17 @@ export default function ArtistProfile({
               <button
                 onClick={() => setPerfSubTab('upcoming')}
                 style={{
-                  padding: isMobile ? '4px 8px' : '5px 10px',
-                  borderRadius: '8px',
+                  padding: isMobile ? '5px 10px' : '6px 12px',
+                  borderRadius: '10px',
                   border: '1px solid',
-                  borderColor: perfSubTab === 'upcoming' ? '#ff8c00' : '#dee2e6',
-                  background: perfSubTab === 'upcoming' ? '#fff9f0' : '#ffffff',
-                  color: perfSubTab === 'upcoming' ? '#d97706' : '#6c757d',
-                  fontSize: isMobile ? '10.5px' : '11.5px',
+                  borderColor: perfSubTab === 'upcoming' ? '#dd6b20' : '#e2e8f0',
+                  background: perfSubTab === 'upcoming' ? '#fffaf0' : '#ffffff',
+                  color: perfSubTab === 'upcoming' ? '#dd6b20' : '#718096',
+                  fontSize: isMobile ? '11px' : '12px',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 예정 ({upcomingPerfs.length})
@@ -321,16 +323,17 @@ export default function ArtistProfile({
               <button
                 onClick={() => setPerfSubTab('past')}
                 style={{
-                  padding: isMobile ? '4px 8px' : '5px 10px',
-                  borderRadius: '8px',
+                  padding: isMobile ? '5px 10px' : '6px 12px',
+                  borderRadius: '10px',
                   border: '1px solid',
-                  borderColor: perfSubTab === 'past' ? '#495057' : '#dee2e6',
-                  background: perfSubTab === 'past' ? '#f1f3f5' : '#ffffff',
-                  color: perfSubTab === 'past' ? '#212529' : '#6c757d',
-                  fontSize: isMobile ? '10.5px' : '11.5px',
+                  borderColor: perfSubTab === 'past' ? '#4a5568' : '#e2e8f0',
+                  background: perfSubTab === 'past' ? '#f7fafc' : '#ffffff',
+                  color: perfSubTab === 'past' ? '#2d3748' : '#718096',
+                  fontSize: isMobile ? '11px' : '12px',
                   fontWeight: 800,
                   cursor: 'pointer',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.15s ease'
                 }}
               >
                 지난 ({pastPerfs.length})
@@ -339,19 +342,19 @@ export default function ArtistProfile({
           </div>
 
           {displayedPerfs.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '260px', overflowY: 'auto', paddingRight: '2px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '280px', overflowY: 'auto', paddingRight: '2px' }}>
               {displayedPerfs.map((perf) => {
                 const perfId = perf.id;
                 const isBookmarked = bookmarkedIds.includes(perfId);
 
                 return (
-                  <div key={perfId} style={{ background: '#f8f9fa', padding: '14px', borderRadius: '12px', border: '1px solid #dee2e6', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box' }}>
-                    <div style={{ flex: 1, paddingRight: '10px', minWidth: 0 }}>
-                      <div style={{ fontSize: '12px', color: '#ff8c00', fontWeight: 800, marginBottom: '2px' }}>
+                  <div key={perfId} style={{ background: '#fafbfc', padding: '14px 16px', borderRadius: '14px', border: '1px solid #edf2f7', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxSizing: 'border-box' }}>
+                    <div style={{ flex: 1, paddingRight: '12px', minWidth: 0 }}>
+                      <div style={{ fontSize: '11.5px', color: '#dd6b20', fontWeight: 800, marginBottom: '3px' }}>
                         {perf.performance_date?.slice(0, 10)} | {perf.start_time?.slice(0, 5)} ~ {perf.end_time?.slice(0, 5)}
                       </div>
-                      <div style={{ fontSize: '13.5px', fontWeight: 800, margin: '2px 0', color: '#212529', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{perf.title}</div>
-                      <div style={{ fontSize: '12px', color: '#6c757d', fontWeight: 600 }}>📍 {perf.location_name} ({perf.region})</div>
+                      <div style={{ fontSize: '14px', fontWeight: 800, margin: '2px 0', color: '#1a202c', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{perf.title}</div>
+                      <div style={{ fontSize: '12px', color: '#718096', fontWeight: 600 }}>📍 {perf.location_name} ({perf.region})</div>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'flex-end', flexShrink: 0 }}>
@@ -366,17 +369,18 @@ export default function ArtistProfile({
                           }
                         }}
                         style={{
-                          background: isBookmarked ? 'rgba(250,82,82,0.1)' : '#ffffff',
-                          border: isBookmarked ? '1px solid rgba(250,82,82,0.3)' : '1px solid #dee2e6',
+                          background: isBookmarked ? 'rgba(245,101,101,0.1)' : '#ffffff',
+                          border: isBookmarked ? '1px solid rgba(245,101,101,0.3)' : '1px solid #e2e8f0',
                           borderRadius: '999px',
-                          padding: '5px 10px',
+                          padding: '5px 12px',
                           cursor: 'pointer',
                           fontSize: '11.5px',
                           fontWeight: 800,
-                          color: isBookmarked ? '#fa5252' : '#6c757d',
+                          color: isBookmarked ? '#e53e3e' : '#718096',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '4px'
+                          gap: '4px',
+                          transition: 'all 0.15s ease'
                         }}
                         title={isBookmarked ? '찜 취소' : '찜하기'}
                       >
@@ -394,12 +398,13 @@ export default function ArtistProfile({
                           background: '#ff8c00',
                           border: 'none',
                           borderRadius: '999px',
-                          padding: '5px 10px',
+                          padding: '5px 12px',
                           cursor: 'pointer',
                           fontSize: '11.5px',
                           fontWeight: 800,
                           color: '#fff',
-                          boxShadow: '0 2px 6px rgba(255,140,0,0.2)'
+                          boxShadow: '0 2px 6px rgba(255,140,0,0.25)',
+                          transition: 'all 0.15s ease'
                         }}
                         title="상세보기"
                       >
@@ -411,13 +416,14 @@ export default function ArtistProfile({
               })}
             </div>
           ) : (
-            <p style={{ margin: 0, fontSize: '13px', color: '#6c757d', fontWeight: 600, background: '#f8f9fa', padding: '14px', borderRadius: '12px', border: '1px solid #dee2e6', textAlign: 'center' }}>
+            <p style={{ margin: 0, fontSize: '13px', color: '#a0aec0', fontWeight: 600, background: '#fafbfc', padding: '16px', borderRadius: '14px', border: '1px solid #edf2f7', textAlign: 'center' }}>
               {perfSubTab === 'upcoming' ? '예정된 공연 일정이 없습니다.' : '지난 공연 일정이 없습니다.'}
             </p>
           )}
         </div>
       )}
 
+      {/* 팔로우 토글 버튼 */}
       <button
         onClick={() => {
           if (onToggleFollow) {
@@ -426,16 +432,23 @@ export default function ArtistProfile({
         }}
         style={{
           width: '100%',
-          padding: '12px',
-          borderRadius: '12px',
+          padding: '14px',
+          borderRadius: '14px',
           border: 'none',
-          background: isFollowed ? '#f1f3f5' : '#ff8c00',
-          color: isFollowed ? '#495057' : '#fff',
+          background: isFollowed ? '#edf2f7' : 'linear-gradient(135deg, #ff8c00 0%, #ff5e62 100%)',
+          color: isFollowed ? '#4a5568' : '#fff',
           fontWeight: 800,
-          fontSize: '13.5px',
+          fontSize: '14px',
           cursor: 'pointer',
-          transition: 'all 0.15s ease',
-          boxShadow: isFollowed ? 'none' : '0 4px 14px rgba(255,140,0,0.25)'
+          transition: 'all 0.2s ease',
+          boxShadow: isFollowed ? 'none' : '0 6px 16px rgba(255,140,0,0.3)',
+          letterSpacing: '-0.3px'
+        }}
+        onMouseEnter={(e) => {
+          if (!isFollowed) e.currentTarget.style.opacity = '0.95';
+        }}
+        onMouseLeave={(e) => {
+          if (!isFollowed) e.currentTarget.style.opacity = '1';
         }}
       >
         {isFollowed ? '✓ 팔로잉 중' : '❤️ 팔로우하기'}
