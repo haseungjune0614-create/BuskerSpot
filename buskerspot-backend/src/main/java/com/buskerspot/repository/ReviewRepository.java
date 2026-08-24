@@ -4,6 +4,7 @@ import com.buskerspot.entity.Review;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,4 +35,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
         )
     """)
     long countByArtistId(@Param("artistId") Long artistId);
+
+    // 💡 [신규] 유저 삭제 시 관련 리뷰 정리용
+    @Transactional
+    void deleteByUserId(Long userId);
 }

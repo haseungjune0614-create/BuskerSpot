@@ -3,8 +3,12 @@ package com.buskerspot.service;
 import com.buskerspot.common.exception.CustomException;
 import com.buskerspot.entity.Performance;
 import com.buskerspot.entity.User;
+import com.buskerspot.repository.BookmarkRepository;
+import com.buskerspot.repository.FollowRepository;
 import com.buskerspot.repository.MessageRecipientRepository;
+import com.buskerspot.repository.NotificationRepository;
 import com.buskerspot.repository.PerformanceRepository;
+import com.buskerspot.repository.ReviewRepository;
 import com.buskerspot.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,6 +24,10 @@ public class AdminService {
     private final UserRepository userRepository;
     private final PerformanceRepository performanceRepository;
     private final MessageRecipientRepository messageRecipientRepository;
+    private final FollowRepository followRepository;
+    private final BookmarkRepository bookmarkRepository;
+    private final NotificationRepository notificationRepository;
+    private final ReviewRepository reviewRepository;
 
     // 1. 전체 사용자 목록 조회 (관리자용)
     public List<User> getAllUsers(Long adminUserId) {
@@ -36,6 +44,20 @@ public class AdminService {
 
         // 이 유저를 참조하는 연관 데이터를 먼저 정리
         messageRecipientRepository.deleteByUser_Id(targetUserId);
+
+        // 💡 [추가] 이 유저가 팔로우했거나, 이 유저를 팔로우한 기록 정리
+        followRepository.deleteByFollowerId(targetUserId);
+        followRepository.deleteByFollowingId(targetUserId);
+
+        // 💡 [추가] 이 유저의 찜(북마크) 정리
+        bookmarkRepository.deleteByUserId(targetUserId);
+
+        // 💡 [추가] 이 유저가 받은 알림 + 이 유저가 아티스트로서 발생시킨 알림 정리
+        notificationRepository.deleteByUserId(targetUserId);
+        notificationRepository.deleteByArtistId(targetUserId);
+
+        // 💡 [추가] 이 유저가 작성한 리뷰 정리
+        reviewRepository.deleteByUserId(targetUserId);
 
         userRepository.delete(targetUser);
     }
