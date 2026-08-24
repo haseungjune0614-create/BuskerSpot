@@ -510,7 +510,7 @@ export default function PerformanceSearch({
                   const profileImg = getImageUrl(perf.artist_profile_image || perf.profile_image);
                   const introText = perf.artist_introduction || perf.introduction || perf.bio;
                   
-                  // 💡 평점 및 리뷰 수 필드 안전하게 매핑 (누락 방지)
+                  // 💡 평점 및 리뷰 수 필드 매핑 (괄호 안의 숫자는 해당 공연의 리뷰 개수입니다)
                   const reviewCount = perf.artist_review_count ?? perf.review_count ?? perf.reviews_count ?? perf.total_reviews ?? 0;
                   const rawRating = perf.artist_average_rating ?? perf.average_rating ?? perf.avg_rating ?? perf.rating ?? 0;
                   const displayRating = Number(rawRating).toFixed(1);
