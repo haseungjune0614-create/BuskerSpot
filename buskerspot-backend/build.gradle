@@ -50,6 +50,9 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Cloudinary (프로필/공연 이미지 외부 스토리지 업로드용 — Render 재배포 시 로컬 파일 유실 방지)
+    implementation 'com.cloudinary:cloudinary-http44:1.36.0'
 }
 
 tasks.named('test') {
