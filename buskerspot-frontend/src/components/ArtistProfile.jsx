@@ -87,7 +87,19 @@ export default function ArtistProfile({
     : null;
 
   // 💡 앞뒤 공백 제거(.trim())를 추가하여 이중 URL 생성 원천 차단
-  const rawProfileImg = (artist.profile_image || artist.artist_profile_image)?.trim();
+  let rawProfileImg = (artist.profile_image || artist.artist_profile_image)?.trim();
+
+  // 💡 과거 버그로 DB에 "https://a.com/ https://a.com/uploads/x.jpg" 처럼
+  // 절대 URL이 중복으로 이어붙어 저장된 데이터를 방어적으로 정리합니다.
+  // 문자열 안에 http(s):// 가 2번 이상 나오면, 가장 마지막 http(s):// 부터를 실제 URL로 사용합니다.
+  if (rawProfileImg) {
+    const httpMatches = [...rawProfileImg.matchAll(/https?:\/\//g)];
+    if (httpMatches.length > 1) {
+      const lastIndex = httpMatches[httpMatches.length - 1].index;
+      rawProfileImg = rawProfileImg.slice(lastIndex).trim();
+    }
+  }
+
   const profileImgSrc = rawProfileImg 
     ? (rawProfileImg.startsWith('http://') || rawProfileImg.startsWith('https://') || rawProfileImg.startsWith('blob:') 
         ? rawProfileImg 
