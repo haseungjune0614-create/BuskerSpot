@@ -1,5 +1,15 @@
 {
   "appId": "com.buskerspot.app",
   "appName": "BuskerSpot",
-  "webDir": "build"
+  "webDir": "build",
+  "plugins": {
+    "SocialLogin": {
+      "google": {
+        "webClientId": "837963657825-gejm31g6via3o16dciknj0l70ss2sinu.apps.googleusercontent.com"
+      },
+      "kakao": {
+        "appKey": "ba5985fef0547e2b0a51e5bdb26dfd2b"
+      }
+    }
+  }
 }

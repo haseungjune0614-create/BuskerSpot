@@ -52,11 +52,11 @@ public class User {
     @Column(name = "instagram_url")
     private String instagramUrl;
 
-    @Column(name = "kakao_id")
+    @Column(name = "kakao_id", unique = true)
     private String kakaoId;
 
-    @Column(name = "google_id")   // 💡 추가
-private String googleId;
+    @Column(name = "google_id", unique = true)
+    private String googleId;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
