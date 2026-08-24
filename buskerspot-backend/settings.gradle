@@ -1,1 +1,11 @@
+pluginManagement {
+    repositories {
+        // 플러그인 다운로드 시 429 차단을 피하기 위한 미러 설정
+        maven { url 'https://maven.aliyun.com/repository/public/' }
+        maven { url 'https://repo1.maven.org/maven2/' }
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
 rootProject.name = 'buskerspot-backend'
