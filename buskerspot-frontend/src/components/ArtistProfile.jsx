@@ -272,7 +272,7 @@ export default function ArtistProfile({
         <div>
           <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px', fontWeight: 700 }}>⭐ 전체 평점 평균</div>
           <div style={{ fontSize: isMobile ? '0.9rem' : '1.15rem', fontWeight: 900, color: '#dd6b20', whiteSpace: 'nowrap' }}>
-            {avgRating} <span style={{ fontSize: isMobile = '11px' ? '11px' : '12px', color: '#a0aec0', fontWeight: 600 }}>({reviewCount}개 리뷰)</span>
+            {avgRating} <span style={{ fontSize: isMobile ? '11px' : '12px', color: '#a0aec0', fontWeight: 600 }}>({reviewCount}개 리뷰)</span>
           </div>
         </div>
         <div style={{ borderLeft: '1px solid #e2e8f0' }}>
