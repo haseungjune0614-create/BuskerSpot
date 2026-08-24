@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { mainStyles } from '../styles/navbarStyles';
 import MessageBell from './MessageBell';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
@@ -227,8 +226,8 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
           background: none;
           border: none;
           cursor: pointer;
-          font-size: 11px;
-          font-weight: 700;
+          fontSize: 11px;
+          fontWeight: 700;
           color: #868e96;
           gap: 3px;
           padding: 6px 0;
@@ -258,39 +257,39 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
         }}
       >
         <div
-  style={{
-    ...mainStyles.logoContainer,
-    flexShrink: 1,
-    minWidth: 0,
-    display: 'flex',
-    alignItems: 'center',
-    gap: isMobile ? '5px' : '8px',
-    cursor: 'pointer',
-    overflow: 'hidden'
-  }}
-  onClick={() => { setArtistKeyword(''); if (onSearch) onSearch(''); setActiveTab('search'); setIsSearchPageOpen(false); }}
->
-  <img
-    src="/logo-icon.png"
-    alt="BuskerSpot"
-    style={{ height: isMobile ? '28px' : '44px', width: 'auto', flexShrink: 0 }}
-  />
-  <span
-    style={{
-      fontSize: isMobile ? '1.05rem' : undefined,
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis'
-    }}
-  >
-    BuskerSpot
-  </span>
-</div>
+          style={{
+            ...mainStyles.logoContainer,
+            flexShrink: 1,
+            minWidth: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: isMobile ? '5px' : '8px',
+            cursor: 'pointer',
+            overflow: 'hidden'
+          }}
+          onClick={() => { setArtistKeyword(''); if (onSearch) onSearch(''); setActiveTab('search'); setIsSearchPageOpen(false); }}
+        >
+          <img
+            src="/logo-icon.png"
+            alt="BuskerSpot"
+            style={{ height: isMobile ? '28px' : '44px', width: 'auto', flexShrink: 0 }}
+          />
+          <span
+            style={{
+              fontSize: isMobile ? '1.05rem' : undefined,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}
+          >
+            BuskerSpot
+          </span>
+        </div>
 
         {/* 데스크탑 전용 메뉴 및 검색 */}
         {!isMobile && (
-          <div className="bsp-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '30px', flex: 1, justifyContent: 'flex-end', paddingRight: '20px', flexShrink: 0 }}>
-            <nav style={{ ...mainStyles.menuGroup, flexShrink: 0, whiteSpace: 'nowrap', marginRight: '100px' }}> 
+          <div className="bsp-desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, justifyContent: 'flex-end', paddingRight: '15px', flexShrink: 0 }}>
+            <nav style={{ ...mainStyles.menuGroup, flexShrink: 0, whiteSpace: 'nowrap' }}> 
               {navItems.map((item) => (
                 <button
                   key={item.key}
@@ -308,11 +307,11 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
               ))}
             </nav>
 
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexShrink: 0, marginRight: '30px' }}>
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
               <div
                 onClick={() => setIsSearchPageOpen(true)}
                 style={{
-                  width: '240px', height: '38px', padding: '0 36px 0 16px', border: 'none', borderRadius: '999px',
+                  width: '210px', height: '38px', padding: '0 36px 0 16px', border: 'none', borderRadius: '999px',
                   backgroundColor: '#faf6f2', fontSize: '13px', fontWeight: 500, display: 'flex', alignItems: 'center',
                   color: '#a8a29e', cursor: 'pointer', boxSizing: 'border-box', position: 'relative'
                 }}
@@ -348,10 +347,10 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
             {currentUser && <MessageBell />}
 
             {currentUser && (
-              <div style={{ ...mainStyles.userChip, overflow: 'hidden', maxWidth: '130px', flexShrink: 0 }}>
+              <div style={{ ...mainStyles.userChip, overflow: 'hidden', maxWidth: '220px', flexShrink: 0 }}>
                 {currentUser.role === 'ADMIN' && <span>🛡️</span>}
                 {currentUser.role === 'ARTIST' && <span>🎤</span>}
-                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', maxWidth: '80px', verticalAlign: 'middle' }}>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', maxWidth: '140px', verticalAlign: 'middle' }} title={currentUser.nickname}>
                   <b>{currentUser.nickname}</b>
                 </span>
                 님
@@ -749,3 +748,136 @@ export default function Navbar({ activeTab, setActiveTab, currentUser, onOpenAut
     </>
   );
 }
+
+export const mainStyles = {
+  navbar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '16px 30px',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backdropFilter: 'blur(16px)',
+    WebkitBackdropFilter: 'blur(16px)',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100,
+    boxShadow: '0 10px 30px -18px rgba(41, 37, 36, 0.15)',
+    flexWrap: 'nowrap'
+  },
+  logoContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '10px',
+    cursor: 'pointer',
+    fontSize: '1.5rem',
+    fontWeight: '900',
+    letterSpacing: '-0.03em',
+    backgroundImage: 'linear-gradient(120deg, #ff8c00 0%, #fa5252 55%, #ff6b9d 100%)',
+    WebkitBackgroundClip: 'text',
+    backgroundClip: 'text',
+    color: 'transparent',
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
+  },
+  menuGroup: {
+    display: 'flex',
+    gap: '4px',
+    alignItems: 'center',
+    backgroundColor: '#f5f0eb',
+    padding: '6px',
+    borderRadius: '999px',
+    boxShadow: 'inset 0 0 0 1px rgba(41,37,36,0.05)',
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
+  },
+  navBtn: {
+    padding: '10px 16px',
+    borderRadius: '999px',
+    border: 'none',
+    backgroundColor: 'transparent',
+    fontSize: '0.9rem',
+    fontWeight: '700',
+    color: '#78716c',
+    cursor: 'pointer',
+    transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+    whiteSpace: 'nowrap'
+  },
+  navBtnActive: {
+    backgroundImage: 'linear-gradient(135deg, #ff8c00, #ffab40)',
+    backgroundColor: '#ff8c00',
+    color: '#ffffff',
+    boxShadow: '0 6px 20px -4px rgba(255,140,0,0.45)',
+    whiteSpace: 'nowrap'
+  },
+  navBtnBookmark: {
+    padding: '10px 16px',
+    borderRadius: '999px',
+    border: 'none',
+    backgroundColor: 'transparent',
+    fontSize: '0.9rem',
+    fontWeight: '700',
+    color: '#fa5252',
+    cursor: 'pointer',
+    transition: 'all 0.25s cubic-bezier(.4,0,.2,1)',
+    whiteSpace: 'nowrap'
+  },
+  navBtnBookmarkActive: {
+    backgroundImage: 'linear-gradient(135deg, #fa5252, #ff8787)',
+    backgroundColor: '#fa5252',
+    color: '#ffffff',
+    boxShadow: '0 6px 20px -4px rgba(250,82,82,0.45)',
+    whiteSpace: 'nowrap'
+  },
+  actionGroup: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    flexShrink: 0,
+    flexWrap: 'nowrap'
+  },
+  registerBtn: {
+    backgroundImage: 'linear-gradient(135deg, #ff8c00, #fa5252)',
+    backgroundColor: '#ff8c00',
+    color: '#ffffff',
+    padding: '11px 24px',
+    borderRadius: '999px',
+    border: 'none',
+    fontWeight: '800',
+    fontSize: '0.9rem',
+    cursor: 'pointer',
+    boxShadow: '0 8px 20px -4px rgba(250,82,82,0.45)',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
+  },
+  userChip: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+    padding: '8px 14px',
+    backgroundImage: 'linear-gradient(135deg, #fff7ed, #fff1f2)',
+    backgroundColor: '#fff7ed',
+    borderRadius: '999px',
+    fontSize: '0.9rem',
+    fontWeight: '700',
+    color: '#44403c',
+    maxWidth: '220px',
+    flexShrink: 0,
+    overflow: 'hidden',
+    whiteSpace: 'nowrap',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+  },
+  subActionBtn: {
+    padding: '10px 18px',
+    borderRadius: '999px',
+    border: 'none',
+    backgroundColor: '#f5f0eb',
+    fontSize: '0.88rem',
+    fontWeight: '700',
+    color: '#57534e',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
+  }
+};
