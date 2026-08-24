@@ -221,7 +221,6 @@ function PerformanceDetailModal({
   const kakaoMapLink = `https://map.kakao.com/link/map/${encodeURIComponent(performance.location_name || '공연장')},${lat},${lng}`;
   const kakaoRouteLink = `https://map.kakao.com/link/to/${encodeURIComponent(performance.location_name || '공연장')},${lat},${lng}`;
 
-  // 💡 해당 공연의 찜 여부 확인
   const isBookmarked = bookmarkedIds.includes(performance.id);
 
   return (
@@ -269,7 +268,6 @@ function PerformanceDetailModal({
           </button>
         </div>
 
-        {/* 💡 공연 제목과 찜 버튼을 나란히 배치 */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '12px' }}>
           <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, wordBreak: 'break-all' }}>
             {performance.title}
@@ -321,6 +319,11 @@ function PerformanceDetailModal({
             }}
             isFollowed={isFollowed}
             onToggleFollow={() => {
+              // 💡 자기 자신 팔로우 방지 체크
+              if (currentUserId && artistId && Number(currentUserId) === Number(artistId)) {
+                alert('본인을 팔로우할 수 없습니다.');
+                return;
+              }
               if (onToggleFollow) {
                 onToggleFollow(artistId);
               }
