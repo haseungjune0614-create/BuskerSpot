@@ -334,6 +334,8 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
       end_time: editingPerformance.end_time,
       location_name: editingPerformance.location_name,
       region: editingPerformance.region,
+      genre: editingPerformance.genre,
+      description: editingPerformance.description,
       latitude: editingPerformance.latitude || editingPerformance.lat,
       longitude: editingPerformance.longitude || editingPerformance.lng,
       reason: actionReason
@@ -408,7 +410,6 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
 
   const todayStr = getTodayDateStr();
   
-  // 💡 성능 날짜 필드 이름(performance_date) 통일 및 지난 공연 필터 추가
   const upcomingMyPerformances = myPerformances.filter((perf) => {
     const perfDateStr = perf.performance_date?.split('T')[0];
     return !perfDateStr || perfDateStr >= todayStr;
@@ -674,7 +675,6 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                 <>
                   <h3 style={{ ...styles.modalTitle, marginBottom: '16px' }}>🎤 내 공연 관리</h3>
 
-                  {/* 💡 예정된 공연 / 지난 공연 전환 탭 */}
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                     <button
                       type="button"
@@ -845,6 +845,52 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                         required
                       />
                     </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      <div style={styles.inputGroup}>
+                        <label style={styles.label}>공연 지역</label>
+                        <select
+                          value={editingPerformance.region || '서울'}
+                          onChange={(e) => setEditingPerformance({ ...editingPerformance, region: e.target.value })}
+                          style={styles.input}
+                        >
+                          <option value="서울">서울</option>
+                          <option value="경기">경기</option>
+                          <option value="인천">인천</option>
+                          <option value="부산">부산</option>
+                          <option value="대구">대구</option>
+                          <option value="광주">광주</option>
+                          <option value="대전">대전</option>
+                          <option value="울산">울산</option>
+                          <option value="세종">세종</option>
+                          <option value="강원">강원</option>
+                          <option value="충북">충북</option>
+                          <option value="충남">충남</option>
+                          <option value="전북">전북</option>
+                          <option value="전남">전남</option>
+                          <option value="경북">경북</option>
+                          <option value="경남">경남</option>
+                          <option value="제주">제주</option>
+                        </select>
+                      </div>
+                      <div style={styles.inputGroup}>
+                        <label style={styles.label}>음악 장르</label>
+                        <select
+                          value={editingPerformance.genre || 'Acoustic'}
+                          onChange={(e) => setEditingPerformance({ ...editingPerformance, genre: e.target.value })}
+                          style={styles.input}
+                        >
+                          <option value="Acoustic">어쿠스틱 / 발라드</option>
+                          <option value="Band">밴드 / 록</option>
+                          <option value="Dance">댄스 / 퍼포먼스</option>
+                          <option value="Hiphop">힙합 / 랩</option>
+                          <option value="Jazz">재즈 / 블루스</option>
+                          <option value="Classic">클래식 / 국악</option>
+                          <option value="Other">기타</option>
+                        </select>
+                      </div>
+                    </div>
+
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                       <div style={styles.inputGroup}>
                         <label style={styles.label}>날짜</label>
@@ -900,6 +946,17 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                           📍 지도
                         </button>
                       </div>
+                    </div>
+
+                    <div style={styles.inputGroup}>
+                      <label style={styles.label}>공연 설명 및 관객 안내</label>
+                      <textarea
+                        value={editingPerformance.description || ''}
+                        onChange={(e) => setEditingPerformance({ ...editingPerformance, description: e.target.value })}
+                        placeholder="관객분들에게 전할 안내 사항이나 소개를 입력해주세요."
+                        style={styles.textarea}
+                        rows="3"
+                      />
                     </div>
 
                     <div style={styles.inputGroup}>

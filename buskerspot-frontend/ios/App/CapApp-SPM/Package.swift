@@ -13,7 +13,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.5.0"),
         .package(name: "CapacitorBrowser", path: "../../../node_modules/@capacitor/browser"),
-        .package(name: "CapgoCapacitorSocialLogin", path: "../../../../node_modules/@capgo/capacitor-social-login")
+        .package(name: "CapgoCapacitorSocialLogin", path: "../../../node_modules/@capgo/capacitor-social-login")
     ],
     targets: [
         .target(

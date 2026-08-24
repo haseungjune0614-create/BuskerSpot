@@ -1,6 +1,10 @@
 package com.buskerspot.service;
 
 import com.buskerspot.common.exception.CustomException;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -13,6 +17,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.Map;
 
 @Service
@@ -33,6 +38,38 @@ public class GoogleService {
     public Map<String, Object> getGoogleProfile(String code) {
         String accessToken = requestAccessToken(code);
         return requestUserInfo(accessToken);
+    }
+
+    // 모바일 앱에서 받은 idToken을 검증하는 메소드
+    public Map<String, Object> verifyIdTokenAndGetProfile(String idTokenString) {
+        try {
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+                    new NetHttpTransport(), new GsonFactory())
+                    .setAudience(Collections.singletonList(clientId))
+                    .build();
+
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken == null) {
+                throw new CustomException("유효하지 않은 구글 idToken입니다.", HttpStatus.UNAUTHORIZED);
+            }
+
+            GoogleIdToken.Payload payload = idToken.getPayload();
+            String googleId = payload.getSubject();
+            String email = payload.getEmail();
+            String nickname = (String) payload.get("name");
+            String profileImage = (String) payload.get("picture");
+
+            return Map.of(
+                    "googleId", googleId,
+                    "nickname", nickname != null ? nickname : "",
+                    "email", email != null ? email : "",
+                    "profileImage", profileImage != null ? profileImage : ""
+            );
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CustomException("구글 idToken 검증 중 오류가 발생했습니다: " + e.getMessage(), HttpStatus.BAD_GATEWAY);
+        }
     }
 
     private String requestAccessToken(String code) {

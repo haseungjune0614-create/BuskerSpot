@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { SocialLogin } from '@capgo/capacitor-social-login';
 import PerformanceSearch from './components/PerformanceSearch';
 import ArtistProfile from './components/ArtistProfile';
 import AIRecommendation from './components/ai_recommendation';
@@ -327,6 +329,17 @@ function PerformanceListModal({ performances, onClose, onSelectItem, getImageUrl
 }
 
 function App() {
+  // 💡 앱 실행 시 Capacitor 네이티브 환경에서 소셜 로그인 초기화 수행
+  useEffect(() => {
+    if (Capacitor.isNativePlatform()) {
+      SocialLogin.initialize({
+        google: {
+          webClientId: '837963657825-gejm31g6via3o16dciknj0l70ss2sinu.apps.googleusercontent.com',
+        },
+      });
+    }
+  }, []);
+
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('buskerspot_active_tab') || 'search';
   });

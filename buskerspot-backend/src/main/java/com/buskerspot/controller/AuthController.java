@@ -165,6 +165,24 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
+    // 네이티브 앱(안드로이드/iOS)에서 idToken으로 로그인/가입
+    @PostMapping("/auth/google/native")
+    public ResponseEntity<?> googleNativeLogin(@RequestBody Map<String, String> req) {
+        String idToken = req.get("idToken");
+        if (idToken == null || idToken.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "idToken이 없습니다."));
+        }
+
+        Map<String, Object> googleProfile = googleService.verifyIdTokenAndGetProfile(idToken);
+        String googleId = (String) googleProfile.get("googleId");
+        String nickname = (String) googleProfile.get("nickname");
+        String email = (String) googleProfile.get("email");
+        String profileImage = (String) googleProfile.get("profileImage");
+
+        Map<String, Object> result = userService.handleGoogleLogin(googleId, nickname, email, profileImage);
+        return ResponseEntity.ok(result);
+    }
+
     // 이메일 인증번호 발송
     @PostMapping("/auth/send-email-code")
     public ResponseEntity<?> sendEmailCode(@RequestBody Map<String, String> req) {
