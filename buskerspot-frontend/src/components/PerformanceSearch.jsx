@@ -511,8 +511,8 @@ export default function PerformanceSearch({
                   const introText = perf.artist_introduction || perf.introduction || perf.bio;
                   
                   // 💡 평점 및 리뷰 수 필드 안전하게 매핑 (누락 방지)
-                  const reviewCount = perf.artist_review_count ?? perf.review_count ?? perf.reviews_count ?? 0;
-                  const rawRating = perf.artist_average_rating ?? perf.average_rating ?? perf.rating ?? 0;
+                  const reviewCount = perf.artist_review_count ?? perf.review_count ?? perf.reviews_count ?? perf.total_reviews ?? 0;
+                  const rawRating = perf.artist_average_rating ?? perf.average_rating ?? perf.avg_rating ?? perf.rating ?? 0;
                   const displayRating = Number(rawRating).toFixed(1);
 
                   const distanceKm = perf.lat && perf.lng ? calculateDistance(center.lat, center.lng, perf.lat, perf.lng) : null;
@@ -599,8 +599,8 @@ export default function PerformanceSearch({
                                 profile_image: perf.artist_profile_image || perf.profile_image,
                                 introduction: perf.artist_introduction || perf.introduction || perf.bio,
                                 follower_count: perf.follower_count ?? perf.followers ?? 0,
-                                average_rating: perf.artist_average_rating ?? perf.average_rating ?? 0,
-                                review_count: perf.artist_review_count ?? perf.review_count ?? 0
+                                average_rating: perf.artist_average_rating ?? perf.average_rating ?? perf.avg_rating ?? 0,
+                                review_count: perf.artist_review_count ?? perf.review_count ?? perf.reviews_count ?? 0
                               });
                             }
                           }}

@@ -14,12 +14,20 @@ const useIsMobile = (breakpoint = 480) => {
   return isMobile;
 };
 
-const getTodayDateStr = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+// ==========================================
+// 🕒 정확한 날짜 및 시간 비교를 위한 헬퍼 함수
+// ==========================================
+const getCurrentDateTime = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return {
+    dateStr: `${year}-${month}-${day}`,
+    timeStr: `${hours}:${minutes}`
+  };
 };
 
 export default function ArtistProfile({ 
@@ -89,9 +97,6 @@ export default function ArtistProfile({
   // 💡 앞뒤 공백 제거(.trim())를 추가하여 이중 URL 생성 원천 차단
   let rawProfileImg = (artist.profile_image || artist.artist_profile_image)?.trim();
 
-  // 💡 과거 버그로 DB에 "https://a.com/ https://a.com/uploads/x.jpg" 처럼
-  // 절대 URL이 중복으로 이어붙어 저장된 데이터를 방어적으로 정리합니다.
-  // 문자열 안에 http(s):// 가 2번 이상 나오면, 가장 마지막 http(s):// 부터를 실제 URL로 사용합니다.
   if (rawProfileImg) {
     const httpMatches = [...rawProfileImg.matchAll(/https?:\/\//g)];
     if (httpMatches.length > 1) {
@@ -106,16 +111,38 @@ export default function ArtistProfile({
         : `${process.env.REACT_APP_API_URL}${rawProfileImg.startsWith('/') ? '' : '/'}${rawProfileImg}`) 
     : null;
 
-  const todayStr = getTodayDateStr();
-  const upcomingPerfs = artistPerformances.filter(perf => {
-    const perfDateStr = (perf.performance_date || perf.date)?.split('T')[0];
-    return !perfDateStr || perfDateStr >= todayStr;
-  });
+  // 💡 현재 날짜 및 시간 기준 지난 공연 / 다가오는 공연 정밀 분류 및 시간순 정렬
+  const { dateStr: todayDateStr, timeStr: todayTimeStr } = getCurrentDateTime();
 
-  const pastPerfs = artistPerformances.filter(perf => {
+  const isPastPerformance = (perf) => {
     const perfDateStr = (perf.performance_date || perf.date)?.split('T')[0];
-    return perfDateStr && perfDateStr < todayStr;
-  });
+    if (!perfDateStr) return false;
+
+    if (perfDateStr < todayDateStr) return true;
+    if (perfDateStr > todayDateStr) return false;
+
+    // 오늘 날짜인 경우 종료 시간(end_time) 비교 (없으면 시작 시간 기준)
+    const endTime = perf.end_time ? perf.end_time.slice(0, 5) : (perf.start_time ? perf.start_time.slice(0, 5) : '23:59');
+    return endTime < todayTimeStr;
+  };
+
+  const upcomingPerfs = artistPerformances
+    .filter(perf => !isPastPerformance(perf))
+    .sort((a, b) => {
+      const dateA = (a.performance_date || a.date || '').split('T')[0];
+      const dateB = (b.performance_date || b.date || '').split('T')[0];
+      if (dateA !== dateB) return dateA.localeCompare(dateB);
+      return (a.start_time || '').localeCompare(b.start_time || '');
+    });
+
+  const pastPerfs = artistPerformances
+    .filter(perf => isPastPerformance(perf))
+    .sort((a, b) => {
+      const dateA = (a.performance_date || a.date || '').split('T')[0];
+      const dateB = (b.performance_date || b.date || '').split('T')[0];
+      if (dateA !== dateB) return dateB.localeCompare(dateA); // 지난 공연은 최신순(역순)
+      return (b.start_time || '').localeCompare(a.start_time || '');
+    });
 
   const displayedPerfs = perfSubTab === 'upcoming' ? upcomingPerfs : pastPerfs;
 
@@ -124,7 +151,7 @@ export default function ArtistProfile({
       background: '#ffffff',
       border: '1px solid #dee2e6',
       borderRadius: '18px',
-      padding: isMobile ? '18px' : '28px', // 💡 모바일에서 카드 패딩 축소
+      padding: isMobile ? '18px' : '28px',
       boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
       display: 'flex',
       flexDirection: 'column',
@@ -196,7 +223,6 @@ export default function ArtistProfile({
                 </span>
               </div>
 
-              {/* 💡 예쁘고 세련된 인스타그램 바로가기 버튼 (우측 상단 배치) */}
               {instagramUrl && (
                 <a
                   href={instagramUrl}
@@ -234,7 +260,6 @@ export default function ArtistProfile({
         </div>
       </div>
 
-      {/* 💡 평점 통계 박스 (모바일 글자 크기 및 줄바꿈 방지 적용) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
@@ -270,7 +295,6 @@ export default function ArtistProfile({
 
       {!hidePerformances && (
         <div>
-          {/* 💡 공연 일정 제목 및 탭 버튼 줄 (whiteSpace: 'nowrap' 및 반응형 크기 적용) */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
             <h4 style={{ margin: 0, fontSize: isMobile ? '12px' : '13px', color: '#495057', fontWeight: 800, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
               📅 아티스트 공연 일정
