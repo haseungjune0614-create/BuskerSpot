@@ -131,7 +131,7 @@ export default function NotificationsPage({ currentUser, performances, setDetail
   const handleViewDetail = async (notif) => {
     if (!notif.is_read) handleReadNotification(notif.id);
 
-    const isPerformanceType = notif.type === 'PERFORMANCE_NEW' || notif.type === 'PERFORMANCE_UPDATE';
+    const isPerformanceType = notif.type === 'PERFORMANCE_NEW' || notif.type === 'PERFORMANCE_UPDATE' || notif.type === 'PERFORMANCE_APPROVED';
 
     if (isPerformanceType && notif.performance_id) {
       const localPerf = safePerformances.find(p => p.id === notif.performance_id);
