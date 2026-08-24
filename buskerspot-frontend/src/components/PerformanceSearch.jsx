@@ -363,7 +363,11 @@ export default function PerformanceSearch({
   const sortedPerformances = [...finalFilteredPerformances].sort((a, b) => {
     if (inputSort === 'time') return (a.start_time || '').localeCompare(b.start_time || '');
     if (inputSort === 'popularity') return (b.follower_count || 0) - (a.follower_count || 0);
-    if (inputSort === 'rating') return (b.artist_average_rating || 0) - (a.artist_average_rating || 0);
+    if (inputSort === 'rating') {
+      const ratingA = a.artist_average_rating ?? a.average_rating ?? a.rating ?? 0;
+      const ratingB = b.artist_average_rating ?? b.average_rating ?? b.rating ?? 0;
+      return ratingB - ratingA;
+    }
     if (inputSort === 'distance') {
       const distA = calculateDistance(center.lat, center.lng, a.lat, a.lng) ?? 9999;
       const distB = calculateDistance(center.lat, center.lng, b.lat, b.lng) ?? 9999;
@@ -505,8 +509,12 @@ export default function PerformanceSearch({
                   const sColor = statusStyle(status.class);
                   const profileImg = getImageUrl(perf.artist_profile_image || perf.profile_image);
                   const introText = perf.artist_introduction || perf.introduction || perf.bio;
-                  const reviewCount = perf.artist_review_count || perf.review_count || 0;
-                  const displayRating = reviewCount > 0 ? Number(perf.artist_average_rating || perf.average_rating || 0).toFixed(1) : '0.0';
+                  
+                  // 💡 평점 및 리뷰 수 필드 안전하게 매핑 (누락 방지)
+                  const reviewCount = perf.artist_review_count ?? perf.review_count ?? perf.reviews_count ?? 0;
+                  const rawRating = perf.artist_average_rating ?? perf.average_rating ?? perf.rating ?? 0;
+                  const displayRating = Number(rawRating).toFixed(1);
+
                   const distanceKm = perf.lat && perf.lng ? calculateDistance(center.lat, center.lng, perf.lat, perf.lng) : null;
                   const distanceText = distanceKm !== null ? (distanceKm < 1 ? `약 ${Math.round(distanceKm * 1000)}m` : `약 ${distanceKm.toFixed(1)}km`) : '';
                   const isBookmarked = bookmarkedIds.includes(perf.id);
