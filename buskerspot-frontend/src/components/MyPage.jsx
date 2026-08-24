@@ -496,7 +496,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
           </div>
         </div>
 
-        <div style={{ ...styles.card, marginTop: '20px' }}>
+        <div style={{ ...styles.card, marginTop: '12px' }}>
           <h3 style={styles.cardTitle}>📌 서비스 정보 및 지원</h3>
           <div style={styles.menuList}>
             <button type="button" style={styles.menuItem} className="bsp-menu-item" onClick={() => setActiveModal('about')}>
@@ -537,9 +537,9 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
           </div>
         </div>
 
-        <div style={{ ...styles.card, background: '#faf6f2', textAlign: 'center', border: '1px solid #e9e4dc', marginTop: '16px', padding: '16px' }}>
-          <p style={{ margin: 0, fontSize: '0.85rem', color: '#57534e', fontWeight: 700 }}>BuskerSpot v1.0.0 (Live Edition)</p>
-          <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: '#a8a29e', fontWeight: 600 }}>Street Live Music Platform</p>
+        <div style={{ ...styles.card, background: '#faf6f2', textAlign: 'center', border: '1px solid #e9e4dc', marginTop: '12px', padding: '12px' }}>
+          <p style={{ margin: 0, fontSize: '0.8rem', color: '#57534e', fontWeight: 700 }}>BuskerSpot v1.0.0 (Live Edition)</p>
+          <p style={{ margin: '2px 0 0 0', fontSize: '0.7rem', color: '#a8a29e', fontWeight: 600 }}>Street Live Music Platform</p>
         </div>
 
         {activeModal && (
@@ -610,13 +610,13 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                         </label>
                       </div>
                       {profileImage && (
-                        <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <img
                             src={getFullImageUrl(profileImage)}
                             alt="미리보기"
-                            style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #dee2e6' }}
+                            style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #dee2e6' }}
                           />
-                          <span style={{ fontSize: '11.5px', color: '#868e96', fontWeight: 600 }}>미리보기</span>
+                          <span style={{ fontSize: '11px', color: '#868e96', fontWeight: 600 }}>미리보기</span>
                         </div>
                       )}
                     </div>
@@ -628,7 +628,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                         onChange={(e) => setIntroduction(e.target.value)}
                         style={styles.textarea}
                         placeholder="자신이나 팀을 간단히 소개해 주세요!"
-                        rows="3"
+                        rows="2"
                       />
                     </div>
                     <button type="submit" style={styles.primaryBtn}>
@@ -673,18 +673,18 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
 
               {activeModal === 'performances' && (
                 <>
-                  <h3 style={{ ...styles.modalTitle, marginBottom: '16px' }}>🎤 내 공연 관리</h3>
+                  <h3 style={{ ...styles.modalTitle, marginBottom: '12px' }}>🎤 내 공연 관리</h3>
 
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', gap: '6px', marginBottom: '12px' }}>
                     <button
                       type="button"
                       onClick={() => setMyPerfSubTab('upcoming')}
                       style={{
-                        flex: 1, padding: '10px', borderRadius: '10px',
+                        flex: 1, padding: '8px', borderRadius: '8px',
                         border: '1px solid', borderColor: myPerfSubTab === 'upcoming' ? '#ff8c00' : '#dee2e6',
                         background: myPerfSubTab === 'upcoming' ? '#fff9f0' : '#fff',
                         color: myPerfSubTab === 'upcoming' ? '#d97706' : '#495057',
-                        fontWeight: 800, fontSize: '13px', cursor: 'pointer'
+                        fontWeight: 800, fontSize: '12px', cursor: 'pointer'
                       }}
                     >
                       📅 예정된 공연 ({upcomingMyPerformances.length})
@@ -693,11 +693,11 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                       type="button"
                       onClick={() => setMyPerfSubTab('past')}
                       style={{
-                        flex: 1, padding: '10px', borderRadius: '10px',
+                        flex: 1, padding: '8px', borderRadius: '8px',
                         border: '1px solid', borderColor: myPerfSubTab === 'past' ? '#495057' : '#dee2e6',
                         background: myPerfSubTab === 'past' ? '#f1f3f5' : '#fff',
                         color: myPerfSubTab === 'past' ? '#212529' : '#495057',
-                        fontWeight: 800, fontSize: '13px', cursor: 'pointer'
+                        fontWeight: 800, fontSize: '12px', cursor: 'pointer'
                       }}
                     >
                       ⌛ 지난 공연 ({pastMyPerformances.length})
@@ -705,11 +705,11 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                   </div>
 
                   {(myPerfSubTab === 'upcoming' ? upcomingMyPerformances : pastMyPerformances).length === 0 ? (
-                    <p style={{ fontSize: '0.9rem', color: '#6c757d', textAlign: 'center', margin: '20px 0', fontWeight: 600 }}>
+                    <p style={{ fontSize: '0.85rem', color: '#6c757d', textAlign: 'center', margin: '16px 0', fontWeight: 600 }}>
                       {myPerfSubTab === 'upcoming' ? '예정된 공연이 없습니다.' : '지난 공연이 없습니다.'}
                     </p>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '55vh', overflowY: 'auto' }}>
                       {(myPerfSubTab === 'upcoming' ? upcomingMyPerformances : pastMyPerformances)
                         .slice()
                         .sort((a, b) => {
@@ -722,22 +722,22 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                           return (
                             <div key={perf.id} style={styles.perfItem}>
                               <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
-                                  <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#212529', wordBreak: 'break-all', overflowWrap: 'break-word' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px', flexWrap: 'wrap' }}>
+                                  <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#212529', wordBreak: 'break-all', overflowWrap: 'break-word' }}>
                                     {perf.title}
                                   </span>
-                                  <span style={{ fontSize: '11px', padding: '3px 9px', borderRadius: '999px', whiteSpace: 'nowrap', background: perf.status === 'APPROVED' ? 'rgba(12,166,120,0.1)' : perf.status === 'REJECTED' ? 'rgba(250,82,82,0.1)' : 'rgba(255,140,0,0.1)', color: perf.status === 'APPROVED' ? '#0ca678' : perf.status === 'REJECTED' ? '#fa5252' : '#ff8c00', fontWeight: 800 }}>
+                                  <span style={{ fontSize: '10.5px', padding: '2px 7px', borderRadius: '999px', whiteSpace: 'nowrap', background: perf.status === 'APPROVED' ? 'rgba(12,166,120,0.1)' : perf.status === 'REJECTED' ? 'rgba(250,82,82,0.1)' : 'rgba(255,140,0,0.1)', color: perf.status === 'APPROVED' ? '#0ca678' : perf.status === 'REJECTED' ? '#fa5252' : '#ff8c00', fontWeight: 800 }}>
                                     {perf.status === 'APPROVED' ? '승인됨' : perf.status === 'REJECTED' ? '반려됨' : '승인 대기중'}
                                   </span>
                                 </div>
-                                <p style={{ margin: '0 0 2px 0', fontSize: '12.5px', color: '#495057', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                                <p style={{ margin: '0 0 1px 0', fontSize: '12px', color: '#495057', fontWeight: 600, whiteSpace: 'nowrap' }}>
                                   📅 {perf.performance_date?.split('T')[0]} ({perf.start_time} ~ {perf.end_time || ''})
                                 </p>
-                                <p style={{ margin: 0, fontSize: '12.5px', color: '#6c757d', fontWeight: 600, wordBreak: 'break-all', overflowWrap: 'break-word' }}>
+                                <p style={{ margin: 0, fontSize: '12px', color: '#6c757d', fontWeight: 600, wordBreak: 'break-all', overflowWrap: 'break-word' }}>
                                   📍 [{perf.region}] {perf.location_name}
                                 </p>
                               </div>
-                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
+                              <div style={{ display: 'flex', gap: '4px', alignItems: 'center', flexShrink: 0 }}>
                                 {isModifiable ? (
                                   <>
                                     <button
@@ -766,7 +766,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                                     </button>
                                   </>
                                 ) : (
-                                  <span style={{ fontSize: '11px', color: '#6c757d', fontWeight: 700, background: '#f1f3f5', padding: '4px 8px', borderRadius: '999px', border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
+                                  <span style={{ fontSize: '10.5px', color: '#6c757d', fontWeight: 700, background: '#f1f3f5', padding: '3px 7px', borderRadius: '999px', border: '1px solid #dee2e6', whiteSpace: 'nowrap' }}>
                                     당일 변경 불가
                                   </span>
                                 )}
@@ -891,7 +891,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                       </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
                       <div style={styles.inputGroup}>
                         <label style={styles.label}>날짜</label>
                         <input
@@ -925,7 +925,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
 
                     <div style={styles.inputGroup}>
                       <label style={styles.label}>상세 위치</label>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                         <input
                           type="text"
                           value={editingPerformance.location_name || ''}
@@ -978,7 +978,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
               {activeModal === 'mapSelect' && (
                 <>
                   <h3 style={{ ...styles.modalTitle, marginBottom: '8px' }}>📍 공연 위치 지정</h3>
-                  <form onSubmit={handleMapKeywordSearch} style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                  <form onSubmit={handleMapKeywordSearch} style={{ display: 'flex', gap: '6px', marginBottom: '10px' }}>
                     <input
                       type="text"
                       value={mapSearchKeyword}
@@ -986,9 +986,9 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                       placeholder="장소명 검색"
                       style={{ ...styles.input, flex: 1 }}
                     />
-                    <button type="submit" style={{ padding: '0 14px', background: '#212529', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '13px', cursor: 'pointer' }}>검색</button>
+                    <button type="submit" style={{ padding: '0 12px', background: '#212529', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 800, fontSize: '12px', cursor: 'pointer' }}>검색</button>
                   </form>
-                  <div ref={mapContainerRef} style={{ width: '100%', height: '300px', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '16px' }} />
+                  <div ref={mapContainerRef} style={{ width: '100%', height: '260px', borderRadius: '10px', border: '1px solid #dee2e6', marginBottom: '12px' }} />
                   <button type="button" onClick={() => setActiveModal('editPerformance')} style={{ ...styles.primaryBtn, margin: 0 }}>위치 선택 완료</button>
                 </>
               )}
@@ -996,7 +996,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
               {activeModal === 'deletePerformance' && deletingPerformance && (
                 <>
                   <h3 style={{ ...styles.modalTitle, color: '#fa5252' }}>⚠️ 공연 취소(삭제)</h3>
-                  <p style={{ fontSize: '0.9rem', color: '#495057', marginBottom: '16px' }}><b>"{deletingPerformance.title}"</b> 공연을 취소하시겠습니까?</p>
+                  <p style={{ fontSize: '0.85rem', color: '#495057', marginBottom: '12px' }}><b>"{deletingPerformance.title}"</b> 공연을 취소하시겠습니까?</p>
                   <form onSubmit={handlePerformanceDeleteSubmit}>
                     <div style={styles.inputGroup}>
                       <label style={styles.label}>취소 사유 <span style={{ color: '#fa5252' }}>*</span></label>
@@ -1005,7 +1005,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                         onChange={(e) => setActionReason(e.target.value)}
                         placeholder="취소 사유를 입력해주세요"
                         style={styles.textarea}
-                        rows="3"
+                        rows="2"
                         required
                       />
                     </div>
@@ -1022,43 +1022,43 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
 };
 
 const styles = {
-  container: { maxWidth: '700px', margin: '20px auto 80px', padding: '0 16px', fontFamily: "'Noto Sans KR', sans-serif", boxSizing: 'border-box' },
-  profileBanner: { background: 'linear-gradient(135deg, #ff8c00 0%, #0ca678 130%)', color: '#fff', padding: '24px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 6px 18px rgba(255,140,0,0.18)', boxSizing: 'border-box' },
-  profileTopRow: { display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '14px' },
+  container: { maxWidth: '650px', margin: '14px auto 70px', padding: '0 14px', fontFamily: "'Noto Sans KR', sans-serif", boxSizing: 'border-box' },
+  profileBanner: { background: 'linear-gradient(135deg, #ff8c00 0%, #0ca678 130%)', color: '#fff', padding: '18px 20px', borderRadius: '16px', marginBottom: '12px', boxShadow: '0 4px 14px rgba(255,140,0,0.15)', boxSizing: 'border-box' },
+  profileTopRow: { display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '10px' },
   avatarContainer: { flexShrink: 0 },
-  avatar: { fontSize: '30px', background: 'rgba(255,255,255,0.25)', width: '56px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' },
-  avatarImg: { width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.7)' },
-  welcomeText: { margin: '0 0 4px 0', fontSize: '1.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', wordBreak: 'keep-all' },
+  avatar: { fontSize: '26px', background: 'rgba(255,255,255,0.25)', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%' },
+  avatarImg: { width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.7)' },
+  welcomeText: { margin: '0 0 2px 0', fontSize: '1.1rem', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', wordBreak: 'keep-all' },
   nicknameText: { color: '#ffffff' },
-  emailText: { margin: 0, fontSize: '0.8rem', opacity: 0.9, fontWeight: 600, wordBreak: 'break-all' },
-  badgeRow: { display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '12px' },
-  bannerBadge: { fontSize: '11px', background: 'rgba(255,255,255,0.22)', padding: '4px 10px', borderRadius: '999px', fontWeight: 800, backdropFilter: 'blur(4px)' },
-  bannerLinkBadge: { fontSize: '11px', background: 'rgba(255,255,255,0.22)', padding: '4px 10px', borderRadius: '999px', fontWeight: 800, color: '#fff', textDecoration: 'none', backdropFilter: 'blur(4px)' },
-  introBox: { background: 'rgba(0,0,0,0.12)', padding: '10px 14px', borderRadius: '12px', backdropFilter: 'blur(4px)' },
-  introText: { margin: 0, fontSize: '0.84rem', opacity: 0.95, fontStyle: 'italic', fontWeight: 600, wordBreak: 'break-all', color: '#fff' },
-  card: { background: '#fff', padding: '20px 24px', borderRadius: '18px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)', border: '1px solid #dee2e6', boxSizing: 'border-box', overflow: 'hidden' },
-  cardTitle: { margin: '0 0 16px 0', fontSize: '1.05rem', fontWeight: 900, color: '#212529', letterSpacing: '-0.02em' },
-  subText: { margin: '0 0 12px 0', fontSize: '0.85rem', color: '#6c757d', fontWeight: 600 },
-  inputGroup: { marginBottom: '14px', display: 'flex', flexDirection: 'column', width: '100%', boxSizing: 'border-box' },
-  label: { fontSize: '11.5px', fontWeight: 800, color: '#495057', marginBottom: '6px', textTransform: 'uppercase' },
-  input: { width: '100%', padding: '11px 14px', fontSize: '13px', borderRadius: '10px', border: '1px solid #dee2e6', outline: 'none', background: '#f1f3f5', fontWeight: 600, color: '#212529', boxSizing: 'border-box' },
-  textarea: { width: '100%', padding: '11px 14px', fontSize: '13px', borderRadius: '10px', border: '1px solid #dee2e6', outline: 'none', resize: 'vertical', fontFamily: 'inherit', background: '#f1f3f5', fontWeight: 600, color: '#212529', boxSizing: 'border-box' },
-  fileUploadBtn: { padding: '10px 14px', fontSize: '12.5px', fontWeight: 700, backgroundColor: '#f1f3f5', color: '#495057', borderRadius: '10px', border: '1px solid #dee2e6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' },
-  mapPickerBtn: { padding: '11px 14px', background: '#212529', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '12.5px', cursor: 'pointer', whiteSpace: 'nowrap' },
-  primaryBtn: { width: '100%', padding: '12px', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', fontSize: '13.5px', backgroundColor: '#ff8c00', color: '#fff', marginTop: '6px', boxShadow: '0 4px 14px rgba(255,140,0,0.25)' },
-  dangerBtn: { width: '100%', padding: '12px', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', fontSize: '13.5px', backgroundColor: '#fa5252', color: '#fff', boxShadow: '0 4px 14px rgba(250,82,82,0.25)' },
-  menuList: { display: 'flex', flexDirection: 'column', gap: '8px' },
-  menuItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '12px 14px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '12px', fontSize: '13.5px', fontWeight: 700, color: '#343a40', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s ease', boxSizing: 'border-box' },
+  emailText: { margin: 0, fontSize: '0.78rem', opacity: 0.9, fontWeight: 600, wordBreak: 'break-all' },
+  badgeRow: { display: 'flex', gap: '5px', flexWrap: 'wrap', marginBottom: '8px' },
+  bannerBadge: { fontSize: '10.5px', background: 'rgba(255,255,255,0.22)', padding: '3px 8px', borderRadius: '999px', fontWeight: 800, backdropFilter: 'blur(4px)' },
+  bannerLinkBadge: { fontSize: '10.5px', background: 'rgba(255,255,255,0.22)', padding: '3px 8px', borderRadius: '999px', fontWeight: 800, color: '#fff', textDecoration: 'none', backdropFilter: 'blur(4px)' },
+  introBox: { background: 'rgba(0,0,0,0.12)', padding: '8px 12px', borderRadius: '10px', backdropFilter: 'blur(4px)' },
+  introText: { margin: 0, fontSize: '0.8rem', opacity: 0.95, fontStyle: 'italic', fontWeight: 600, wordBreak: 'break-all', color: '#fff' },
+  card: { background: '#fff', padding: '16px 20px', borderRadius: '16px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)', border: '1px solid #dee2e6', boxSizing: 'border-box', overflow: 'hidden' },
+  cardTitle: { margin: '0 0 12px 0', fontSize: '0.98rem', fontWeight: 900, color: '#212529', letterSpacing: '-0.02em' },
+  subText: { margin: '0 0 10px 0', fontSize: '0.82rem', color: '#6c757d', fontWeight: 600 },
+  inputGroup: { marginBottom: '10px', display: 'flex', flexDirection: 'column', width: '100%', boxSizing: 'border-box' },
+  label: { fontSize: '11px', fontWeight: 800, color: '#495057', marginBottom: '4px', textTransform: 'uppercase' },
+  input: { width: '100%', padding: '9px 12px', fontSize: '12.5px', borderRadius: '9px', border: '1px solid #dee2e6', outline: 'none', background: '#f1f3f5', fontWeight: 600, color: '#212529', boxSizing: 'border-box' },
+  textarea: { width: '100%', padding: '9px 12px', fontSize: '12.5px', borderRadius: '9px', border: '1px solid #dee2e6', outline: 'none', resize: 'vertical', fontFamily: 'inherit', background: '#f1f3f5', fontWeight: 600, color: '#212529', boxSizing: 'border-box' },
+  fileUploadBtn: { padding: '9px 12px', fontSize: '12px', fontWeight: 700, backgroundColor: '#f1f3f5', color: '#495057', borderRadius: '9px', border: '1px solid #dee2e6', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' },
+  mapPickerBtn: { padding: '9px 12px', background: '#212529', color: '#fff', border: 'none', borderRadius: '9px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
+  primaryBtn: { width: '100%', padding: '11px', border: 'none', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '13px', backgroundColor: '#ff8c00', color: '#fff', marginTop: '4px', boxShadow: '0 3px 10px rgba(255,140,0,0.2)' },
+  dangerBtn: { width: '100%', padding: '11px', border: 'none', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', fontSize: '13px', backgroundColor: '#fa5252', color: '#fff', boxShadow: '0 3px 10px rgba(250,82,82,0.2)' },
+  menuList: { display: 'flex', flexDirection: 'column', gap: '6px' },
+  menuItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', padding: '10px 12px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '10px', fontSize: '13px', fontWeight: 700, color: '#343a40', cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s ease', boxSizing: 'border-box' },
   menuItemLabel: { display: 'flex', alignItems: 'center', gap: '6px' },
   menuArrow: { color: '#adb5bd', fontWeight: 800 },
   modalOverlay: { position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(4px)' },
-  modalContent: { background: '#fff', width: '90%', maxWidth: '520px', padding: '24px', borderRadius: '18px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', position: 'relative', maxHeight: '90vh', overflowY: 'auto', border: '1px solid #dee2e6', boxSizing: 'border-box' },
-  closeBtn: { position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#adb5bd', fontWeight: 800 },
-  modalTitle: { margin: '0 0 16px 0', fontSize: '1.15rem', color: '#212529', fontWeight: 900 },
-  modalText: { margin: 0, fontSize: '0.9rem', lineHeight: '1.6', color: '#495057', fontWeight: 500 },
-  perfItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '14px', background: '#f1f3f5', borderRadius: '12px', border: '1px solid #dee2e6', boxSizing: 'border-box', gap: '12px', width: '100%' },
-  smallEditBtn: { padding: '6px 12px', fontSize: '12px', fontWeight: 800, backgroundColor: 'rgba(12,166,120,0.1)', color: '#0ca678', border: '1px solid rgba(12,166,120,0.3)', borderRadius: '8px', cursor: 'pointer' },
-  smallDeleteBtn: { padding: '6px 12px', fontSize: '12px', fontWeight: 800, backgroundColor: 'rgba(250,82,82,0.1)', color: '#fa5252', border: '1px solid rgba(250,82,82,0.3)', borderRadius: '8px', cursor: 'pointer' }
+  modalContent: { background: '#fff', width: '90%', maxWidth: '460px', padding: '20px', borderRadius: '16px', boxShadow: '0 8px 20px rgba(0,0,0,0.1)', position: 'relative', maxHeight: '85vh', overflowY: 'auto', border: '1px solid #dee2e6', boxSizing: 'border-box' },
+  closeBtn: { position: 'absolute', top: '14px', right: '14px', background: 'none', border: 'none', fontSize: '16px', cursor: 'pointer', color: '#adb5bd', fontWeight: 800 },
+  modalTitle: { margin: '0 0 12px 0', fontSize: '1.05rem', color: '#212529', fontWeight: 900 },
+  modalText: { margin: 0, fontSize: '0.85rem', lineHeight: '1.5', color: '#495057', fontWeight: 500 },
+  perfItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '10px 12px', background: '#f1f3f5', borderRadius: '10px', border: '1px solid #dee2e6', boxSizing: 'border-box', gap: '10px', width: '100%' },
+  smallEditBtn: { padding: '5px 10px', fontSize: '11.5px', fontWeight: 800, backgroundColor: 'rgba(12,166,120,0.1)', color: '#0ca678', border: '1px solid rgba(12,166,120,0.3)', borderRadius: '7px', cursor: 'pointer' },
+  smallDeleteBtn: { padding: '5px 10px', fontSize: '11.5px', fontWeight: 800, backgroundColor: 'rgba(250,82,82,0.1)', color: '#fa5252', border: '1px solid rgba(250,82,82,0.3)', borderRadius: '7px', cursor: 'pointer' }
 };
 
 export default MyPage;
