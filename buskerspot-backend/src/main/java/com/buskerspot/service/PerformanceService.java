@@ -170,6 +170,15 @@ public Performance createPerformance(Long userId, Map<String, Object> req) {
             }
         }
 
+        // 공연 날짜(performance_date) 수정 감지 추가
+        if (req.get("performance_date") != null) {
+            java.time.LocalDate newDate = java.time.LocalDate.parse(req.get("performance_date").toString());
+            if (!newDate.equals(p.getPerformanceDate())) {
+                p.setPerformanceDate(newDate);
+                modifiedFields.add("공연 날짜");
+            }
+        }
+
         if (req.get("start_time") != null || req.get("end_time") != null) {
             boolean timeChanged = false;
             if (req.get("start_time") != null) {
@@ -204,6 +213,24 @@ public Performance createPerformance(Long userId, Map<String, Object> req) {
             if (!newRegion.equals(p.getRegion())) {
                 p.setRegion(newRegion);
                 modifiedFields.add("지역");
+            }
+        }
+
+        // 💡 장르(genre) 수정 감지 추가
+        if (req.get("genre") != null) {
+            String newGenre = (String) req.get("genre");
+            if (!newGenre.equals(p.getGenre())) {
+                p.setGenre(newGenre);
+                modifiedFields.add("장르");
+            }
+        }
+
+        // 💡 공연 설명(description) 수정 감지 추가
+        if (req.get("description") != null) {
+            String newDescription = (String) req.get("description");
+            if (!newDescription.equals(p.getDescription())) {
+                p.setDescription(newDescription);
+                modifiedFields.add("공연 설명");
             }
         }
 

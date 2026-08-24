@@ -8,7 +8,6 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoDataConsumed, pendingGoogleData, onGoogleDataConsumed }) {
   const [view, setView] = useState('form'); // 'landing' | 'form'
-
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
 
@@ -192,6 +191,44 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     setErrorMessage('');
     setSuccessMessage('');
 
+    // 네이티브 앱(안드로이드/iOS)에서는 네이티브 로그인 사용
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const result = await SocialLogin.login({
+          provider: 'google',
+          options: {}, // scopes 제거
+        });
+        const idToken = result.result.idToken;
+
+        if (!idToken) {
+          setErrorMessage('구글 로그인에 실패했습니다. (idToken 없음)');
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/api/auth/google/native`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken }),
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          if (onLoginSuccess) onLoginSuccess(data.user);
+          handleClose();
+          window.location.reload();
+        } else {
+          setErrorMessage(data.message || '구글 로그인 실패');
+        }
+      } catch (err) {
+        console.error('Google native login error:', err);
+        setErrorMessage('구글 로그인 중 오류가 발생했습니다.');
+      }
+      return;
+    }
+
+    // 웹 브라우저에서는 기존 리다이렉트 방식 유지
     const CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
 
     if (!CLIENT_ID) {
@@ -202,17 +239,13 @@ function AuthModal({ isOpen, onClose, onLoginSuccess, pendingKakaoData, onKakaoD
     const formData = { email, nickname, password };
     sessionStorage.setItem('google_signup_form', JSON.stringify(formData));
 
-    const REDIRECT_URI = (window.location.hostname === 'localhost' && !Capacitor.isNativePlatform())
+    const REDIRECT_URI = window.location.hostname === 'localhost'
       ? 'http://localhost:3000/oauth/google/callback'
       : 'https://buskerspot.pages.dev/oauth/google/callback';
 
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=email%20profile`;
 
-    if (Capacitor.isNativePlatform()) {
-      await Browser.open({ url: googleAuthUrl });
-    } else {
-      window.location.href = googleAuthUrl;
-    }
+    window.location.href = googleAuthUrl;
   };
 
   // 회원가입 및 로그인 처리 폼 제출
