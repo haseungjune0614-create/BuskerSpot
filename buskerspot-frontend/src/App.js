@@ -17,8 +17,19 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://buskerspot.onrend
 // 이미지 URL 처리 헬퍼 함수
 const getImageUrl = (path) => {
   if (!path) return null;
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:')) return path;
-  return `${API_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  let cleaned = path.trim();
+
+  // 과거 버그로 절대 URL이 중복으로 이어붙어 저장된 데이터 방어적으로 정리
+  const httpMatches = [...cleaned.matchAll(/https?:\/\//g)];
+  if (httpMatches.length > 1) {
+    const lastIndex = httpMatches[httpMatches.length - 1].index;
+    cleaned = cleaned.slice(lastIndex).trim();
+  }
+
+  if (cleaned.startsWith('http://') || cleaned.startsWith('https://') || cleaned.startsWith('blob:')) {
+    return cleaned;
+  }
+  return `${API_BASE_URL}${cleaned.startsWith('/') ? '' : '/'}${cleaned}`;
 };
 
 // 오늘 날짜 문자열 반환 헬퍼 함수

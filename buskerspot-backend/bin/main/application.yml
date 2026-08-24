@@ -1,0 +1,83 @@
+# ==========================================
+# 공통 설정 (기본값: dev)
+# ==========================================
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev # 기본 실행 프로필 (Render 배포 시 SPRING_PROFILES_ACTIVE=prod 환경변수로 전환)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/buskerspot
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1211}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+jwt:
+  secret: ${JWT_SECRET:everystay_1592_band_bumsu_9027_secure_key}
+  expiration: 86400000
+
+api:
+  groq:
+    key: ${GROQ_API_KEY}
+  resend:
+    key: ${RESEND_API_KEY}
+  kakao:
+    rest-key: ${KAKAO_REST_KEY}
+    client-secret: ${KAKAO_CLIENT_SECRET}
+    redirect-uri: ${KAKAO_REDIRECT_URI:http://localhost:3000/oauth/kakao/callback}
+  google:
+    client-id: ${GOOGLE_CLIENT_ID}
+    client-secret: ${GOOGLE_CLIENT_SECRET}
+    redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:3000/oauth/google/callback}
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+
+---
+# ==========================================
+# 개발용 환경 (dev 프로필)
+# ==========================================
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/buskerspot_dev
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:1211}
+
+---
+# ==========================================
+# 배포용 환경 (prod 프로필 - Render)
+# ==========================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+jwt:
+  secret: ${JWT_SECRET}
+
+api:
+  kakao:
+    redirect-uri: https://buskerspot.pages.dev/oauth/kakao/callback
+  google:
+    redirect-uri: https://buskerspot.pages.dev/oauth/google/callback
