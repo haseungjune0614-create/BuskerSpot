@@ -39,7 +39,6 @@ const MapView = ({ performances = [], center = { lat: 37.5665, lng: 126.9780 }, 
     markersRef.current = [];
 
     if (!performances || performances.length === 0) {
-      console.log('📌 지도에 표시할 공연 데이터가 없습니다.');
       return;
     }
 
