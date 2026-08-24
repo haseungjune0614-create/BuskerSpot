@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
 
+// 💡 화면 폭이 좁을 때(모바일) 반응형 처리를 위한 커스텀 훅
+const useIsMobile = (breakpoint = 480) => {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth <= breakpoint : false
+  );
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= breakpoint);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [breakpoint]);
+  return isMobile;
+};
+
 const getTodayDateStr = () => {
   const today = new Date();
   const year = today.getFullYear();
@@ -21,6 +35,7 @@ export default function ArtistProfile({
   const [imgError, setImgError] = useState(false);
   const [artistPerformances, setArtistPerformances] = useState([]);
   const [perfSubTab, setPerfSubTab] = useState('upcoming');
+  const isMobile = useIsMobile(480); // 💡 모바일 감지 훅 적용
 
   useEffect(() => {
     setImgError(false);
@@ -71,7 +86,8 @@ export default function ArtistProfile({
     ? (rawInsta.startsWith('http') ? rawInsta : `https://instagram.com/${rawInsta.replace('@', '')}`) 
     : null;
 
-  const rawProfileImg = artist.profile_image || artist.artist_profile_image;
+  // 💡 앞뒤 공백 제거(.trim())를 추가하여 이중 URL 생성 원천 차단
+  const rawProfileImg = (artist.profile_image || artist.artist_profile_image)?.trim();
   const profileImgSrc = rawProfileImg 
     ? (rawProfileImg.startsWith('http://') || rawProfileImg.startsWith('https://') || rawProfileImg.startsWith('blob:') 
         ? rawProfileImg 
@@ -96,7 +112,7 @@ export default function ArtistProfile({
       background: '#ffffff',
       border: '1px solid #dee2e6',
       borderRadius: '18px',
-      padding: '28px',
+      padding: isMobile ? '18px' : '28px', // 💡 모바일에서 카드 패딩 축소
       boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
       display: 'flex',
       flexDirection: 'column',
@@ -206,25 +222,26 @@ export default function ArtistProfile({
         </div>
       </div>
 
+      {/* 💡 평점 통계 박스 (모바일 글자 크기 및 줄바꿈 방지 적용) */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: '1fr 1fr',
         gap: '12px',
         background: '#f1f3f5',
-        padding: '16px',
+        padding: isMobile ? '12px' : '16px',
         borderRadius: '12px',
         textAlign: 'center',
         border: '1px solid #dee2e6'
       }}>
         <div>
           <div style={{ fontSize: '11.5px', color: '#6c757d', marginBottom: '4px', fontWeight: 700 }}>⭐ 전체 평점 평균</div>
-          <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#ff8c00' }}>
-            {avgRating} <span style={{ fontSize: '12px', color: '#6c757d', fontWeight: 600 }}>({reviewCount}개 리뷰)</span>
+          <div style={{ fontSize: isMobile ? '0.85rem' : '1.1rem', fontWeight: 900, color: '#ff8c00', whiteSpace: 'nowrap' }}>
+            {avgRating} <span style={{ fontSize: isMobile ? '10.5px' : '12px', color: '#6c757d', fontWeight: 600 }}>({reviewCount}개 리뷰)</span>
           </div>
         </div>
         <div style={{ borderLeft: '1px solid #dee2e6' }}>
           <div style={{ fontSize: '11.5px', color: '#6c757d', marginBottom: '4px', fontWeight: 700 }}>❤️ 팔로워 수</div>
-          <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#212529' }}>
+          <div style={{ fontSize: isMobile ? '0.85rem' : '1.1rem', fontWeight: 900, color: '#212529' }}>
             {artist.follower_count ?? 0}명
           </div>
         </div>
@@ -241,22 +258,26 @@ export default function ArtistProfile({
 
       {!hidePerformances && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <h4 style={{ margin: 0, fontSize: '13px', color: '#495057', fontWeight: 800, textTransform: 'uppercase' }}>📅 아티스트 공연 일정</h4>
+          {/* 💡 공연 일정 제목 및 탭 버튼 줄 (whiteSpace: 'nowrap' 및 반응형 크기 적용) */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
+            <h4 style={{ margin: 0, fontSize: isMobile ? '12px' : '13px', color: '#495057', fontWeight: 800, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+              📅 아티스트 공연 일정
+            </h4>
             
             <div style={{ display: 'flex', gap: '6px' }}>
               <button
                 onClick={() => setPerfSubTab('upcoming')}
                 style={{
-                  padding: '5px 10px',
+                  padding: isMobile ? '4px 8px' : '5px 10px',
                   borderRadius: '8px',
                   border: '1px solid',
                   borderColor: perfSubTab === 'upcoming' ? '#ff8c00' : '#dee2e6',
                   background: perfSubTab === 'upcoming' ? '#fff9f0' : '#ffffff',
                   color: perfSubTab === 'upcoming' ? '#d97706' : '#6c757d',
-                  fontSize: '11.5px',
+                  fontSize: isMobile ? '10.5px' : '11.5px',
                   fontWeight: 800,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 예정 ({upcomingPerfs.length})
@@ -264,15 +285,16 @@ export default function ArtistProfile({
               <button
                 onClick={() => setPerfSubTab('past')}
                 style={{
-                  padding: '5px 10px',
+                  padding: isMobile ? '4px 8px' : '5px 10px',
                   borderRadius: '8px',
                   border: '1px solid',
                   borderColor: perfSubTab === 'past' ? '#495057' : '#dee2e6',
                   background: perfSubTab === 'past' ? '#f1f3f5' : '#ffffff',
                   color: perfSubTab === 'past' ? '#212529' : '#6c757d',
-                  fontSize: '11.5px',
+                  fontSize: isMobile ? '10.5px' : '11.5px',
                   fontWeight: 800,
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
                 }}
               >
                 지난 ({pastPerfs.length})

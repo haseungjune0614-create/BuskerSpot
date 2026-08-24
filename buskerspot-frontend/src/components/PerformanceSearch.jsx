@@ -66,6 +66,90 @@ const sortList = [
   { label: '⭐ 평점순', v: 'rating' },
 ];
 
+// 💡 날짜 스트립용 헬퍼 함수
+const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
+
+const generateDateStrip = (days = 13) => {
+  const result = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (let i = 0; i < days; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    result.push({
+      dateStr: `${yyyy}-${mm}-${dd}`,
+      day: dd,
+      dayOfWeek: dayLabels[d.getDay()],
+      isToday: i === 0,
+      isSunday: d.getDay() === 0,
+      isSaturday: d.getDay() === 6,
+    });
+  }
+  return result;
+};
+
+// 💡 DateStrip 컴포넌트
+const DateStrip = ({ selectedDate, onSelectDate }) => {
+  const dates = React.useMemo(() => generateDateStrip(13), []);
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        gap: '8px',
+        overflowX: 'auto',
+        paddingBottom: '4px',
+        WebkitOverflowScrolling: 'touch',
+      }}
+    >
+      {dates.map((d) => {
+        const isSelected = selectedDate === d.dateStr;
+        const labelColor = d.isToday
+          ? (isSelected ? '#fff' : C.text)
+          : d.isSunday
+          ? (isSelected ? '#fff' : C.coral)
+          : d.isSaturday
+          ? (isSelected ? '#fff' : '#4263eb')
+          : (isSelected ? '#fff' : C.text);
+
+        return (
+          <button
+            key={d.dateStr}
+            type="button"
+            onClick={() => onSelectDate(d.dateStr)}
+            style={{
+              flex: '0 0 auto',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px',
+              width: '58px',
+              padding: '10px 0',
+              borderRadius: '14px',
+              border: `1px solid ${isSelected ? C.marigold : C.border}`,
+              background: isSelected ? C.marigold : C.surface,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <span style={{ fontSize: '11px', fontWeight: 700, color: d.isToday ? labelColor : (isSelected ? '#fff' : labelColor) }}>
+              {d.isToday ? '오늘' : d.dayOfWeek}
+            </span>
+            <span style={{ fontSize: '15px', fontWeight: 800, color: isSelected ? '#fff' : C.text }}>
+              {d.day}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
 // 하버사인 공식 (두 좌표 사이 거리 계산 - km)
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   if (!lat1 || !lon1 || !lat2 || !lon2) return null;
@@ -223,6 +307,9 @@ export default function PerformanceSearch({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [inputSubRegion, setInputSubRegion] = useState('전체');
 
+  // 💡 지도 인스턴스를 저장할 ref 추가
+  const mapRef = React.useRef(null);
+
   const isMobile = useIsMobile(768);
   const isSmallPhone = useIsMobile(480);
 
@@ -231,7 +318,12 @@ export default function PerformanceSearch({
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setCenter({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setCenter({ lat, lng });
+          if (mapRef.current && window.kakao) {
+            mapRef.current.panTo(new window.kakao.maps.LatLng(lat, lng));
+          }
         },
         (err) => console.warn('GPS 위치를 불러올 수 없습니다:', err),
         { enableHighAccuracy: true }
@@ -242,11 +334,6 @@ export default function PerformanceSearch({
   React.useEffect(() => {
     handleGetMyCurrentLocation();
   }, []);
-
-  // 오늘 날짜 설정
-  const setToday = () => {
-    setInputDate(new Date().toISOString().split('T')[0]);
-  };
 
   const handleMainRegionChange = (r) => {
     setInputRegion(r);
@@ -289,10 +376,6 @@ export default function PerformanceSearch({
     <>
       <style>{`
         .bsp-wrap-row { display: flex; flex-wrap: wrap; gap: 8px; }
-        .bsp-date-input {
-          background: ${C.surface}; border: 1px solid ${C.border}; color: ${C.text};
-          padding: 8px 12px; border-radius: 10px; font-size: 13px; outline: none;
-        }
         .bsp-search-btn {
           background: linear-gradient(135deg, ${C.marigold}, #ffab40); color: #ffffff; border: none;
           border-radius: 12px; padding: 11px 26px; font-weight: 800; font-size: 14px; cursor: pointer;
@@ -307,16 +390,6 @@ export default function PerformanceSearch({
         }
         .bsp-card:hover { border-color: ${C.borderLight}; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,0.06); }
         .bsp-card.active { border-color: ${C.marigold}; box-shadow: 0 0 0 2px ${C.marigoldSoft}; }
-
-        .bsp-live-dot {
-          width: 7px; height: 7px; border-radius: 50%; background: ${C.coral}; display: inline-block;
-          animation: bsp-pulse 1.4s ease-in-out infinite;
-        }
-        @keyframes bsp-pulse {
-          0% { box-shadow: 0 0 0 0 rgba(250,82,82,0.5); }
-          70% { box-shadow: 0 0 0 7px rgba(250,82,82,0); }
-          100% { box-shadow: 0 0 0 0 rgba(250,82,82,0); }
-        }
 
         .bsp-wave-bar { animation: bsp-wave 1.6s ease-in-out infinite; transform-origin: bottom; }
         @keyframes bsp-wave {
@@ -358,10 +431,7 @@ export default function PerformanceSearch({
             <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '18px', background: C.surface, padding: isMobile ? '16px' : '20px', borderRadius: '14px', border: `1px solid ${C.border}`, boxShadow: '0 4px 12px rgba(0,0,0,0.04)' }}>
               <div>
                 <span style={{ color: C.textMuted, fontSize: '12px', fontWeight: 700, display: 'block', marginBottom: '8px' }}>날짜</span>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <input type="date" value={inputDate} onChange={(e) => setInputDate(e.target.value)} className="bsp-date-input" />
-                  <button type="button" className="bsp-pill bsp-pill--marigold" onClick={setToday} style={{ padding: '8px 16px', fontSize: '13px', background: C.marigoldDim, color: C.marigold, border: `1px solid ${C.marigold}`, borderRadius: '999px', fontWeight: 700, cursor: 'pointer' }}>오늘</button>
-                </div>
+                <DateStrip selectedDate={inputDate} onSelectDate={setInputDate} />
               </div>
 
               <div>
@@ -417,13 +487,13 @@ export default function PerformanceSearch({
       <main style={{ background: C.bg, minHeight: '100vh', padding: isMobile ? '20px 12px 40px' : '32px 20px 60px' }}>
         <div style={{ maxWidth: '1240px', margin: '0 auto', display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '16px' : '24px', alignItems: 'flex-start' }}>
           <section style={{ flex: isMobile ? 'none' : (isMapVisible ? '1.1' : '1'), width: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
-              <h3 style={{ color: C.text, fontSize: '1.1rem', fontWeight: 800, margin: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', flexWrap: 'wrap', gap: '8px' }}>
+              <h3 style={{ color: C.text, fontSize: isMobile ? '0.95rem' : '1.1rem', fontWeight: 800, margin: 0, whiteSpace: 'nowrap' }}>
                 버스킹 목록 <span style={{ color: C.marigold }}>({sortedPerformances.length}개 검색됨)</span>
               </h3>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button type="button" className="bsp-icon-btn" onClick={handleGetMyCurrentLocation}>📍 내 위치 새로고침</button>
-                <button type="button" className="bsp-icon-btn" onClick={() => setIsMapVisible(!isMapVisible)}>{isMapVisible ? '🗺️ 지도 접기' : '🗺️ 지도 보기'}</button>
+                <button type="button" className="bsp-icon-btn" onClick={handleGetMyCurrentLocation} style={{ fontSize: isMobile ? '11px' : '12.5px', padding: isMobile ? '6px 10px' : '8px 14px' }}>📍 내 위치 새로고침</button>
+                <button type="button" className="bsp-icon-btn" onClick={() => setIsMapVisible(!isMapVisible)} style={{ fontSize: isMobile ? '11px' : '12.5px', padding: isMobile ? '6px 10px' : '8px 14px' }}>{isMapVisible ? '🗺️ 지도 접기' : '🗺️ 지도 보기'}</button>
               </div>
             </div>
 
@@ -442,7 +512,22 @@ export default function PerformanceSearch({
                   const isBookmarked = bookmarkedIds.includes(perf.id);
 
                   return (
-                    <div key={perf.id} className={`bsp-card ${selectedPerf?.id === perf.id ? 'active' : ''}`} onClick={() => setSelectedPerf(perf)}>
+                    <div
+                      key={perf.id}
+                      className={`bsp-card ${selectedPerf?.id === perf.id ? 'active' : ''}`}
+                      onClick={() => {
+                        setSelectedPerf(perf);
+                        if (perf.lat && perf.lng) {
+                          const lat = Number(perf.lat);
+                          const lng = Number(perf.lng);
+                          setCenter({ lat, lng });
+                          if (mapRef.current && window.kakao) {
+                            mapRef.current.panTo(new window.kakao.maps.LatLng(lat, lng));
+                          }
+                          if (!isMapVisible) setIsMapVisible(true);
+                        }
+                      }}
+                    >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '14px', width: isMobile ? '100%' : 'auto' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', minWidth: '54px' }}>
                           <span style={{ color: C.text, fontSize: '1.3rem', fontWeight: 800 }}>{perf.start_time?.slice(0, 5)}</span>
@@ -528,7 +613,13 @@ export default function PerformanceSearch({
           {isMapVisible && (
             <section style={{ flex: isMobile ? 'none' : '0.9', width: '100%', position: isMobile ? 'relative' : 'sticky', top: isMobile ? 0 : '20px', order: isMobile ? -1 : 0 }}>
               <div style={{ borderRadius: '18px', overflow: 'hidden', border: `1px solid ${C.border}`, height: isMobile ? '280px' : '640px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
-                <Map center={center} style={{ width: '100%', height: '100%' }} level={4}>
+                <Map
+                  center={center}
+                  style={{ width: '100%', height: '100%' }}
+                  level={4}
+                  isPanto={true}
+                  onCreate={(map) => { mapRef.current = map; }}
+                >
                   <MapMarker position={center} />
                   {finalFilteredPerformances.map((perf) => {
                     if (!perf.lat || !perf.lng) return null;
