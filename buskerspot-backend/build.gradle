@@ -18,7 +18,8 @@ configurations {
 }
 
 repositories {
-    // 429 에러(Too Many Requests) 우회를 위한 공식 미러 및 메인 저장소 추가
+    // 429 에러(Too Many Requests) 완전 우회를 위한 알리바바 미러 및 공식 백업 저장소
+    maven { url 'https://maven.aliyun.com/repository/public/' }
     maven { url 'https://repo1.maven.org/maven2/' }
     mavenCentral()
     maven { url 'https://plugins.gradle.org/m2/' }
