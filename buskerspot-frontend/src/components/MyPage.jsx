@@ -14,6 +14,16 @@ const getTodayDateStr = () => {
   return `${year}-${month}-${day}`;
 };
 
+// 💡 [수정] 서버가 상대경로(/uploads/xxx.jpg)로 이미지 URL을 내려줄 때
+// 프론트엔드 주소가 아닌 API 서버 주소를 붙여주기 위한 헬퍼 함수
+export const getFullImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  return `${API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
 const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -422,7 +432,7 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
           <div style={styles.profileTopRow}>
             <div style={styles.avatarContainer}>
               {profileImage ? (
-                <img src={profileImage} alt="프로필" style={styles.avatarImg} />
+                <img src={getFullImageUrl(profileImage)} alt="프로필" style={styles.avatarImg} />
               ) : (
                 <div style={styles.avatar}>🎸</div>
               )}
@@ -598,6 +608,16 @@ const MyPage = ({ currentUser, onUpdateUser, onLogout, onDataRefresh }) => {
                           <input type="file" accept="image/*" onChange={handleImageFileChange} style={{ display: 'none' }} />
                         </label>
                       </div>
+                      {profileImage && (
+                        <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <img
+                            src={getFullImageUrl(profileImage)}
+                            alt="미리보기"
+                            style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '1px solid #dee2e6' }}
+                          />
+                          <span style={{ fontSize: '11.5px', color: '#868e96', fontWeight: 600 }}>미리보기</span>
+                        </div>
+                      )}
                     </div>
 
                     <div style={styles.inputGroup}>
