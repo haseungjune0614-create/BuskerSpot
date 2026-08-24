@@ -2,6 +2,7 @@ package com.buskerspot.repository;
 
 import com.buskerspot.entity.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -26,4 +27,11 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     default Optional<Follow> findByUserIdAndArtistId(Long userId, Long artistId) {
         return findByFollowerIdAndFollowingId(userId, artistId);
     }
+
+    // 💡 [신규] 유저 삭제 시 관련 팔로우 기록 정리용
+    @Transactional
+    void deleteByFollowerId(Long followerId);
+
+    @Transactional
+    void deleteByFollowingId(Long followingId);
 }
