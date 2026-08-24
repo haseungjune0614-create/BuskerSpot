@@ -9,7 +9,9 @@ COPY gradle gradle
 COPY build.gradle settings.gradle ./
 RUN chmod +x ./gradlew
 RUN --mount=type=cache,target=/root/.gradle \
-    ./gradlew dependencies --no-daemon
+    for i in 1 2 3 4 5 6; do \
+      ./gradlew bootJar -x test --no-daemon && break || (echo "재시도 $i..." && sleep 30); \
+    done
 
 COPY src src
 RUN --mount=type=cache,target=/root/.gradle \
