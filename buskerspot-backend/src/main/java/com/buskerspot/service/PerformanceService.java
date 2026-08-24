@@ -11,8 +11,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -157,21 +159,76 @@ public Performance createPerformance(Long userId, Map<String, Object> req) {
         Performance p = performanceRepository.findById(id)
                 .orElseThrow(() -> new CustomException("공연 없음", HttpStatus.NOT_FOUND));
 
-        if (req.get("title") != null) p.setTitle((String) req.get("title"));
-        if (req.get("start_time") != null) p.setStartTime(java.time.LocalTime.parse(req.get("start_time").toString()));
-        if (req.get("end_time") != null) p.setEndTime(java.time.LocalTime.parse(req.get("end_time").toString()));
-        if (req.get("location_name") != null) p.setLocation_name((String) req.get("location_name"));
-        if (req.get("region") != null) p.setRegion((String) req.get("region"));
-        if (req.get("latitude") != null) p.setLat(Double.valueOf(req.get("latitude").toString()));
-        if (req.get("longitude") != null) p.setLng(Double.valueOf(req.get("longitude").toString()));
+        List<String> modifiedFields = new ArrayList<>();
+
+        if (req.get("title") != null) {
+            String newTitle = (String) req.get("title");
+            if (!newTitle.equals(p.getTitle())) {
+                p.setTitle(newTitle);
+                modifiedFields.add("공연 제목");
+            }
+        }
+
+        if (req.get("start_time") != null || req.get("end_time") != null) {
+            boolean timeChanged = false;
+            if (req.get("start_time") != null) {
+                java.time.LocalTime newStart = java.time.LocalTime.parse(req.get("start_time").toString());
+                if (!newStart.equals(p.getStartTime())) {
+                    p.setStartTime(newStart);
+                    timeChanged = true;
+                }
+            }
+            if (req.get("end_time") != null) {
+                java.time.LocalTime newEnd = java.time.LocalTime.parse(req.get("end_time").toString());
+                if (!newEnd.equals(p.getEndTime())) {
+                    p.setEndTime(newEnd);
+                    timeChanged = true;
+                }
+            }
+            if (timeChanged) {
+                modifiedFields.add("공연 시간");
+            }
+        }
+
+        if (req.get("location_name") != null) {
+            String newLoc = (String) req.get("location_name");
+            if (!newLoc.equals(p.getLocation_name())) {
+                p.setLocation_name(newLoc);
+                modifiedFields.add("공연 위치");
+            }
+        }
+
+        if (req.get("region") != null) {
+            String newRegion = (String) req.get("region");
+            if (!newRegion.equals(p.getRegion())) {
+                p.setRegion(newRegion);
+                modifiedFields.add("지역");
+            }
+        }
+
+        if (req.get("latitude") != null || req.get("longitude") != null) {
+            Double newLat = req.get("latitude") != null ? Double.valueOf(req.get("latitude").toString()) : p.getLat();
+            Double newLng = req.get("longitude") != null ? Double.valueOf(req.get("longitude").toString()) : p.getLng();
+            if (!Objects.equals(newLat, p.getLat()) || !Objects.equals(newLng, p.getLng())) {
+                p.setLat(newLat);
+                p.setLng(newLng);
+                if (!modifiedFields.contains("공연 위치")) {
+                    modifiedFields.add("공연 위치");
+                }
+            }
+        }
 
         Performance saved = performanceRepository.save(p);
 
         // 승인된(APPROVED) 공연을 수정했을 때만 팔로워에게 알림 전송
         if ("APPROVED".equals(saved.getStatus())) {
+            String updateDetail = modifiedFields.isEmpty() 
+                ? "공연 정보" 
+                : String.join(", ", modifiedFields);
+
             notificationService.notifyFollowers(
-                saved.getArtistId(),
-                "팔로우하신 아티스트가 공연 정보를 수정했습니다: " + saved.getTitle(),
+                saved.getArtistId() != null ? saved.getArtistId() : saved.getUserId(),
+                String.format("팔로우하신 아티스트가 [%s]의 %s을(를) 수정했습니다.", saved.getTitle(), updateDetail),
                 "PERFORMANCE_UPDATE",
                 saved.getId()
             );
