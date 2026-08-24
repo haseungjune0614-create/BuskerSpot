@@ -12,3 +12,8 @@ __pycache__/
 # IDE
 .idea/
 *.iml
+# Environment variables
+.env
+.env.local
+.env.production
+.env.production.local
