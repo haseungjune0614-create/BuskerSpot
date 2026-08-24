@@ -3,6 +3,7 @@
     "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
+    "@capgo/capacitor-social-login": "^8.4.5",
     "yaml": "^2.9.0"
   }
 }
