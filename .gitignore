@@ -28,3 +28,5 @@ __pycache__/
 buskerspot-backend/bin/
 buskerspot-backend/build/
 buskerspot-backend/.gradle/
+buskerspot-backend/uploads/*
+!buskerspot-backend/uploads/.gitkeep
