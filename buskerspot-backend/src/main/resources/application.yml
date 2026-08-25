@@ -10,7 +10,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/buskerspot
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:1211}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -22,7 +22,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 jwt:
-  secret: ${JWT_SECRET:everystay_1592_band_bumsu_9027_secure_key}
+  secret: ${JWT_SECRET}
   expiration: 86400000
 
 api:
@@ -62,7 +62,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/buskerspot_dev
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:1211}
+    password: ${DB_PASSWORD}
 
 ---
 # ==========================================

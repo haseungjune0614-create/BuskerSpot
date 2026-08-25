@@ -23,3 +23,8 @@ __pycache__/
 .env.development
 .env.production
 .env.production.local.env*
+
+# Gradle build output
+buskerspot-backend/bin/
+buskerspot-backend/build/
+buskerspot-backend/.gradle/
