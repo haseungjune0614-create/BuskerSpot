@@ -77,6 +77,15 @@ public class AuthController {
         return ResponseEntity.ok(result);
     }
 
+    // 회원 탈퇴 / 계정 삭제 (/api/auth/account)
+    @DeleteMapping("/auth/account")
+    public ResponseEntity<?> deleteAccount(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtTokenProvider.getId(token);
+        userService.deleteAccount(userId);
+        return ResponseEntity.ok(Map.of("success", true, "message", "계정이 성공적으로 삭제되었습니다."));
+    }
+
     // 이미지 업로드 (/api/upload-image)
     @PostMapping("/upload-image")
     public ResponseEntity<?> uploadImage(@RequestParam("image") MultipartFile file) {

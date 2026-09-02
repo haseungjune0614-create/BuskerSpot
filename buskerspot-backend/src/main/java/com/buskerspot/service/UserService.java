@@ -137,7 +137,7 @@ public class UserService {
                 saved.getId(),
                 "팔로우하신 아티스트가 닉네임을 " + saved.getNickname() + "(으)로 변경했습니다.",
                 "PROFILE_UPDATE",
-                null   // 프로필 알림은 특정 공연이 없으므로 null
+                null
             );
         }
         return saved;
@@ -197,7 +197,6 @@ public class UserService {
                 });
     }
 
-    // 💡 [추가된 임시 비밀번호 발급 메서드]
     @Transactional
     public Map<String, Object> issueTempPassword(String email) {
         User user = userRepository.findByEmail(email)
@@ -214,7 +213,6 @@ public class UserService {
 
     @Transactional
     public Map<String, Object> handleGoogleLogin(String googleId, String nickname, String email, String profileImage) {
-        // 1. googleId로 먼저 조회
         Optional<User> byGoogleId = userRepository.findByGoogleId(googleId);
         if (byGoogleId.isPresent()) {
             User user = byGoogleId.get();
@@ -227,7 +225,6 @@ public class UserService {
             );
         }
 
-        // 2. googleId로 못 찾았지만 같은 이메일로 가입된 계정이 있으면 googleId를 연결(계정 통합)
         if (email != null && !email.isBlank()) {
             Optional<User> byEmail = userRepository.findByEmail(email);
             if (byEmail.isPresent()) {
@@ -245,7 +242,6 @@ public class UserService {
             }
         }
 
-        // 3. 완전히 새로운 사용자
         Map<String, Object> googleData = Map.of(
                 "googleId", googleId,
                 "nickname", nickname != null ? nickname : "",
@@ -272,5 +268,14 @@ public class UserService {
         userRepository.save(user);
 
         return Map.of("success", true, "message", "비밀번호가 성공적으로 변경되었습니다.");
+    }
+
+    // 계정 삭제 (회원 탈퇴)
+    @Transactional
+    public void deleteAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException("사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        userRepository.delete(user);
     }
 }
