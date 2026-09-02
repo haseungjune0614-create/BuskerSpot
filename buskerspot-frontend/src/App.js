@@ -11,7 +11,7 @@ import AuthModal from './components/AuthModal';
 import RegisterPerformanceModal from './components/RegisterPerformanceModal';
 import Navbar from './components/Navbar';
 import NotificationsPage from './components/NotificationsPage'; // 💡 분리된 알림 페이지 컴포넌트 임포트
-
+import BuskerSpotHero from './components/BuskerSpotHero'; 
 
 // 💡 환경변수 문제 원천 차단: Render 배포 주소로 직접 고정
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://buskerspot.onrender.com';
@@ -837,6 +837,11 @@ function App() {
         onRegisterSearchOpen={handleRegisterSearchOpenRef}
         unreadCount={unreadCount}
       />
+
+      {/* 💡 비로그인 유저 대상 BuskerSpot 랜딩 히어로 컴포넌트 추가 */}
+      {activeTab === 'search' && !currentUser && (
+        <BuskerSpotHero />
+      )}
 
       {activeTab === 'search' && (
         <PerformanceSearch
