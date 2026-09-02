@@ -1,283 +1,207 @@
-import { useEffect, useRef } from 'react';
-import anime from 'animejs';
+import React, { useEffect, useRef } from 'react';
+import { animate, stagger, utils } from 'animejs';
 
-/**
- * BuskerSpotHero
- * ------------------------------------------------------------------
- * BuskerSpot 메인 랜딩 히어로 섹션.
- * - 타이틀 글자별 stagger 등장 애니메이션
- * - 배경 오디오 웨이브 바 8개, 무한 루프
- * - CTA 버튼 hover 시 네온 펄스 + scale
- * - 모든 anime.js 인스턴스는 언마운트 시 정리(anime.remove)
- *
- * 사용 라이브러리: animejs (프로젝트에 `npm install animejs` 필요)
- * ------------------------------------------------------------------
- */
+// ── 팔레트 & 서체는 CSS 변수로 분리 (다른 톤으로 바꾸고 싶으면 여기만 수정) ──
+const THEME = {
+  '--bs-bg': '#1a1332',
+  '--bs-amber': '#ffb200',
+  '--bs-magenta': '#ff2fb1',
+  '--bs-teal': '#12e0c0',
+  '--bs-font-display': "'Bungee', system-ui, sans-serif",
+};
+
+const WAVE_COUNT = 8;
+const TITLE = 'BuskerSpot';
+
 export default function BuskerSpotHero() {
   const titleRef = useRef(null);
-  const waveBarRefs = useRef([]);
+  const waveRefs = useRef([]);
   const ctaRef = useRef(null);
   const ctaAnimRef = useRef(null);
-  const waveAnimRef = useRef(null);
-  const titleAnimRef = useRef(null);
-
-  const TITLE_TEXT = 'BuskerSpot';
-  const WAVE_BAR_COUNT = 8;
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      '(prefers-reduced-motion: reduce)'
-    ).matches;
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // 1) 타이틀 글자별 등장 애니메이션 -------------------------------
-    const letterEls = titleRef.current
+    const titleLetters = titleRef.current
       ? titleRef.current.querySelectorAll('.bs-letter')
       : [];
+    const waveBars = waveRefs.current.filter(Boolean);
+    const ctaEl = ctaRef.current;
 
-    if (letterEls.length) {
-      if (prefersReducedMotion) {
-        anime.set(letterEls, { opacity: 1, translateY: 0 });
-      } else {
-        titleAnimRef.current = anime({
-          targets: letterEls,
-          translateY: [42, 0],
-          opacity: [0, 1],
-          rotateZ: [4, 0],
-          easing: 'easeOutExpo',
-          duration: 1000,
-          delay: anime.stagger(55, { start: 200 }),
-        });
-      }
+    if (prefersReducedMotion) {
+      // 모션 최종 상태만 즉시 세팅 (애니메이션 없이)
+      if (titleLetters.length) utils.set(titleLetters, { opacity: 1, translateY: 0, rotate: 0 });
+      if (waveBars.length) utils.set(waveBars, { scaleY: 1 });
+      return;
     }
 
-    // 2) 배경 오디오 웨이브 바 무한 루프 ------------------------------
-    const bars = waveBarRefs.current.filter(Boolean);
-    if (bars.length && !prefersReducedMotion) {
-      waveAnimRef.current = bars.map((bar, i) =>
-        anime({
-          targets: bar,
-          scaleY: [
-            { value: 0.25 + Math.random() * 0.25, duration: 0 },
-            { value: 0.6 + Math.random() * 0.4, duration: 620 + i * 35 },
-            { value: 0.2 + Math.random() * 0.3, duration: 560 + i * 40 },
-            { value: 0.75 + Math.random() * 0.25, duration: 700 + i * 30 },
-          ],
-          loop: true,
-          easing: 'easeInOutSine',
-          delay: i * 90,
-        })
-      );
-    } else if (bars.length) {
-      anime.set(bars, { scaleY: 0.5 });
+    // 1) 타이틀: 글자 단위로 순차 페이드인 + 살짝 회전
+    if (titleLetters.length) {
+      animate(titleLetters, {
+        opacity: { from: 0, to: 1 },
+        translateY: { from: 24, to: 0 },
+        rotate: { from: () => utils.random(-8, 8), to: 0 },
+        duration: 700,
+        delay: stagger(45),
+        ease: 'outExpo',
+      });
     }
 
-    // 3) CTA 네온 펄스 (autoplay: false, hover 시에만 재생) -----------
-    if (ctaRef.current) {
-      ctaAnimRef.current = anime({
-        targets: ctaRef.current,
-        scale: [1, 1.045],
-        boxShadow: [
-          '0 0 0px 0px rgba(255,79,163,0.0), 0 0 0px 0px rgba(51,230,184,0.0)',
-          '0 0 28px 4px rgba(255,79,163,0.55), 0 0 46px 10px rgba(51,230,184,0.35)',
+    // 2) 오디오 웨이브 8개: 바마다 duration/delay를 다르게 줘서 유기적으로
+    const waveAnimations = waveBars.map((bar, i) => {
+      const dur = 620 + i * 37 + utils.random(-40, 40);
+      const del = i * 60 + utils.random(0, 80);
+      return animate(bar, {
+        scaleY: [
+          { to: utils.random(0.35, 0.6) },
+          { to: utils.random(0.9, 1.2) },
+          { to: utils.random(0.4, 0.7) },
         ],
-        duration: 850,
-        easing: 'easeInOutSine',
-        direction: 'alternate',
+        duration: dur,
+        delay: del,
         loop: true,
+        alternate: true,
+        ease: 'inOutSine',
+      });
+    });
+
+    // 3) CTA 버튼: 미리 만들어두고 hover/focus에서만 재생
+    if (ctaEl) {
+      ctaAnimRef.current = animate(ctaEl, {
+        scale: [{ to: 1.06 }, { to: 1 }],
+        boxShadow: [
+          { to: '0 0 0px rgba(255,47,177,0), 0 0 0px rgba(18,224,192,0)' },
+          {
+            to:
+              '0 0 28px rgba(255,47,177,0.55), 0 0 44px rgba(18,224,192,0.35)',
+          },
+          { to: '0 0 0px rgba(255,47,177,0), 0 0 0px rgba(18,224,192,0)' },
+        ],
+        duration: 900,
+        loop: true,
+        ease: 'inOutQuad',
         autoplay: false,
       });
     }
 
-    // Cleanup: 언마운트 시 모든 anime 인스턴스/타겟 정리
+    // cleanup: 언마운트 시 전부 정리
     return () => {
-      if (titleAnimRef.current) anime.remove(letterEls);
-      if (waveAnimRef.current) anime.remove(bars);
+      if (titleLetters.length) utils.remove(titleLetters);
+      if (waveBars.length) utils.remove(waveBars);
       if (ctaAnimRef.current) {
         ctaAnimRef.current.pause();
-        anime.remove(ctaRef.current);
       }
+      if (ctaEl) utils.remove(ctaEl);
+      waveAnimations.forEach((a) => a && a.pause && a.pause());
     };
   }, []);
 
   const handleCtaEnter = () => {
-    ctaAnimRef.current?.play();
+    if (ctaAnimRef.current) ctaAnimRef.current.play();
   };
 
   const handleCtaLeave = () => {
-    if (!ctaAnimRef.current) return;
-    ctaAnimRef.current.pause();
-    anime.set(ctaRef.current, {
-      scale: 1,
-      boxShadow:
-        '0 0 0px 0px rgba(255,79,163,0.0), 0 0 0px 0px rgba(51,230,184,0.0)',
-    });
+    if (ctaAnimRef.current) {
+      ctaAnimRef.current.pause();
+      ctaAnimRef.current.seek(0);
+    }
   };
 
   return (
-    <section className="bs-hero" aria-label="BuskerSpot 소개">
-      <div className="bs-hero__wave" aria-hidden="true">
-        {Array.from({ length: WAVE_BAR_COUNT }).map((_, i) => (
-          <span
-            key={i}
-            ref={(el) => (waveBarRefs.current[i] = el)}
-            className="bs-wave-bar"
-            style={{ '--bs-bar-index': i }}
-          />
-        ))}
-      </div>
-
-      <div className="bs-hero__spotlight" aria-hidden="true" />
-
-      <div className="bs-hero__content">
-        <h1 className="bs-title" ref={titleRef}>
-          {TITLE_TEXT.split('').map((char, i) => (
-            <span className="bs-letter" key={i}>
-              {char}
-            </span>
-          ))}
-        </h1>
-
-        <p className="bs-tagline">
-          거리의 소리가 지도 위에서 다시 울립니다
-        </p>
-
-        <button
-          type="button"
-          className="bs-cta"
-          ref={ctaRef}
-          onMouseEnter={handleCtaEnter}
-          onMouseLeave={handleCtaLeave}
-          onFocus={handleCtaEnter}
-          onBlur={handleCtaLeave}
-        >
-          전국 버스킹 지도 보기
-        </button>
-      </div>
-
+    <section className="bs-hero" style={THEME}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Manrope:wght@400;500;700&display=swap');
-
         .bs-hero {
           position: relative;
-          min-height: 640px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          background:
-            radial-gradient(circle at 50% 18%, rgba(255,184,77,0.14), transparent 55%),
-            linear-gradient(180deg, #0A0812 0%, #050308 100%);
+          width: 100%;
+          box-sizing: border-box;
           padding: 64px 24px;
-          font-family: 'Manrope', sans-serif;
+          background: radial-gradient(circle at 50% -10%, #2a1f4d 0%, var(--bs-bg) 60%);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 28px;
+          overflow: hidden;
         }
-
-        .bs-hero__spotlight {
-          position: absolute;
-          top: -20%;
-          left: 50%;
-          width: 900px;
-          height: 900px;
-          transform: translateX(-50%);
-          background: radial-gradient(circle, rgba(255,184,77,0.10) 0%, transparent 60%);
-          pointer-events: none;
+        .bs-title {
+          font-family: var(--bs-font-display);
+          font-size: clamp(2.4rem, 6vw, 4.2rem);
+          letter-spacing: 0.02em;
+          color: #fff;
+          margin: 0;
+          display: flex;
         }
-
-        .bs-hero__wave {
-          position: absolute;
-          left: 50%;
-          bottom: 0;
-          transform: translateX(-50%);
-          width: min(720px, 86%);
-          height: 220px;
+        .bs-letter {
+          display: inline-block;
+          will-change: transform, opacity;
+          text-shadow: 0 0 18px rgba(255, 178, 0, 0.45);
+        }
+        .bs-wave {
           display: flex;
           align-items: flex-end;
-          justify-content: space-between;
-          gap: 14px;
-          padding-bottom: 0;
-          opacity: 0.5;
+          gap: 8px;
+          height: 64px;
         }
-
         .bs-wave-bar {
-          flex: 1;
+          width: 8px;
           height: 100%;
           border-radius: 999px;
           transform-origin: bottom center;
           background: linear-gradient(
-            180deg,
-            #33e6b8 0%,
-            #ffb84d calc(50% + var(--bs-bar-index, 0) * 2%),
-            #ff4fa3 100%
+            to top,
+            var(--bs-teal) 0%,
+            var(--bs-amber) 55%,
+            var(--bs-magenta) 100%
           );
           will-change: transform;
         }
-
-        .bs-hero__content {
-          position: relative;
-          z-index: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-          gap: 22px;
-        }
-
-        .bs-title {
-          margin: 0;
-          font-family: 'Bungee', 'Manrope', sans-serif;
-          font-weight: 400;
-          font-size: clamp(2.6rem, 7vw, 5.2rem);
-          letter-spacing: 0.01em;
-          color: #f7efe3;
-          line-height: 1;
-          display: flex;
-        }
-
-        .bs-letter {
-          display: inline-block;
-          opacity: 0;
-          will-change: transform, opacity;
-        }
-
-        .bs-tagline {
-          margin: 0;
-          font-size: clamp(0.95rem, 2vw, 1.15rem);
-          color: rgba(247,239,227,0.62);
-          max-width: 32ch;
-        }
-
         .bs-cta {
-          margin-top: 14px;
-          padding: 15px 34px;
+          font-family: var(--bs-font-display);
+          font-size: 1.05rem;
+          color: #1a1332;
+          background: linear-gradient(90deg, var(--bs-amber), #ffd166);
+          border: none;
           border-radius: 999px;
-          border: 1px solid rgba(255,184,77,0.5);
-          background: rgba(255,184,77,0.08);
-          color: #ffe9c7;
-          font-family: 'Manrope', sans-serif;
-          font-weight: 700;
-          font-size: 1rem;
-          letter-spacing: 0.01em;
+          padding: 14px 36px;
           cursor: pointer;
-          transform-origin: center;
-          transition: background 0.25s ease, border-color 0.25s ease;
+          letter-spacing: 0.03em;
         }
-
-        .bs-cta:hover,
-        .bs-cta:focus-visible {
-          background: rgba(255,184,77,0.16);
-          border-color: rgba(255,184,77,0.85);
-        }
-
-        .bs-cta:focus-visible {
-          outline: 2px solid #33e6b8;
-          outline-offset: 3px;
-        }
-
         @media (prefers-reduced-motion: reduce) {
-          .bs-cta {
-            transition: none;
-          }
+          .bs-letter { opacity: 1 !important; transform: none !important; }
+          .bs-wave-bar { transform: none !important; }
         }
       `}</style>
+
+      <h1 className="bs-title" ref={titleRef} aria-label={TITLE}>
+        {TITLE.split('').map((ch, i) => (
+          <span className="bs-letter" key={`${ch}-${i}`}>
+            {ch === ' ' ? '\u00A0' : ch}
+          </span>
+        ))}
+      </h1>
+
+      <div className="bs-wave" aria-hidden="true">
+        {Array.from({ length: WAVE_COUNT }).map((_, i) => (
+          <div
+            key={i}
+            className="bs-wave-bar"
+            ref={(el) => (waveRefs.current[i] = el)}
+          />
+        ))}
+      </div>
+
+      <button
+        ref={ctaRef}
+        className="bs-cta"
+        onMouseEnter={handleCtaEnter}
+        onMouseLeave={handleCtaLeave}
+        onFocus={handleCtaEnter}
+        onBlur={handleCtaLeave}
+      >
+        지금 공연 찾아보기
+      </button>
     </section>
   );
 }
