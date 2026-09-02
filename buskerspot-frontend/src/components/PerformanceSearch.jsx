@@ -66,10 +66,10 @@ const sortList = [
   { label: '⭐ 평점순', v: 'rating' },
 ];
 
-// 💡 날짜 스트립용 헬퍼 함수 (과거 6일 + 오늘 + 미래 6일 = 총 13일)
+// 💡 날짜 스트립용 헬퍼 함수
 const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 
-const generateDateStrip = (daysBefore = 6, daysAfter = 6) => {
+const generateDateStrip = (daysAfter = 12, daysBefore = 0) => {
   const result = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -93,61 +93,115 @@ const generateDateStrip = (daysBefore = 6, daysAfter = 6) => {
   return result;
 };
 
-// 💡 DateStrip 컴포넌트
+// 💡 DateStrip 컴포넌트 — 지난 공연 보기 토글 기능 추가
 const DateStrip = ({ selectedDate, onSelectDate }) => {
-  const dates = React.useMemo(() => generateDateStrip(6, 6), []);
+  const [showPast, setShowPast] = useState(false);
+  const dates = React.useMemo(
+    () => generateDateStrip(12, showPast ? 7 : 0),
+    [showPast]
+  );
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: '8px',
-        overflowX: 'auto',
-        paddingBottom: '4px',
-        WebkitOverflowScrolling: 'touch',
-      }}
-    >
-      {dates.map((d) => {
-        const isSelected = selectedDate === d.dateStr;
-        const labelColor = d.isToday
-          ? (isSelected ? '#fff' : C.text)
-          : d.isSunday
-          ? (isSelected ? '#fff' : C.coral)
-          : d.isSaturday
-          ? (isSelected ? '#fff' : '#4263eb')
-          : (isSelected ? '#fff' : C.text);
-
-        return (
-          <button
-            key={d.dateStr}
-            type="button"
-            onClick={() => onSelectDate(d.dateStr)}
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+        <button
+          type="button"
+          onClick={() => setShowPast((prev) => !prev)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '4px 2px',
+            fontSize: '12px',
+            fontWeight: 700,
+            color: showPast ? C.marigold : C.textMuted,
+          }}
+        >
+          <span
             style={{
-              flex: '0 0 auto',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              width: '58px',
-              padding: '10px 0',
-              borderRadius: '14px',
-              border: `1px solid ${isSelected ? C.marigold : C.border}`,
-              background: isSelected ? C.marigold : C.surface,
-              cursor: 'pointer',
-              opacity: d.isPast && !isSelected ? 0.5 : 1,
-              transition: 'all 0.15s ease',
+              width: '30px',
+              height: '17px',
+              borderRadius: '999px',
+              background: showPast ? C.marigold : C.border,
+              position: 'relative',
+              transition: 'background 0.15s ease',
+              display: 'inline-block',
             }}
           >
-            <span style={{ fontSize: '11px', fontWeight: 700, color: d.isToday ? labelColor : (isSelected ? '#fff' : labelColor) }}>
-              {d.isToday ? '오늘' : d.dayOfWeek}
-            </span>
-            <span style={{ fontSize: '15px', fontWeight: 800, color: isSelected ? '#fff' : C.text }}>
-              {d.day}
-            </span>
-          </button>
-        );
-      })}
+            <span
+              style={{
+                position: 'absolute',
+                top: '2px',
+                left: showPast ? '15px' : '2px',
+                width: '13px',
+                height: '13px',
+                borderRadius: '50%',
+                background: '#fff',
+                transition: 'left 0.15s ease',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+              }}
+            />
+          </span>
+          지난 공연 보기
+        </button>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          gap: '8px',
+          overflowX: 'auto',
+          paddingBottom: '4px',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {dates.map((d) => {
+          const isSelected = selectedDate === d.dateStr;
+          const labelColor = d.isPast
+            ? (isSelected ? '#fff' : C.textFaint)
+            : d.isToday
+            ? (isSelected ? '#fff' : C.text)
+            : d.isSunday
+            ? (isSelected ? '#fff' : C.coral)
+            : d.isSaturday
+            ? (isSelected ? '#fff' : '#4263eb')
+            : (isSelected ? '#fff' : C.text);
+
+          return (
+            <button
+              key={d.dateStr}
+              type="button"
+              onClick={() => onSelectDate(d.dateStr)}
+              style={{
+                flex: '0 0 auto',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px',
+                width: '58px',
+                padding: '10px 0',
+                borderRadius: '14px',
+                border: `1px solid ${isSelected ? C.marigold : C.border}`,
+                background: isSelected ? C.marigold : (d.isPast ? C.surfaceAlt : C.surface),
+                cursor: 'pointer',
+                opacity: d.isPast && !isSelected ? 0.65 : 1,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <span style={{ fontSize: '11px', fontWeight: 700, color: d.isToday ? labelColor : (isSelected ? '#fff' : labelColor) }}>
+                {d.isToday ? '오늘' : d.dayOfWeek}
+              </span>
+              <span style={{ fontSize: '15px', fontWeight: 800, color: isSelected ? '#fff' : (d.isPast ? C.textFaint : C.text) }}>
+                {d.day}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -309,7 +363,7 @@ export default function PerformanceSearch({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [inputSubRegion, setInputSubRegion] = useState('전체');
 
-  // 💡 지도 인스턴스를 저장할 ref 추가
+  // 💡 지도 인스턴스를 저장할 ref
   const mapRef = React.useRef(null);
 
   const isMobile = useIsMobile(768);
