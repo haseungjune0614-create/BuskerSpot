@@ -14,9 +14,24 @@ function PerformanceDetailModal({
 }) {
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+  const [artistStats, setArtistStats] = useState(null);
 
   const perfId = performance?.id || performance?.performance_id || performance?.performanceId;
   const artistId = performance?.artist_id || performance?.user_id;
+
+  useEffect(() => {
+    if (!artistId) return;
+    const fetchArtistStats = async () => {
+      try {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${artistId}`);
+        const data = await res.json();
+        setArtistStats(data);
+      } catch (err) {
+        console.error('아티스트 통계 조회 실패:', err);
+      }
+    };
+    fetchArtistStats();
+  }, [artistId]);
 
   const storedUser = localStorage.getItem('user');
   const currentUser = storedUser ? JSON.parse(storedUser) : null;
@@ -311,11 +326,11 @@ function PerformanceDetailModal({
               genre: performance.genre,
               profile_image: performance.artist_profile_image || performance.profile_image,
               introduction: performance.artist_introduction || performance.introduction,
-              follower_count: performance.follower_count ?? performance.followers ?? 0,
-              average_rating: performance.average_rating || performance.avg_rating,
-              artist_average_rating: performance.average_rating || performance.avg_rating,
-              review_count: performance.review_count,
-              artist_review_count: performance.review_count
+              follower_count: artistStats?.follower_count ?? performance.follower_count ?? performance.followers ?? 0,
+              average_rating: artistStats?.average_rating ?? 0,
+              artist_average_rating: artistStats?.average_rating ?? 0,
+              review_count: artistStats?.review_count ?? 0,
+              artist_review_count: artistStats?.review_count ?? 0
             }}
             isFollowed={isFollowed}
             onToggleFollow={() => {
