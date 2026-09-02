@@ -644,9 +644,27 @@ export default function PerformanceSearch({
                         </button>
                         <button
                           type="button"
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            if (setSelectedArtistProfile) {
+                            const artistId = perf.artist_id || perf.user_id;
+                            if (!artistId || !setSelectedArtistProfile) return;
+                            try {
+                              const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${artistId}`);
+                              const data = await res.json();
+                              // getArtistProfile 응답은 { id, nickname, band_name, ... } 형태의 순수 객체
+                              setSelectedArtistProfile({
+                                artist_id: data.id,
+                                stage_name: data.band_name || data.nickname,
+                                genre: data.genre,
+                                profile_image: data.profile_image,
+                                introduction: data.introduction,
+                                follower_count: data.follower_count ?? 0,
+                                average_rating: data.average_rating ?? 0,
+                                review_count: data.review_count ?? 0
+                              });
+                            } catch (err) {
+                              console.error('아티스트 프로필 조회 실패:', err);
+                              // 실패 시 기존 방식으로 폴백
                               setSelectedArtistProfile({
                                 artist_id: perf.artist_id || perf.user_id,
                                 stage_name: perf.artist_nickname || perf.stage_name,
@@ -654,8 +672,8 @@ export default function PerformanceSearch({
                                 profile_image: perf.artist_profile_image || perf.profile_image,
                                 introduction: perf.artist_introduction || perf.introduction || perf.bio,
                                 follower_count: perf.follower_count ?? perf.followers ?? 0,
-                                average_rating: perf.artist_average_rating ?? perf.average_rating ?? perf.avg_rating ?? 0,
-                                review_count: perf.artist_review_count ?? perf.review_count ?? perf.reviews_count ?? 0
+                                average_rating: 0,
+                                review_count: 0
                               });
                             }
                           }}

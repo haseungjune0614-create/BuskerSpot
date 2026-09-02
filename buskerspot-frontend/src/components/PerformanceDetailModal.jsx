@@ -319,7 +319,6 @@ function PerformanceDetailModal({
             }}
             isFollowed={isFollowed}
             onToggleFollow={() => {
-              // 💡 자기 자신 팔로우 방지 체크
               if (currentUserId && artistId && Number(currentUserId) === Number(artistId)) {
                 alert('본인을 팔로우할 수 없습니다.');
                 return;
