@@ -106,8 +106,8 @@ public class AuthController {
     // 아티스트 단건 조회 (/api/:id)
     @GetMapping("/{id}")
     public ResponseEntity<?> getArtistProfile(@PathVariable Long id) {
-        User user = userService.getArtistProfile(id);
-        return ResponseEntity.ok(user);
+        Map<String, Object> artist = userService.getArtistProfile(id);
+        return ResponseEntity.ok(artist);
     }
 
     // 카카오 콜백 처리
