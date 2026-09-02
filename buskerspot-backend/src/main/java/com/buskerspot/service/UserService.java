@@ -166,9 +166,27 @@ public class UserService {
         }).toList();
     }
 
-    public User getArtistProfile(Long id) {
-        return userRepository.findById(id)
+    // 아티스트 단건 조회 (팔로워 수, 평점, 리뷰 수 포함 Map 반환)
+    public Map<String, Object> getArtistProfile(Long id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new CustomException("아티스트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        long followerCount = followRepository.countByFollowingId(user.getId());
+        Double avgRating = reviewRepository.findAverageRatingByArtistId(user.getId());
+        long reviewCount = reviewRepository.countByArtistId(user.getId());
+
+        Map<String, Object> map = new java.util.HashMap<>();
+        map.put("id", user.getId());
+        map.put("nickname", user.getNickname());
+        map.put("bandName", user.getBandName());
+        map.put("genre", user.getGenre());
+        map.put("profileImage", user.getProfileImage());
+        map.put("introduction", user.getIntroduction());
+        map.put("instagramUrl", user.getInstagramUrl());
+        map.put("followerCount", followerCount);
+        map.put("averageRating", avgRating != null ? avgRating : 0.0);
+        map.put("reviewCount", reviewCount);
+        return map;
     }
 
     public Map<String, Object> handleKakaoLogin(String kakaoId, String nickname, String email, String profileImage) {

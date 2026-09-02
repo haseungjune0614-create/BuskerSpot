@@ -26,7 +26,7 @@ public class UserController {
     public ResponseEntity<?> getMyProfile(@RequestHeader("Authorization") String token) {
         Long userId = extractUserId(token);
         User user = userService.getMyProfile(userId);
-        user.setPassword(null); // 💡 비밀번호 해시값 노출 방지
+        user.setPassword(null); // 비밀번호 해시값 노출 방지
         return ResponseEntity.ok(Map.of("success", true, "user", user));
     }
 
@@ -36,7 +36,7 @@ public class UserController {
                                            @RequestBody ProfileUpdateRequest request) {
         Long userId = extractUserId(token);
         User updatedUser = userService.updateProfile(userId, request);
-        updatedUser.setPassword(null); // 💡 비밀번호 해시값 노출 방지
+        updatedUser.setPassword(null); // 비밀번호 해시값 노출 방지
         return ResponseEntity.ok(Map.of("success", true, "user", updatedUser));
     }
 
@@ -48,17 +48,16 @@ public class UserController {
     }
 
     // 4. 아티스트 검색
-@GetMapping("/search-artist")
-public ResponseEntity<?> searchArtist(@RequestParam String keyword) {
-    var artists = userService.searchArtists(keyword);
-    return ResponseEntity.ok(Map.of("success", true, "artists", artists));
-}
+    @GetMapping("/search-artist")
+    public ResponseEntity<?> searchArtist(@RequestParam String keyword) {
+        var artists = userService.searchArtists(keyword);
+        return ResponseEntity.ok(Map.of("success", true, "artists", artists));
+    }
 
     // 5. 아티스트 프로필 조회 (id 기반)
     @GetMapping("/{id}")
     public ResponseEntity<?> getArtistProfile(@PathVariable Long id) {
-        User artist = userService.getArtistProfile(id);
-        artist.setPassword(null); // 💡 비밀번호 해시값 노출 방지
+        Map<String, Object> artist = userService.getArtistProfile(id);
         return ResponseEntity.ok(Map.of("success", true, "user", artist));
     }
 
