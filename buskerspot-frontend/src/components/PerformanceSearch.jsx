@@ -66,15 +66,15 @@ const sortList = [
   { label: '⭐ 평점순', v: 'rating' },
 ];
 
-// 💡 날짜 스트립용 헬퍼 함수
+// 💡 날짜 스트립용 헬퍼 함수 (과거 6일 + 오늘 + 미래 6일 = 총 13일)
 const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 
-const generateDateStrip = (days = 13) => {
+const generateDateStrip = (daysBefore = 6, daysAfter = 6) => {
   const result = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  for (let i = 0; i < days; i++) {
+  for (let i = -daysBefore; i <= daysAfter; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const yyyy = d.getFullYear();
@@ -85,6 +85,7 @@ const generateDateStrip = (days = 13) => {
       day: dd,
       dayOfWeek: dayLabels[d.getDay()],
       isToday: i === 0,
+      isPast: i < 0,
       isSunday: d.getDay() === 0,
       isSaturday: d.getDay() === 6,
     });
@@ -94,7 +95,7 @@ const generateDateStrip = (days = 13) => {
 
 // 💡 DateStrip 컴포넌트
 const DateStrip = ({ selectedDate, onSelectDate }) => {
-  const dates = React.useMemo(() => generateDateStrip(13), []);
+  const dates = React.useMemo(() => generateDateStrip(6, 6), []);
 
   return (
     <div
@@ -134,6 +135,7 @@ const DateStrip = ({ selectedDate, onSelectDate }) => {
               border: `1px solid ${isSelected ? C.marigold : C.border}`,
               background: isSelected ? C.marigold : C.surface,
               cursor: 'pointer',
+              opacity: d.isPast && !isSelected ? 0.5 : 1,
               transition: 'all 0.15s ease',
             }}
           >
@@ -510,7 +512,6 @@ export default function PerformanceSearch({
                   const profileImg = getImageUrl(perf.artist_profile_image || perf.profile_image);
                   const introText = perf.artist_introduction || perf.introduction || perf.bio;
                   
-                  // 💡 평점 및 리뷰 수 필드 매핑 (괄호 안의 숫자는 해당 공연의 리뷰 개수입니다)
                   const reviewCount = perf.artist_review_count ?? perf.review_count ?? perf.reviews_count ?? perf.total_reviews ?? 0;
                   const rawRating = perf.artist_average_rating ?? perf.average_rating ?? perf.avg_rating ?? perf.rating ?? 0;
                   const displayRating = Number(rawRating).toFixed(1);
