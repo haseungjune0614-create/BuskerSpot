@@ -24,8 +24,10 @@ function PerformanceDetailModal({
     const fetchArtistStats = async () => {
       try {
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${artistId}`);
-        const data = await res.json();
-        setArtistStats(data);
+        if (res.ok) {
+          const data = await res.json();
+          setArtistStats(data);
+        }
       } catch (err) {
         console.error('아티스트 통계 조회 실패:', err);
       }
@@ -238,6 +240,21 @@ function PerformanceDetailModal({
 
   const isBookmarked = bookmarkedIds.includes(performance.id);
 
+  // 💡 아티스트 평점 및 리뷰 수 파생 계산 (artistStats -> performance 순서로 폴백)
+  const computedAverageRating = artistStats?.average_rating 
+    ?? artistStats?.artist_average_rating 
+    ?? performance?.artist_average_rating 
+    ?? performance?.average_rating 
+    ?? performance?.avg_rating 
+    ?? 0;
+
+  const computedReviewCount = artistStats?.review_count 
+    ?? artistStats?.artist_review_count 
+    ?? performance?.artist_review_count 
+    ?? performance?.review_count 
+    ?? performance?.reviews_count 
+    ?? 0;
+
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
       <div style={{ background: '#fff', padding: '24px', borderRadius: '12px', width: '500px', maxWidth: '90%', maxHeight: '85vh', overflowY: 'auto', position: 'relative', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
@@ -325,12 +342,12 @@ function PerformanceDetailModal({
               stage_name: performance.artist_nickname || performance.stage_name || performance.organizer_name,
               genre: performance.genre,
               profile_image: performance.artist_profile_image || performance.profile_image,
-              introduction: performance.artist_introduction || performance.introduction,
+              introduction: performance.artist_introduction || performance.introduction || performance.bio,
               follower_count: artistStats?.follower_count ?? performance.follower_count ?? performance.followers ?? 0,
-              average_rating: artistStats?.average_rating ?? 0,
-              artist_average_rating: artistStats?.average_rating ?? 0,
-              review_count: artistStats?.review_count ?? 0,
-              artist_review_count: artistStats?.review_count ?? 0
+              average_rating: computedAverageRating,
+              artist_average_rating: computedAverageRating,
+              review_count: computedReviewCount,
+              artist_review_count: computedReviewCount
             }}
             isFollowed={isFollowed}
             onToggleFollow={() => {
