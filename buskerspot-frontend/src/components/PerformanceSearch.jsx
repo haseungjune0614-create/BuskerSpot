@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Map, MapMarker } from 'react-kakao-maps-sdk';
 
 // ==========================================
@@ -28,8 +28,9 @@ const useIsMobile = (breakpoint = 768) => {
     typeof window !== 'undefined' ? window.innerWidth <= breakpoint : false
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= breakpoint);
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [breakpoint]);
@@ -38,10 +39,7 @@ const useIsMobile = (breakpoint = 768) => {
 };
 
 // 지역 선택 매핑
-const regionList = [
-  '전체', '서울', '경기', '인천', '강원', '대전', '대구', 
-  '부산', '광주', '울산', '세종', '충북', '충남', '전북', '전남', '경북', '경남', '제주'
-];
+const regionList = ['전체', '서울', '경기', '인천', '강원', '대전', '대구', '부산', '광주', '울산', '세종', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
 
 const regionSubMap = {
   서울: ['전체', '강남구', '마포구', '송파구', '종로구', '중구', '용산구', '성동구', '광진구', '동대문구', '중랑구', '성북구', '강북구', '도봉구', '노원구', '은평구', '서대문구', '양천구', '강서구', '구로구', '금천구', '영등포구', '동작구', '관악구', '서초구', '강동구'],
@@ -71,7 +69,7 @@ const sortList = [
 // 💡 날짜 스트립용 헬퍼 함수
 const dayLabels = ['일', '월', '화', '수', '목', '금', '토'];
 
-const generateDateStrip = (daysBefore = 6, daysAfter = 6) => {
+const generateDateStrip = (daysAfter = 12, daysBefore = 0) => {
   const result = [];
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -95,60 +93,115 @@ const generateDateStrip = (daysBefore = 6, daysAfter = 6) => {
   return result;
 };
 
-// 💡 DateStrip 컴포넌트
+// 💡 DateStrip 컴포넌트 — 지난 공연 보기 토글 기능 추가
 const DateStrip = ({ selectedDate, onSelectDate }) => {
-  const dates = useMemo(() => generateDateStrip(6, 6), []);
+  const [showPast, setShowPast] = useState(false);
+  const dates = React.useMemo(
+    () => generateDateStrip(12, showPast ? 7 : 0),
+    [showPast]
+  );
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: '8px',
-        overflowX: 'auto',
-        paddingBottom: '4px',
-        WebkitOverflowScrolling: 'touch',
-      }}
-    >
-      {dates.map((d) => {
-        const isSelected = selectedDate === d.dateStr;
-        let labelColor = C.text;
-
-        if (d.isSunday) labelColor = C.coral;
-        else if (d.isSaturday) labelColor = '#4263eb';
-
-        if (isSelected) labelColor = '#fff';
-
-        return (
-          <button
-            key={d.dateStr}
-            type="button"
-            onClick={() => onSelectDate(d.dateStr)}
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+        <button
+          type="button"
+          onClick={() => setShowPast((prev) => !prev)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '4px 2px',
+            fontSize: '12px',
+            fontWeight: 700,
+            color: showPast ? C.marigold : C.textMuted,
+          }}
+        >
+          <span
             style={{
-              flex: '0 0 auto',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px',
-              width: '58px',
-              padding: '10px 0',
-              borderRadius: '14px',
-              border: `1px solid ${isSelected ? C.marigold : C.border}`,
-              background: isSelected ? C.marigold : C.surface,
-              cursor: 'pointer',
-              opacity: d.isPast && !isSelected ? 0.5 : 1,
-              transition: 'all 0.15s ease',
+              width: '30px',
+              height: '17px',
+              borderRadius: '999px',
+              background: showPast ? C.marigold : C.border,
+              position: 'relative',
+              transition: 'background 0.15s ease',
+              display: 'inline-block',
             }}
           >
-            <span style={{ fontSize: '11px', fontWeight: 700, color: labelColor }}>
-              {d.isToday ? '오늘' : d.dayOfWeek}
-            </span>
-            <span style={{ fontSize: '15px', fontWeight: 800, color: isSelected ? '#fff' : C.text }}>
-              {d.day}
-            </span>
-          </button>
-        );
-      })}
+            <span
+              style={{
+                position: 'absolute',
+                top: '2px',
+                left: showPast ? '15px' : '2px',
+                width: '13px',
+                height: '13px',
+                borderRadius: '50%',
+                background: '#fff',
+                transition: 'left 0.15s ease',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+              }}
+            />
+          </span>
+          지난 공연 보기
+        </button>
+      </div>
+
+      <div
+        style={{
+          display: 'flex',
+          gap: '8px',
+          overflowX: 'auto',
+          paddingBottom: '4px',
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {dates.map((d) => {
+          const isSelected = selectedDate === d.dateStr;
+          const labelColor = d.isPast
+            ? (isSelected ? '#fff' : C.textFaint)
+            : d.isToday
+            ? (isSelected ? '#fff' : C.text)
+            : d.isSunday
+            ? (isSelected ? '#fff' : C.coral)
+            : d.isSaturday
+            ? (isSelected ? '#fff' : '#4263eb')
+            : (isSelected ? '#fff' : C.text);
+
+          return (
+            <button
+              key={d.dateStr}
+              type="button"
+              onClick={() => onSelectDate(d.dateStr)}
+              style={{
+                flex: '0 0 auto',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px',
+                width: '58px',
+                padding: '10px 0',
+                borderRadius: '14px',
+                border: `1px solid ${isSelected ? C.marigold : C.border}`,
+                background: isSelected ? C.marigold : (d.isPast ? C.surfaceAlt : C.surface),
+                cursor: 'pointer',
+                opacity: d.isPast && !isSelected ? 0.65 : 1,
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <span style={{ fontSize: '11px', fontWeight: 700, color: d.isToday ? labelColor : (isSelected ? '#fff' : labelColor) }}>
+                {d.isToday ? '오늘' : d.dayOfWeek}
+              </span>
+              <span style={{ fontSize: '15px', fontWeight: 800, color: isSelected ? '#fff' : (d.isPast ? C.textFaint : C.text) }}>
+                {d.day}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };
@@ -186,7 +239,7 @@ const getPerformanceStatus = (dateStr, startTime, endTime) => {
   const [sH, sM] = startTime.split(':').map(Number);
   const startMinutes = sH * 60 + sM;
 
-  let endMinutes = startMinutes + 120;
+  let endMinutes = startMinutes + 120; // 기본 2시간
   if (endTime) {
     const [eH, eM] = endTime.split(':').map(Number);
     endMinutes = eH * 60 + eM;
@@ -310,8 +363,8 @@ export default function PerformanceSearch({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [inputSubRegion, setInputSubRegion] = useState('전체');
 
-  // 💡 지도 인스턴스 ref
-  const mapRef = useRef(null);
+  // 💡 지도 인스턴스를 저장할 ref
+  const mapRef = React.useRef(null);
 
   const isMobile = useIsMobile(768);
   const isSmallPhone = useIsMobile(480);
@@ -334,7 +387,7 @@ export default function PerformanceSearch({
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     handleGetMyCurrentLocation();
   }, []);
 
@@ -347,41 +400,37 @@ export default function PerformanceSearch({
     setInputSort(s);
   };
 
-  const finalFilteredPerformances = useMemo(() => {
-    return (filteredPerformances || []).filter((perf) => {
-      if (inputRegion !== '전체') {
-        const matchRegion = perf.region?.includes(inputRegion) || perf.location_name?.includes(inputRegion);
-        if (!matchRegion) return false;
-      }
-      if (inputSubRegion !== '전체') {
-        const matchSub = perf.region?.includes(inputSubRegion) || perf.location_name?.includes(inputSubRegion);
-        if (!matchSub) return false;
-      }
-      if (inputGenre !== '전체') {
-        if (perf.genre !== inputGenre) return false;
-      }
-      return true;
-    });
-  }, [filteredPerformances, inputRegion, inputSubRegion, inputGenre]);
+  const finalFilteredPerformances = (filteredPerformances || []).filter((perf) => {
+    if (inputRegion !== '전체') {
+      const matchRegion = perf.region?.includes(inputRegion) || perf.location_name?.includes(inputRegion);
+      if (!matchRegion) return false;
+    }
+    if (inputSubRegion !== '전체') {
+      const matchSub = perf.region?.includes(inputSubRegion) || perf.location_name?.includes(inputSubRegion);
+      if (!matchSub) return false;
+    }
+    if (inputGenre !== '전체') {
+      if (perf.genre !== inputGenre) return false;
+    }
+    return true;
+  });
 
-  // 정렬 결과
-  const sortedPerformances = useMemo(() => {
-    return [...finalFilteredPerformances].sort((a, b) => {
-      if (inputSort === 'time') return (a.start_time || '').localeCompare(b.start_time || '');
-      if (inputSort === 'popularity') return (b.follower_count || 0) - (a.follower_count || 0);
-      if (inputSort === 'rating') {
-        const ratingA = a.artist_average_rating ?? a.average_rating ?? a.rating ?? 0;
-        const ratingB = b.artist_average_rating ?? b.average_rating ?? b.rating ?? 0;
-        return ratingB - ratingA;
-      }
-      if (inputSort === 'distance') {
-        const distA = calculateDistance(center.lat, center.lng, a.lat, a.lng) ?? 9999;
-        const distB = calculateDistance(center.lat, center.lng, b.lat, b.lng) ?? 9999;
-        return distA - distB;
-      }
-      return 0;
-    });
-  }, [finalFilteredPerformances, inputSort, center]);
+  // 정렬된 결과 반환
+  const sortedPerformances = [...finalFilteredPerformances].sort((a, b) => {
+    if (inputSort === 'time') return (a.start_time || '').localeCompare(b.start_time || '');
+    if (inputSort === 'popularity') return (b.follower_count || 0) - (a.follower_count || 0);
+    if (inputSort === 'rating') {
+      const ratingA = a.artist_average_rating ?? a.average_rating ?? a.rating ?? 0;
+      const ratingB = b.artist_average_rating ?? b.average_rating ?? b.rating ?? 0;
+      return ratingB - ratingA;
+    }
+    if (inputSort === 'distance') {
+      const distA = calculateDistance(center.lat, center.lng, a.lat, a.lng) ?? 9999;
+      const distB = calculateDistance(center.lat, center.lng, b.lat, b.lng) ?? 9999;
+      return distA - distB;
+    }
+    return 0;
+  });
 
   return (
     <>
@@ -637,16 +686,7 @@ export default function PerformanceSearch({
                   <MapMarker position={center} />
                   {finalFilteredPerformances.map((perf) => {
                     if (!perf.lat || !perf.lng) return null;
-                    return (
-                      <MapMarker
-                        key={perf.id}
-                        position={{ lat: Number(perf.lat), lng: Number(perf.lng) }}
-                        onClick={() => {
-                          setSelectedPerf(perf);
-                          setCenter({ lat: Number(perf.lat), lng: Number(perf.lng) });
-                        }}
-                      />
-                    );
+                    return <MapMarker key={perf.id} position={{ lat: Number(perf.lat), lng: Number(perf.lng) }} onClick={() => setSelectedPerf(perf)} />;
                   })}
                 </Map>
               </div>
