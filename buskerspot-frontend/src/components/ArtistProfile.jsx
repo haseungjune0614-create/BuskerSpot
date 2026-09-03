@@ -45,12 +45,45 @@ export default function ArtistProfile({
 }) {
   const [imgError, setImgError] = useState(false);
   const [artistPerformances, setArtistPerformances] = useState([]);
+  const [artistDetail, setArtistDetail] = useState(null); // 💡 최신 아티스트 평점/리뷰 정보 저장을 위한 상태 추가
   const [perfSubTab, setPerfSubTab] = useState('upcoming');
   const isMobile = useIsMobile(480);
 
   const artistId = artist?.artist_id || artist?.id;
 
-  // 1. 공연 정보 비동기 로드 (Race Condition 방지)
+  // 1. 아티스트 상세 정보 API (/api/users/:id) 비동기 로드 추가
+  useEffect(() => {
+    if (!artistId) {
+      setArtistDetail(null);
+      return;
+    }
+
+    let isMounted = true;
+
+    const fetchArtistDetail = async () => {
+      try {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${artistId}`);
+        if (!isMounted) return;
+        
+        if (res.ok) {
+          const data = await res.json();
+          setArtistDetail(data);
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error('아티스트 프로필 최신 정보 조회 실패:', err);
+        }
+      }
+    };
+
+    fetchArtistDetail();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [artistId]);
+
+  // 2. 공연 정보 비동기 로드 (Race Condition 방지)
   useEffect(() => {
     setImgError(false);
 
@@ -97,23 +130,26 @@ export default function ArtistProfile({
     };
   }, [artistId, hidePerformances]);
 
-  // 2. 프로필 관련 파생 데이터 계산
-  const rawAvg = artist.artist_average_rating ?? artist.average_rating;
-  const reviewCount = Number(artist.artist_review_count ?? artist.review_count ?? 0);
+  // 3. props로 들어온 데이터와 API로 새로 받은 상세 데이터 병합
+  const mergedArtist = { ...artist, ...artistDetail };
+
+  // 4. 프로필 관련 파생 데이터 계산
+  const rawAvg = mergedArtist.artist_average_rating ?? mergedArtist.average_rating;
+  const reviewCount = Number(mergedArtist.artist_review_count ?? mergedArtist.review_count ?? 0);
   const avgRating = rawAvg && Number(rawAvg) > 0
     ? Number(rawAvg).toFixed(1)
     : '평점 없음';
 
-  const bioText = artist.introduction || artist.bio || artist.description;
+  const bioText = mergedArtist.introduction || mergedArtist.bio || mergedArtist.description;
   
   // 인스타그램 URL 추출
-  const rawInsta = artist.artist_instagram_url || artist.instagram_url || artist.instagram;
+  const rawInsta = mergedArtist.artist_instagram_url || mergedArtist.instagram_url || mergedArtist.instagram;
   const instagramUrl = rawInsta 
     ? (rawInsta.startsWith('http') ? rawInsta : `https://instagram.com/${rawInsta.replace('@', '')}`) 
     : null;
 
   // 프로필 이미지 URL 정제
-  let rawProfileImg = (artist.profile_image || artist.artist_profile_image)?.trim();
+  let rawProfileImg = (mergedArtist.profile_image || mergedArtist.artist_profile_image)?.trim();
   if (rawProfileImg) {
     const httpMatches = [...rawProfileImg.matchAll(/https?:\/\//g)];
     if (httpMatches.length > 1) {
@@ -128,7 +164,7 @@ export default function ArtistProfile({
         : `${process.env.REACT_APP_API_URL}${rawProfileImg.startsWith('/') ? '' : '/'}${rawProfileImg}`) 
     : null;
 
-  // 3. 공연 일정 정밀 분류 및 정렬
+  // 5. 공연 일정 정밀 분류 및 정렬
   const { dateStr: todayDateStr, timeStr: todayTimeStr } = getCurrentDateTime();
 
   const isPastPerformance = (perf) => {
@@ -209,7 +245,7 @@ export default function ArtistProfile({
             {profileImgSrc && !imgError ? (
               <img
                 src={profileImgSrc}
-                alt={artist.stage_name || artist.nickname || '아티스트 프로필'}
+                alt={mergedArtist.stage_name || mergedArtist.nickname || '아티스트 프로필'}
                 onError={() => setImgError(true)}
                 style={{
                   width: '100%',
@@ -234,7 +270,7 @@ export default function ArtistProfile({
                 fontWeight: 700,
                 letterSpacing: '-0.3px'
               }}>
-                {artist.genre || 'Acoustic'}
+                {mergedArtist.genre || 'Acoustic'}
               </span>
 
               {instagramUrl && (
@@ -268,7 +304,7 @@ export default function ArtistProfile({
             </div>
 
             <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: 900, color: '#1a1a1a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', letterSpacing: '-0.5px' }}>
-              {artist.stage_name || artist.nickname || '이름 없음'}
+              {mergedArtist.stage_name || mergedArtist.nickname || '이름 없음'}
             </h2>
           </div>
         </div>
@@ -294,7 +330,7 @@ export default function ArtistProfile({
         <div style={{ borderLeft: '1px solid #e2e8f0' }}>
           <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px', fontWeight: 700 }}>❤️ 팔로워 수</div>
           <div style={{ fontSize: isMobile ? '0.9rem' : '1.15rem', fontWeight: 900, color: '#1a202c' }}>
-            {artist.follower_count ?? 0}명
+            {mergedArtist.follower_count ?? 0}명
           </div>
         </div>
       </div>
