@@ -17,14 +17,17 @@ function PerformanceDetailModal({
   const [artistStats, setArtistStats] = useState(null);
 
   const perfId = performance?.id || performance?.performance_id || performance?.performanceId;
-  const artistId = performance?.artist_id || performance?.user_id;
+  const artistId = performance?.artist_id || performance?.user_id || performance?.artistId;
 
+  // 💡 아티스트 최신 정보(평점/리뷰수/팔로워) 비동기 FETCH
   useEffect(() => {
     if (!artistId) return;
+    let isMounted = true;
+
     const fetchArtistStats = async () => {
       try {
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${artistId}`);
-        if (res.ok) {
+        if (res.ok && isMounted) {
           const data = await res.json();
           setArtistStats(data);
         }
@@ -32,7 +35,9 @@ function PerformanceDetailModal({
         console.error('아티스트 통계 조회 실패:', err);
       }
     };
+
     fetchArtistStats();
+    return () => { isMounted = false; };
   }, [artistId]);
 
   const storedUser = localStorage.getItem('user');
@@ -240,20 +245,25 @@ function PerformanceDetailModal({
 
   const isBookmarked = bookmarkedIds.includes(performance.id);
 
-  // 💡 아티스트 평점 및 리뷰 수 파생 계산 (artistStats -> performance 순서로 폴백)
-  const computedAverageRating = artistStats?.average_rating 
-    ?? artistStats?.artist_average_rating 
-    ?? performance?.artist_average_rating 
-    ?? performance?.average_rating 
-    ?? performance?.avg_rating 
-    ?? 0;
+  // 💡 [수정 핵심] 평점 및 리뷰 수 보장 로직 (모든 변수 필드명 전수 조사)
+  const rawRatingVal = 
+    artistStats?.average_rating ?? 
+    artistStats?.artist_average_rating ?? 
+    artistStats?.avg_rating ?? 
+    performance?.artist_average_rating ?? 
+    performance?.average_rating ?? 
+    performance?.avg_rating;
 
-  const computedReviewCount = artistStats?.review_count 
-    ?? artistStats?.artist_review_count 
-    ?? performance?.artist_review_count 
-    ?? performance?.review_count 
-    ?? performance?.reviews_count 
-    ?? 0;
+  const rawReviewVal = 
+    artistStats?.review_count ?? 
+    artistStats?.artist_review_count ?? 
+    artistStats?.reviews_count ?? 
+    performance?.artist_review_count ?? 
+    performance?.review_count ?? 
+    performance?.reviews_count;
+
+  const computedAverageRating = rawRatingVal !== undefined && rawRatingVal !== null ? Number(rawRatingVal) : 0;
+  const computedReviewCount = rawReviewVal !== undefined && rawReviewVal !== null ? Number(rawReviewVal) : 0;
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
