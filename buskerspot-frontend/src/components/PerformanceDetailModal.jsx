@@ -19,7 +19,7 @@ function PerformanceDetailModal({
   const perfId = performance?.id || performance?.performance_id || performance?.performanceId;
   const artistId = performance?.artist_id || performance?.user_id || performance?.artistId;
 
-  // 💡 아티스트 최신 정보(평점/리뷰수/팔로워) 비동기 FETCH
+  // 💡 1. 백엔드 응답 구조(data.user 등) 자동 파해치기 및 비동기 Fetch
   useEffect(() => {
     if (!artistId) return;
     let isMounted = true;
@@ -29,7 +29,9 @@ function PerformanceDetailModal({
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/users/${artistId}`);
         if (res.ok && isMounted) {
           const data = await res.json();
-          setArtistStats(data);
+          // 백엔드가 { user: { ... } } 나 { data: { ... } } 형태로 응답해도 내부 데이터 객체 추출
+          const targetData = data.user || data.artist || data.data || data;
+          setArtistStats(targetData);
         }
       } catch (err) {
         console.error('아티스트 통계 조회 실패:', err);
@@ -245,25 +247,33 @@ function PerformanceDetailModal({
 
   const isBookmarked = bookmarkedIds.includes(performance.id);
 
-  // 💡 [수정 핵심] 평점 및 리뷰 수 보장 로직 (모든 변수 필드명 전수 조사)
-  const rawRatingVal = 
+  // 💡 2. 문자열/숫자 구분 없이 완전히 안전한 숫자로 변환하는 헬퍼 함수
+  const parseNum = (val) => {
+    if (val === undefined || val === null || val === '') return null;
+    const num = Number(val);
+    return isNaN(num) ? null : num;
+  };
+
+  const rawRatingVal = parseNum(
     artistStats?.average_rating ?? 
     artistStats?.artist_average_rating ?? 
     artistStats?.avg_rating ?? 
     performance?.artist_average_rating ?? 
     performance?.average_rating ?? 
-    performance?.avg_rating;
+    performance?.avg_rating
+  );
 
-  const rawReviewVal = 
+  const rawReviewVal = parseNum(
     artistStats?.review_count ?? 
     artistStats?.artist_review_count ?? 
     artistStats?.reviews_count ?? 
     performance?.artist_review_count ?? 
     performance?.review_count ?? 
-    performance?.reviews_count;
+    performance?.reviews_count
+  );
 
-  const computedAverageRating = rawRatingVal !== undefined && rawRatingVal !== null ? Number(rawRatingVal) : 0;
-  const computedReviewCount = rawReviewVal !== undefined && rawReviewVal !== null ? Number(rawReviewVal) : 0;
+  const computedAverageRating = rawRatingVal !== null ? rawRatingVal : 0;
+  const computedReviewCount = rawReviewVal !== null ? rawReviewVal : 0;
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
